@@ -1,0 +1,72 @@
+The following describes how to make your own bot agent for RiskArena. If you need to refresh yourself on the rules of the game, see the Risk Manual pdf included.
+
+	Any file matching RiskBot*.java in the source directory will be considered by RiskArena, and whatever is the * will become the name used for your bot. Currently in the source directory you will see RiskBotSkynet.java. Skynet is the default dummy bot. While it would never win a game, you can use it as a skeleton to help you get started.
+
+	All bots must implement the RiskBot interface, located at RiskBot.java. It consists of an initialization method and seven "choice-making" methods. The initialization method is as follows:
+public void init(GameInfo gi, Bot.RiskListener rl);
+The two objects sent as parameters are very important - they are how your bot will get current information on the state of the board/players, and how it will communicate answers to game-time decisions, respectively. Since they are given once, you'll need to save them locally ie declare variables in your class such as:
+	private Bot.RiskListener to_game;
+	private GameInfo risk_info;
+and save them in your init(), ie:
+	to_game = rl;
+	risk_info = gi;
+
+
+================== Environment Observation - The GameInfo Object =====================
+
+Take a look at what the GameInfo object can provide by looking in GameInfo.java. A synopsis of what's available:
+
+PlayerInfo[] getPlayerInfo() - get an array representing the players still in the game (note that this will change as players are eliminated). See PlayerInfo.java for what info comes with this. It shouldn't be too vital for strategy unless you want to profile players or react to humans differently than other bots.
+
+int getNumCountries() - get the total number of territories
+
+CountryInfo[] getCountryInfo() - gets an array of objects containing info on the territories of the board. Take a look at CountryInfo.java to see what this allows you to get.
+
+int[] getContinentBonuses() - get an array of the army bonuses from different continents. The index within this array corresponds to the getCont() value of a Country.
+
+World getWorldInfo() - get a copy of the World object for the game. World contains information on adjacencies. The simplest use is "boolean isAdjacent(int countryid1, int countryid2)", but you can also get the entire list of adjacencies is various forms (see World.java)
+
+int[] getCardInfo() - get your current hand of cards. This is an array of size 4. [0] is the number of infantry cards, [1] cavalry, [2] artillery, and [3] wildcard (can become any type). Refer to the game manual for details on how cards work.
+
+int getArmiesFromNextSet() - get the number of extra armies that the next person to turn in a set of cards will receive.
+
+int me() - get your player id. This might be useful when you want to check if you own a territory, ie if(countries[69].getPlayer() == risk_info.me())
+
+
+================== Supplying RiskArena with Decisions via sendInt ======================
+
+The Bot.RiskListener object you are given is what you will use to supply the game your answers to various game-time decisions, all of which are given as ints. The only method it has is sendInt(int), and the use is self-exclamatory. If an answer you give is ever incorrect (out of bounds or not valid), OR if you exceed the time limit (currently set to 5 seconds) the game will throw a BadRobotException and it'll be forced to end. So make sure you verify that what you're saying makes sense before you send it!
+The seven methods that are called throughout execution of the game are:
+
+public void claimTerritory();
+At the beginning of the game during the territory claiming phase, the game engine will call this when it needs you to give the "number" of an unclaimed territory. Testing if a country has been claimed can be achieved through the isTaken() method ie countries[i].isTaken() will return true if the ith country has been claimed. By "number" we mean some index of the Countries array.
+Basically, some time in this method you will call to_game.sendInt(herp) where herp is an int from 0 to the number of countries - 1.
+
+public void fortifyTerritory(int num_to_place);
+Throughout the game there will be times when you need to place a certain number of armies on the board, in which case this will be called. num_to_place is the number of armies you need to place, but it need not be all in one territory. If you want to spread them out, simply place some amount under num_to_place on a territory. The game engine will then re-call fortifyTerritory with what's left, and continue to do so until the number left to place gets to zero.
+It must call sendInt twice, first with the country id (index) and then with the number of armies.
+
+public void launchAttack();
+To launch an attack, call sendInt three times: with the "from" country, the "to" country, and the number of armies (from 1 to 3). Make sure the "from" country has more than one army on it, and that "to" is a connecting enemy territory.
+
+public void fortifyAfterVictory(int attacker, int defender, int min, int max);
+Following a victory (attack resulting in you taking over the territory) you have to move in some armies to occupy what you conquered.
+attacker - the country you just attacked from
+defender - the country you are about to occupy
+min - minimum number of soldiers to move in (how ever many you attacked with)
+max - max number of soldiers to move in (attacker's army amount - 1)
+Call sendInt() with some number from min to max
+
+public void chooseToTurnInSet();
+Sometimes in the game a player has a choice of whether or not to turn in a set of cards for armies, and sometimes not. When the former is the case, this method is called for a yes/no answer. Send 1 if you would like to turn in a set, or 0 (or anything else) if not.
+
+public void chooseCardSet(int[][] possible_sets);
+When a set of cards is being turned in, sometimes there are different combinations of one's hand that can be chosen. For example with {wildcard, infantry, infantry, artillery} you could turn in three infantries or {infantry, cavalry, artillery}. The size of possible_sets is the number of possible sets (will be at least 1). Each possible_sets[i] is a size-3 array of ints 0-4 (signifying infantry, cav., artil., wildcard). Send the index of possible_sets you choose to turn in.
+
+public void fortifyPosition();
+Step 3 of a person's turn is the optional fortification of some group of armies from one territory to one adjacent territory. If you want to skip fortification, send a -1 (or some negative number). If you want to fortify something, send three ints: the "from" country, the "to" country, and the number of armies (min is 1, max is "from".getArmies()-1)
+
+
+One final note about how RiskListener sends ints - since the back-end uses a queue, if you accidentally send an int too many in some method, it will not crash but you risk causing a BadRobotException next time because it may be invalid for whatever's next. So don't send too many answers.
+
+

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<map name="North America">
+	<continent>
+		<name>North America</name>
+		<bonus>5</bonus>
+		<R>1.0</R>
+		<G>1.0</G>
+		<B>0</B>
+		<territory>
+			<name>Alaska</name>
+			<x>280</x>
+			<y>350</y>
+		</territory>
+		<territory>
+			<name>NW Territory</name>
+			<x>650</x>
+			<y>400</y>
+			<label>
+				<direction>0.06</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Greenland</name>
+			<x>1270</x>
+			<y>270</y>
+			<label>
+				<size>3</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Alberta</name>
+			<x>520</x>
+			<y>600</y>
+			<label>
+				<direction>0.8</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Ontario</name>
+			<x>800</x>
+			<y>590</y>
+			<label>
+				<direction>0.15</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Quebec</name>
+			<x>1050</x>
+			<y>650</y>
+			<label>
+				<direction>0.2</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Western US</name>
+			<x>540</x>
+			<y>860</y>
+			<label>
+				<direction>0.8</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Eastern US</name>
+			<x>840</x>
+			<y>880</y>
+			<label>
+				<direction>0.2</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Central America</name>
+			<x>630</x>
+			<y>1150</y>
+			<label>
+				<direction>0.2</direction>
+			</label>
+		</territory>
+	</continent>
+	
+	<adjacency>
+		<from>Alaska</from>
+		<to>NW Territory</to>
+	</adjacency>
+	<adjacency>
+		<from>Alaska</from>
+		<to>Alberta</to>
+	</adjacency>
+	<adjacency>
+		<from>NW Territory</from>
+		<to>Greenland</to>
+	</adjacency>
+	<adjacency>
+		<from>NW Territory</from>
+		<to>Alberta</to>
+	</adjacency>
+	<adjacency>
+		<from>NW Territory</from>
+		<to>Ontario</to>
+	</adjacency>
+	<adjacency>
+		<from>Greenland</from>
+		<to>Ontario</to>
+	</adjacency>
+	<adjacency>
+		<from>Greenland</from>
+		<to>Quebec</to>
+	</adjacency>
+	<adjacency>
+		<from>Alberta</from>
+		<to>Ontario</to>
+	</adjacency>
+	<adjacency>
+		<from>Alberta</from>
+		<to>Western US</to>
+	</adjacency>
+	<adjacency>
+		<from>Ontario</from>
+		<to>Quebec</to>
+	</adjacency>
+	<adjacency>
+		<from>Ontario</from>
+		<to>Western US</to>
+	</adjacency>
+	<adjacency>
+		<from>Ontario</from>
+		<to>Eastern US</to>
+	</adjacency>
+	<adjacency>
+		<from>Quebec</from>
+		<to>Eastern US</to>
+	</adjacency>
+	<adjacency>
+		<from>Western US</from>
+		<to>Eastern US</to>
+	</adjacency>
+	<adjacency>
+		<from>Western US</from>
+		<to>Central America</to>
+	</adjacency>
+	<adjacency>
+		<from>Eastern US</from>
+		<to>Central America</to>
+	</adjacency>
+	
+	
+</map>

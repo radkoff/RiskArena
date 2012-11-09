@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<map name="North America">
+	<continent>
+		<name>North America</name>
+		<bonus>5</bonus>
+		<R>1.0</R>
+		<G>1.0</G>
+		<B>0</B>
+		<territory>
+			<name>Alaska</name>
+			<x>280</x>
+			<y>350</y>
+		</territory>
+		<territory>
+			<name>NW Territory</name>
+			<x>650</x>
+			<y>400</y>
+			<label>
+				<direction>0.06</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Greenland</name>
+			<x>1270</x>
+			<y>270</y>
+			<label>
+				<direction>0.0</direction>
+				<distance>2</distance>
+				<size>3</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Alberta</name>
+			<x>520</x>
+			<y>600</y>
+			<label>
+				<direction>0.8</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Ontario</name>
+			<x>800</x>
+			<y>590</y>
+			<label>
+				<direction>0.15</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Quebec</name>
+			<x>1050</x>
+			<y>650</y>
+			<label>
+				<direction>0.2</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Western US</name>
+			<x>540</x>
+			<y>860</y>
+			<label>
+				<direction>0.8</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Eastern US</name>
+			<x>840</x>
+			<y>880</y>
+			<label>
+				<direction>0.2</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Central America</name>
+			<x>630</x>
+			<y>1150</y>
+			<label>
+				<direction>0.2</direction>
+			</label>
+		</territory>
+	</continent>
+	
+	<continent>
+		<name>South America</name>
+		<bonus>2</bonus>
+		<R>.61</R>
+		<G>.15</G>
+		<B>.15</B>
+		<territory>
+			<name>Venezuela</name>
+			<x>900</x>
+			<y>1370</y>
+			<label>
+				<direction>0.15</direction>
+			</label>
+		</territory>
+		<territory>
+			<name>Peru</name>
+			<x>750</x>
+			<y>1600</y>
+			<label>
+				<direction>0.9</direction>
+			</label>
+		</territory>
+<territory>
+			<name>Brazil</name>
+			<x>1150</x>
+			<y>1640</y>
+			<label>
+				<direction>0.45</direction>
+			</label>
+		</territory>
+<territory>
+			<name>Argentina</name>
+			<x>950</x>
+			<y>2050</y>
+			<label>
+				<direction>0.25</direction>
+			</label>
+		</territory>
+	</continent>
+
+
+
+	<continent>
+		<name>Europe</name>
+		<bonus>5</bonus>
+		<R>.35</R>
+		<G>1</G>
+		<B>1</B>
+		<territory>
+			<name>Iceland</name>
+			<x>1570</x>
+			<y>510</y>
+			<label>
+				<direction>0.1</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>Scandinavia</name>
+			<x>1830</x>
+			<y>550</y>
+			<label>
+				<direction>0.2</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>Ukraine</name>
+			<x>2200</x>
+			<y>750</y>
+<label>
+				<size>1</size>
+			</label>
+		</territory>
+<territory>
+			<name>Great Britain</name>
+			<x>1530</x>
+			<y>800</y>
+			<label>
+				<direction>0.8</direction>
+				<distance>1</distance>
+				<size>1</size>
+			</label>
+		</territory>
+<territory>
+			<name>North Europe</name>
+			<x>1850</x>
+			<y>870</y>
+			<label>
+				<direction>0.4</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>West Europe</name>
+			<x>1490</x>
+			<y>1050</y>
+			<label>
+				<direction>0.8</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>South Europe</name>
+			<x>1850</x>
+			<y>1150</y>
+			<label>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+
+		
+	</continent>
+
+
+
+	<continent>
+		<name>Africa</name>
+		<bonus>3</bonus>
+		<R>1</R>
+		<G>.5</G>
+		<B>0</B>
+		<territory>
+			<name>North Africa</name>
+			<x>1700</x>
+			<y>1550</y>
+			<label>
+				<direction>0.85</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Egypt</name>
+			<x>2040</x>
+			<y>1440</y>
+			<label>
+				<direction>0.25</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>East Africa</name>
+			<x>2210</x>
+			<y>1730</y>
+			<label>
+				<direction>0.25</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>Congo</name>
+			<x>1920</x>
+			<y>1860</y>
+			<label>
+				<direction>0.7</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>South Africa</name>
+			<x>2000</x>
+			<y>2200</y>
+			<label>
+				<direction>0.8</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>Madagascar</name>
+			<x>2310</x>
+			<y>2150</y>
+			<label>
+				<direction>0.2</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+	</continent>
+
+
+
+	<continent>
+		<name>Asia</name>
+		<bonus>7</bonus>
+		<R>0</R>
+		<G>.8</G>
+		<B>0</B>
+		<territory>
+			<name>Middle East</name>
+			<x>2280</x>
+			<y>1250</y>
+			<label>
+				<direction>0.0</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Afghanistan</name>
+			<x>2500</x>
+			<y>970</y>
+			<label>
+				<direction>0.0</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Ural</name>
+			<x>2590</x>
+			<y>650</y>
+			<label>
+				<direction>0.9</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Siberia</name>
+			<x>2740</x>
+			<y>420</y>
+			<label>
+				<direction>0.9</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Yakutsk</name>
+			<x>3000</x>
+			<y>250</y>
+			<label>
+				<direction>0.85</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Kamchatka</name>
+			<x>3370</x>
+			<y>430</y>
+			<label>
+				<direction>0.0</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Irkutsk</name>
+			<x>3060</x>
+			<y>600</y>
+			<label>
+				<direction>0.25</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Mongolia</name>
+			<x>3080</x>
+			<y>870</y>
+			<label>
+				<direction>0.43</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Japan</name>
+			<x>3430</x>
+			<y>800</y>
+			<label>
+				<direction>0.9</direction>
+				<distance>2</distance>
+				<size>1</size>
+			</label>
+		</territory>
+		<territory>
+			<name>China</name>
+			<x>2940</x>
+			<y>1020</y>
+			<label>
+				<direction>0.38</direction>
+				<distance>2</distance>
+				<size>3</size>
+			</label>
+		</territory>
+		<territory>
+			<name>India</name>
+			<x>2760</x>
+			<y>1280</y>
+			<label>
+				<direction>0.65</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>Siam</name>
+			<x>3040</x>
+			<y>1500</y>
+			<label>
+				<direction>0.2</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		
+	</continent>
+
+
+
+	<continent>
+		<name>Australia</name>
+		<bonus>2</bonus>
+		<R>1</R>
+		<G>.35</G>
+		<B>1</B>
+		<territory>
+			<name>Indonesia</name>
+			<x>2980</x>
+			<y>1720</y>
+			<label>
+				<direction>0.94</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+		<territory>
+			<name>New Guinea</name>
+			<x>3380</x>
+			<y>1790</y>
+			<label>
+				<direction>0.0</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>West Australia</name>
+			<x>2850</x>
+			<y>2000</y>
+			<label>
+				<direction>0.0</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+<territory>
+			<name>East Australia</name>
+			<x>3230</x>
+			<y>2100</y>
+			<label>
+				<direction>0.5</direction>
+				<distance>2</distance>
+				<size>2</size>
+			</label>
+		</territory>
+	</continent>
+
+
+
+	<adjacency>
+		<from>Alaska</from>
+		<to>NW Territory</to>
+	</adjacency>
+	<adjacency>
+		<from>Alaska</from>
+		<to>Alberta</to>
+	</adjacency>
+	<adjacency>
+		<from>NW Territory</from>
+		<to>Greenland</to>
+	</adjacency>
+	<adjacency>
+		<from>NW Territory</from>
+		<to>Alberta</to>
+	</adjacency>
+	<adjacency>
+		<from>NW Territory</from>
+		<to>Ontario</to>
+	</adjacency>
+	<adjacency>
+		<from>Greenland</from>
+		<to>Ontario</to>
+	</adjacency>
+	<adjacency>
+		<from>Greenland</from>
+		<to>Quebec</to>
+	</adjacency>
+	<adjacency>
+		<from>Greenland</from>
+		<to>Iceland</to>
+	</adjacency>
+	<adjacency>
+		<from>Alberta</from>
+		<to>Ontario</to>
+	</adjacency>
+	<adjacency>
+		<from>Alberta</from>
+		<to>Western US</to>
+	</adjacency>
+	<adjacency>
+		<from>Ontario</from>
+		<to>Quebec</to>
+	</adjacency>
+	<adjacency>
+		<from>Ontario</from>
+		<to>Western US</to>
+	</adjacency>
+	<adjacency>
+		<from>Ontario</from>
+		<to>Eastern US</to>
+	</adjacency>
+	<adjacency>
+		<from>Quebec</from>
+		<to>Eastern US</to>
+	</adjacency>
+	<adjacency>
+		<from>Western US</from>
+		<to>Eastern US</to>
+	</adjacency>
+	<adjacency>
+		<from>Western US</from>
+		<to>Central America</to>
+	</adjacency>
+	<adjacency>
+		<from>Eastern US</from>
+		<to>Central America</to>
+	</adjacency>
+	<adjacency>
+		<from>Central America</from>
+		<to>Venezuela</to>
+	</adjacency>
+	<adjacency>
+		<from>Venezuela</from>
+		<to>Peru</to>
+	</adjacency>
+	<adjacency>
+		<from>Venezuela</from>
+		<to>Brazil</to>
+	</adjacency>
+	<adjacency>
+		<from>Peru</from>
+		<to>Brazil</to>
+	</adjacency>
+	<adjacency>
+		<from>Peru</from>
+		<to>Argentina</to>
+	</adjacency>
+	<adjacency>
+		<from>Brazil</from>
+		<to>Argentina</to>
+	</adjacency>
+	<adjacency>
+		<from>Brazil</from>
+		<to>North Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>Iceland</from>
+		<to>Scandinavia</to>
+	</adjacency>
+	<adjacency>
+		<from>Scandinavia</from>
+		<to>North Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>Scandinavia</from>
+		<to>Ukraine</to>
+	</adjacency>
+	<adjacency>
+		<from>Ukraine</from>
+		<to>North Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>Ukraine</from>
+		<to>South Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>Great Britain</from>
+		<to>Scandinavia</to>
+	</adjacency>
+	<adjacency>
+		<from>Great Britain</from>
+		<to>North Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>Great Britain</from>
+		<to>West Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>North Europe</from>
+		<to>West Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>North Europe</from>
+		<to>South Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>West Europe</from>
+		<to>South Europe</to>
+	</adjacency>
+	<adjacency>
+		<from>West Europe</from>
+		<to>North Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>South Europe</from>
+		<to>North Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>South Europe</from>
+		<to>Egypt</to>
+	</adjacency>
+	<adjacency>
+		<from>South Europe</from>
+		<to>Middle East</to>
+	</adjacency>
+	<adjacency>
+		<from>North Africa</from>
+		<to>Egypt</to>
+	</adjacency>
+	<adjacency>
+		<from>North Africa</from>
+		<to>East Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>North Africa</from>
+		<to>Congo</to>
+	</adjacency>
+	<adjacency>
+		<from>Egypt</from>
+		<to>East Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>Egypt</from>
+		<to>Middle East</to>
+	</adjacency>
+	<adjacency>
+		<from>East Africa</from>
+		<to>Congo</to>
+	</adjacency>
+	<adjacency>
+		<from>East Africa</from>
+		<to>South Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>East Africa</from>
+		<to>Madagascar</to>
+	</adjacency>
+	<adjacency>
+		<from>East Africa</from>
+		<to>Middle East</to>
+	</adjacency>
+	<adjacency>
+		<from>Congo</from>
+		<to>South Africa</to>
+	</adjacency>
+	<adjacency>
+		<from>South Africa</from>
+		<to>Madagascar</to>
+	</adjacency>
+	<adjacency>
+		<from>Middle East</from>
+		<to>Ukraine</to>
+	</adjacency>
+	<adjacency>
+		<from>Middle East</from>
+		<to>Afghanistan</to>
+	</adjacency>
+	<adjacency>
+		<from>Middle East</from>
+		<to>India</to>
+	</adjacency>
+	<adjacency>
+		<from>Afghanistan</from>
+		<to>Ukraine</to>
+	</adjacency>
+	<adjacency>
+		<from>Afghanistan</from>
+		<to>Ural</to>
+	</adjacency>
+	<adjacency>
+		<from>Afghanistan</from>
+		<to>China</to>
+	</adjacency>
+	<adjacency>
+		<from>Afghanistan</from>
+		<to>India</to>
+	</adjacency>
+	<adjacency>
+		<from>Ural</from>
+		<to>Ukraine</to>
+	</adjacency>
+	<adjacency>
+		<from>Ural</from>
+		<to>Siberia</to>
+	</adjacency>
+	<adjacency>
+		<from>Ural</from>
+		<to>China</to>
+	</adjacency>
+	<adjacency>
+		<from>Siberia</from>
+		<to>Yakutsk</to>
+	</adjacency>
+	<adjacency>
+		<from>Siberia</from>
+		<to>Irkutsk</to>
+	</adjacency>
+	<adjacency>
+		<from>Siberia</from>
+		<to>Mongolia</to>
+	</adjacency>
+	<adjacency>
+		<from>Siberia</from>
+		<to>China</to>
+	</adjacency>
+	<adjacency>
+		<from>Yakutsk</from>
+		<to>Kamchatka</to>
+	</adjacency>
+	<adjacency>
+		<from>Yakutsk</from>
+		<to>Irkutsk</to>
+	</adjacency>
+	<adjacency>
+		<from>Kamchatka</from>
+		<to>Irkutsk</to>
+	</adjacency>
+	<adjacency>
+		<from>Kamchatka</from>
+		<to>Alaska</to>
+	</adjacency>
+	<adjacency>
+		<from>Kamchatka</from>
+		<to>Japan</to>
+	</adjacency>
+	<adjacency>
+		<from>Kamchatka</from>
+		<to>Mongolia</to>
+	</adjacency>
+	<adjacency>
+		<from>Irkutsk</from>
+		<to>Mongolia</to>
+	</adjacency>
+	<adjacency>
+		<from>Mongolia</from>
+		<to>Japan</to>
+	</adjacency>
+	<adjacency>
+		<from>Mongolia</from>
+		<to>China</to>
+	</adjacency>
+	<adjacency>
+		<from>China</from>
+		<to>India</to>
+	</adjacency>
+	<adjacency>
+		<from>China</from>
+		<to>Siam</to>
+	</adjacency>
+	<adjacency>
+		<from>India</from>
+		<to>Siam</to>
+	</adjacency>
+	<adjacency>
+		<from>Siam</from>
+		<to>Indonesia</to>
+	</adjacency>
+	<adjacency>
+		<from>Indonesia</from>
+		<to>New Guinea</to>
+	</adjacency>
+	<adjacency>
+		<from>Indonesia</from>
+		<to>West Australia</to>
+	</adjacency>
+	<adjacency>
+		<from>New Guinea</from>
+		<to>East Australia</to>
+	</adjacency>
+	<adjacency>
+		<from>West Australia</from>
+		<to>East Australia</to>
+	</adjacency>
+	<adjacency>
+		<from>Iceland</from>
+		<to>Great Britain</to>
+	</adjacency>
+	
+</map>
