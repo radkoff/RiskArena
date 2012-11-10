@@ -52,8 +52,8 @@ public class Graphics extends JFrame {
 		setLocationRelativeTo(null);
 	}
 	
-	public void sendPlayerListener(Human.PlayerListener pl) {
-		console.sendPlayerListener(pl);
+	public void sendInputListener(InputListener pl) {
+		console.sendInputListener(pl);
 	}
 	
 	public void sayOutput(String toSay, int output_format) {

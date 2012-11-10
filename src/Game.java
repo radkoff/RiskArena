@@ -255,18 +255,24 @@ public class Game {
 				int attacking_from; // the country id of the attacking country
 				int attacking_to; // the id of the country being attacked
 
+				boolean done_attacking = false;
 				while(true) {	// Loop asking for the country number that they'd like to attack from
 					if(currentPlayerHuman()) {
 						attacking_from = players[turn_player_id].askInt(0, NUM_COUNTRIES);
-						if(attacking_from == 0) return; // zero was entered, leave the attack loop
+						if(attacking_from == 0) {
+							done_attacking = true; // zero was entered, leave the attack loop
+							break;
+						}
 						attacking_from--; // The number entered is 1-NUM_COUNTRIES, but we want 0-(NUM_COUNTRIES-1)
 					} else {
 						attacking_from = players[turn_player_id].askInt();
-						if(attacking_from < 0) return;
+						if(attacking_from < 0) {
+							done_attacking = true; // zero was entered, leave the attack loop
+							break;
+						}
 						if(attacking_from >= NUM_COUNTRIES)
 							throw new Bot.RiskBotException("Tried to attack from a country that doesn't exist.");
 					}
-					if(attacking_from == -1) break; // If they enter 0, it will become -1 but it still means end attacks so break from the main loop
 					if(COUNTRIES[attacking_from].getPlayer() != turn_player_id) {
 						if(currentPlayerHuman())
 							Risk.sayError("Not your territory, enter another.");
@@ -283,6 +289,7 @@ public class Game {
 					}
 					break;
 				}
+				if(done_attacking) break;
 				int adj[] = world.getAdjacencies(attacking_from);	// Get territory adjacency list from World class
 				if(adj.length == 0 || adj[0] == 0) {
 					Risk.sayError("According to the map file, " + COUNTRIES[attacking_from] + " doesn't have any adjacencies.");

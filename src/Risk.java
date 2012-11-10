@@ -9,8 +9,6 @@
  * Evan Radkoff
  */
 
-import java.util.InputMismatchException;
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.awt.Color;
 import java.io.*;
@@ -35,9 +33,9 @@ public class Risk {
 	final static String RISKBOT_PREFIX = "RiskBot";	// any file beginning with this is considered by BotSniffer as a potential AI option
 	final static boolean output_to_std = true;
 	final static boolean input_from_std = false;
-	final static long bot_playing_speed = 1; // milliseconds bots wait before sending game decisions
+	final static long bot_playing_speed = 200; // milliseconds bots wait before sending game decisions
 
-	private static Scanner ask;	// Static Scanner object used in the Risk class for input from System.in
+	private static InputListener console_input;
 	private static int num_players;	// The number of players in a given game. Set dynamically in main()
 	private static Player players[];	// Structure to hold player names when read from input
 	private static Game game;	// The instance of the game engine class, Game
@@ -65,9 +63,18 @@ public class Risk {
 	
 	// Game initialization tasks
 	private static void init() {
-		ask = new Scanner(System.in);	// Create the Scanner object
-
 		initializeGraphics();
+		// Wait for the graphics to be initialized on its own thread.
+		while(graphics==null) {
+			try {
+				Thread.sleep(10);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		console_input = new InputListener();
+		graphics.sendInputListener(console_input);
+		
 		askPlayerInfo();				// ask the player information (human vs bot, name, etc)
 		String map_file = askMapFile();					// ask the map file to load from MAPS_DIR_NAME
 		game = new Game(players, map_file);	// Create the game engine instance
@@ -82,14 +89,6 @@ public class Risk {
 	 * @return the list of names of the players
 	 */
 	private static void askPlayerInfo() {
-		// Wait for the graphics to be initialized. Otherwise, sayOutput won't show anything.
-		while(graphics==null) {
-			try {
-				Thread.sleep(10);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
 		sayOutput("Welcome to " + PROJECT_NAME + "! How many players are there?", OutputFormat.QUESTION);
 		num_players = askInt(MIN_PLAYERS, MAX_PLAYERS);	 // ask the number of players
 
@@ -288,73 +287,22 @@ public class Risk {
 	 * @return int greater than zero
 	 */
 	public static int askInt() {
-		int result = 0, MIN = 0;
-		while(true) {
-			try {
-				result = ask.nextInt();
-				ask.nextLine(); // eat up \n
-				break;
-			} catch (InputMismatchException e) {
-				sayError("Integers only.");
-				ask.next();
-				continue;
-			}
-		}
-		while (result < MIN ) {
-			sayError("Invalid entry. Must be greater than or equal to " + MIN + ".");
-			while(true) {
-				try {
-					result = ask.nextInt();
-					ask.nextLine(); // eat up \n
-					break;
-				} catch (InputMismatchException e) {
-					sayError("Integers only.");
-					ask.next();
-					continue;
-				}
-			}
-		}
-		return result;
+		console_input.activate();
+		return console_input.getInt();
 	}
 
 	/* Asks for an int that is between MIN and MAX.
 	 * @return int between MIN and MAX, inclusive.
 	 */
 	public static int askInt(int MIN, int MAX) {
-		int result = 0;
-		while(true) {
-			try {
-				result = ask.nextInt();
-				ask.nextLine(); // eat up \n
-				break;
-			} catch (InputMismatchException e) {
-				sayError("Integers only.");
-				ask.next();
-				continue;
-			}
-		}
-		while (result < MIN || result > MAX ) {
-			sayError("Invalid entry. Must be from " +
-					MIN + " to " + MAX + ", inclusive.");
-			while(true) {
-				try {
-					result = ask.nextInt();
-					ask.nextLine(); // eat up \n
-					break;
-				} catch (InputMismatchException e) {
-					sayError("Integers only.");
-					ask.next();
-					continue;
-				}
-			}
-		}
-
-		return result;
+		console_input.activate();
+		return console_input.getInt(MIN, MAX);
 	}
 
 	// Ask for a line through the "ask" Scanner
 	public static String askLine() {
-		return ask.nextLine();
+		console_input.activate();
+		return console_input.getString();
 	}
 
 	// In another thread, refresh the Graphics object

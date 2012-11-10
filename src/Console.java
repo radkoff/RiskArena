@@ -21,6 +21,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.text.*;
 import javax.swing.text.html.HTMLDocument;
@@ -32,15 +34,15 @@ public class Console extends JPanel{
 	private JScrollPane history_scroller;
 	private ArrayList<String> history;
 	
-	private Border history_border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+	private Border history_border = BorderFactory.createEmptyBorder(5, 5, 5, 5 + UIManager.getInt("ScrollBar.width"));
 	private Border panel_border = BorderFactory.createLineBorder(Color.BLACK, 1);
 	private int font_size = 14;
 	private int max_height;
 	
-	private ArrayList<Human.PlayerListener> players;
+	private ArrayList<InputListener> waiting_for_answers;
 	
 	public Console(int width, int max_h) {
-		players = new ArrayList<Human.PlayerListener>();
+		waiting_for_answers = new ArrayList<InputListener>();
 		max_height = max_h;
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(width,max_height));
@@ -71,17 +73,19 @@ public class Console extends JPanel{
 		history_view.scrollPaneToBottom();
 	}
 	
-	public void sendPlayerListener(Human.PlayerListener pl) {
-		players.add(pl);
+	public void sendInputListener(InputListener pl) {
+		waiting_for_answers.add(pl);
 	}
 
 	private class HistoryView extends ScrollablePanel {
 		private JEditorPane tarea;
 		private String log_path;
+		private String history_text;
 		public HistoryView() {
 			setScrollableWidth( ScrollablePanel.ScrollableSizeHint.FIT );
 			setLayout(new BorderLayout());
 			tarea = new JEditorPane();
+			history_text = "";
 			
 			log_path = generateLogPath();
 			try {
@@ -98,6 +102,9 @@ public class Console extends JPanel{
 			tarea.setContentType("text/html");
 			tarea.setFont(FontMaker.makeCustomFont(font_size));
 			
+			OutputFormat.applyCSS(((HTMLDocument) tarea.getDocument()).getStyleSheet()); 
+			tarea.setText(history_text);
+			
 			//HTMLDocument doc = (HTMLDocument) tarea.getDocument();  
 			//doc.getStyleSheet().addRule(".out {background-color:green}");
 			
@@ -110,6 +117,7 @@ public class Console extends JPanel{
 		}
 		public void append(String to_add) {
 			// append to the file log_path
+			history_text += to_add;
 	        try {
 	        		  // Create file 
 	        		  FileWriter fstream = new FileWriter(log_path,true);
@@ -122,17 +130,7 @@ public class Console extends JPanel{
 	        
 		}
 		public void refresh() {
-			try {
-				tarea.setPage(new File("src/logs/dummy.html").toURI().toURL());
-				java.net.URL herp = new File(log_path).toURI().toURL();
-				tarea.setPage(herp);
-				OutputFormat.applyCSS(((HTMLDocument) tarea.getDocument()).getStyleSheet());  
-			} catch(Exception e) {
-				System.out.println(e.getMessage());
-				e.printStackTrace();
-				Risk.sayError("Unable to open log file at " + log_path);
-				System.exit(1);
-			}
+			tarea.setText(history_text);
 		}
 		private void scrollPaneToBottom() {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -172,12 +170,14 @@ public class Console extends JPanel{
 			public void actionPerformed(ActionEvent arg0) {
 				String pressed = cmd.getText();
 				pressed = pressed.substring(prompt.length());
-				for(int i=0;i<players.size();i++) {
-					if(players.get(i).isWaiting()) {
-						players.get(i).sendMsg(pressed);
+				for(int i=0;i<waiting_for_answers.size();i++) {
+					if(waiting_for_answers.get(i).isWaiting()) {
+						waiting_for_answers.get(i).sendMsg(pressed);
 					}
 				}
 				addHistory(prompt + pressed, OutputFormat.ANSWER);
+				if(Risk.output_to_std)
+					System.out.println(prompt + pressed);
 				cmd.setText(prompt);
 			}
 		};
