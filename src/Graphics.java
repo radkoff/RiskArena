@@ -1,48 +1,53 @@
 /*
- * Graphics draws the world using javax.swing. This includes territory nodes,
- * adjacencies, and army amounts, all appropriately colorized.
+ * Graphics draws the world using javax.swing. It's comprised of three elements:
+ * A Console object for input and output, a Pretty object to draw the game board,
+ * and a InfoPanel object to show continent/player info.
  * 
  * Evan Radkoff
  */
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Insets;
 
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class Graphics extends JFrame {
 	private int WINDOW_WIDTH = 1200, WINDOW_HEIGHT = 750;
-	private int left_panel_width = 300;
+	private int lower_left_width = 300;
 	private int lower_left_height = 300;
 	private Color BGCOLOR = Color.black;
 
 	private Pretty pretty; // The Pretty class draws counties and adjacency lines
 	private Console console; // User input/output text area
-	private JPanel lower_left; // Not sure what this will become yet
+	private InfoPanel lower_left; // Not sure what this will become yet
 	private JPanel main_panel;
 
 	public Graphics() {
 		initUI();
 	}
-	
+
 	// Initializes graphics
 	private void initUI() {
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		main_panel = new JPanel(new BorderLayout());
 		JPanel side = new JPanel(new BorderLayout());
-		pretty = new Pretty(WINDOW_WIDTH-left_panel_width, WINDOW_HEIGHT);
-		console = new Console(left_panel_width, WINDOW_HEIGHT-lower_left_height);
-		lower_left = new JPanel();
-		lower_left.setMinimumSize(new Dimension(left_panel_width,lower_left_height));
-		lower_left.setPreferredSize(new Dimension(left_panel_width,lower_left_height));
-		lower_left.setBackground(pretty.BGCOLOR);
-		//lower_left.setBorder(BorderFactory.createLineBorder(Color.white));
-		
+		pretty = new Pretty(WINDOW_WIDTH-lower_left_width, WINDOW_HEIGHT);
+
+		// To get the height of the title bar, make a temporary window
+		JFrame temp = new JFrame();
+		temp.pack();
+		Insets insets = temp.getInsets();
+
+		console = new Console(lower_left_width, WINDOW_HEIGHT-lower_left_height - insets.top);
+		lower_left = new InfoPanel(new Dimension(lower_left_width,lower_left_height), pretty.BGCOLOR);
+
 		setBackground(BGCOLOR);
 		side.add(console, BorderLayout.NORTH);
 		side.add(lower_left, BorderLayout.SOUTH);
-		
+
 		main_panel.add(side, BorderLayout.WEST);
 		main_panel.add(pretty, BorderLayout.EAST);
 		add(main_panel);
@@ -51,22 +56,25 @@ public class Graphics extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 	}
-	
+
 	public void sendInputListener(InputListener pl) {
 		console.sendInputListener(pl);
 	}
-	
+
 	public void sayOutput(String toSay, int output_format) {
 		console.addHistory(toSay, output_format);
 	}
-	
+
+	// Send the game information to the Pretty and InfoPanel objects
 	public void sendGameInfo(Game game, int[][] adj) {
 		pretty.sendGame(game, adj);
+		lower_left.sendGame(game);
 	}
 
 	// Refreshes graphics by re-drawing everything
 	public void refresh() {
 		pretty.repaint();
+		lower_left.refresh();
 	}
 
 }

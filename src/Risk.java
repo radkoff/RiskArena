@@ -33,7 +33,7 @@ public class Risk {
 	final static String RISKBOT_PREFIX = "RiskBot";	// any file beginning with this is considered by BotSniffer as a potential AI option
 	final static boolean output_to_std = true;
 	final static boolean input_from_std = false;
-	final static long bot_playing_speed = 200; // milliseconds bots wait before sending game decisions
+	final static long bot_playing_speed = 30; // milliseconds bots wait before sending game decisions
 
 	private static InputListener console_input;
 	private static int num_players;	// The number of players in a given game. Set dynamically in main()
@@ -45,10 +45,10 @@ public class Risk {
 	public static void main(String[] args) {
 
 		init();
-		
+
 		game.placeInitialArmies();	// Game setup, involving players placing initial armies
 		while(!game.over()) {	// over returns true when the game is done
-			sayOutput("===================================================");
+			sayOutput("=======================================");
 			sayOutput("Beginning " + game.getPlayerName() + "'s turn.");
 			game.fortifyArmies();  		// Step 1 of a player's turn
 			game.attackCountries();		// Step 2 of a player's turn
@@ -60,7 +60,7 @@ public class Risk {
 		int winner = game.getWinner(); // get the winner from the game engine
 		sayOutput("Congratulations " + players[winner].getName() + ", you win " + PROJECT_NAME + "!");
 	}
-	
+
 	// Game initialization tasks
 	private static void init() {
 		initializeGraphics();
@@ -74,7 +74,7 @@ public class Risk {
 		}
 		console_input = new InputListener();
 		graphics.sendInputListener(console_input);
-		
+
 		askPlayerInfo();				// ask the player information (human vs bot, name, etc)
 		String map_file = askMapFile();					// ask the map file to load from MAPS_DIR_NAME
 		game = new Game(players, map_file);	// Create the game engine instance
@@ -181,7 +181,7 @@ public class Risk {
 			}
 		});
 	}
-	
+
 	private static void sendHumanInputToGraphics() {
 		for(int i=0;i<num_players;i++) {
 			if(players[i].getType() == Player.HUMAN)
@@ -204,7 +204,7 @@ public class Risk {
 		case 3:
 			return Color.magenta;
 		case 4:
-			return Color.DARK_GRAY;
+			return new Color(0.2f,0.2f,0.2f);
 		case 5:
 			return Color.yellow;
 		default:

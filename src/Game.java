@@ -6,7 +6,6 @@
  */
 
 import java.awt.Color;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
@@ -836,8 +835,37 @@ public class Game {
 		return players[turn_player_id].getName();
 	}
 
+	public String getPlayerName(int id) {
+		if(id < 0 || id >= NUM_PLAYERS) {
+			Risk.sayError("Invalid player id for Game.getPlayerName(id)");
+			exit();
+		}
+		return players[id].getName();
+	}
+
 	public int getCurrentPlayerID() {
 		return turn_player_id;
+	}
+
+	public int getPlayerArmies(int id) {
+		if(id < 0 || id >= NUM_PLAYERS) {
+			Risk.sayError("Invalid player id for Game.getPlayerArmies(id)");
+			exit();
+		}
+		int total = 0;
+		for(int i=0;i<NUM_COUNTRIES;i++) {
+			if(COUNTRIES[i].getPlayer() == id)
+				total += COUNTRIES[i].getArmies();
+		}
+		return total;
+	}
+
+	public boolean playerStillIn(int id) {
+		if(id < 0 || id >= NUM_PLAYERS) {
+			Risk.sayError("Invalid player id for Game.playerStillIn(id)");
+			exit();
+		}
+		return players[id].getStillIn();
 	}
 
 	// If the player who's turn it is is Human, returns true
@@ -847,7 +875,7 @@ public class Game {
 		else return false;
 	}
 
-	// Retrieves the color of a given player id. Used by the Graphics class
+	// Retrieves the color of a given player id. Otherwise, returns a gray
 	public Color getPlayerColor(int player_id) {
 		if(player_id >= 0 && player_id < NUM_PLAYERS)
 			return players[player_id].getColor();

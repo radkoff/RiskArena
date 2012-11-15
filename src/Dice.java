@@ -12,7 +12,7 @@ import java.util.Random;
 public class Dice {
 	public int attackerArmyChange;
 	public int defenderArmyChange;
-	
+
 	/*
 	 * @param attack_dice The number of dice the attacker is rolling
 	 * @param def_dice The number of dice the defender is rolling
@@ -20,9 +20,9 @@ public class Dice {
 	public Dice(Random gen, int attack_dice, int def_dice) {
 		attackerArmyChange = 0;
 		defenderArmyChange = 0;
-		
+
 		float dice_roll = gen.nextFloat();
-		
+
 		switch(attack_dice) {
 		case 1:
 			if(def_dice == 1) {

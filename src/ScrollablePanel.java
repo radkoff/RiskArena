@@ -2,6 +2,8 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
+ * Taken from Rob Camick http://tips4java.wordpress.com/2009/12/20/scrollable-panel/
+ * 
  *  A panel that implements the Scrollable interface. This class allows you
  *  to customize the scrollable features by using newly provided setter methods
  *  so you don't have to extend this class every time.
@@ -19,8 +21,9 @@ import javax.swing.*;
  *  components added to the panel will be size to fill the area available,
  *  based on the rules of the applicable layout manager of course.
  */
+
 public class ScrollablePanel extends JPanel
-	implements Scrollable, SwingConstants
+implements Scrollable, SwingConstants
 {
 	public enum ScrollableSizeHint
 	{
@@ -169,14 +172,14 @@ public class ScrollablePanel extends JPanel
 	{
 		switch(orientation)
 		{
-			case SwingConstants.HORIZONTAL:
-				horizontalBlock = info;
-				break;
-			case SwingConstants.VERTICAL:
-				verticalBlock = info;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid orientation: " + orientation);
+		case SwingConstants.HORIZONTAL:
+			horizontalBlock = info;
+			break;
+		case SwingConstants.VERTICAL:
+			verticalBlock = info;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid orientation: " + orientation);
 		}
 	}
 
@@ -220,18 +223,18 @@ public class ScrollablePanel extends JPanel
 	{
 		switch(orientation)
 		{
-			case SwingConstants.HORIZONTAL:
-				horizontalUnit = info;
-				break;
-			case SwingConstants.VERTICAL:
-				verticalUnit = info;
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid orientation: " + orientation);
+		case SwingConstants.HORIZONTAL:
+			horizontalUnit = info;
+			break;
+		case SwingConstants.VERTICAL:
+			verticalUnit = info;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid orientation: " + orientation);
 		}
 	}
 
-//  Implement Scrollable interface
+	//  Implement Scrollable interface
 
 	public Dimension getPreferredScrollableViewportSize()
 	{
@@ -239,30 +242,30 @@ public class ScrollablePanel extends JPanel
 	}
 
 	public int getScrollableUnitIncrement(
-		Rectangle visible, int orientation, int direction)
+			Rectangle visible, int orientation, int direction)
 	{
 		switch(orientation)
 		{
-			case SwingConstants.HORIZONTAL:
-				return getScrollableIncrement(horizontalUnit, visible.width);
-			case SwingConstants.VERTICAL:
-				return getScrollableIncrement(verticalUnit, visible.height);
-			default:
-				throw new IllegalArgumentException("Invalid orientation: " + orientation);
+		case SwingConstants.HORIZONTAL:
+			return getScrollableIncrement(horizontalUnit, visible.width);
+		case SwingConstants.VERTICAL:
+			return getScrollableIncrement(verticalUnit, visible.height);
+		default:
+			throw new IllegalArgumentException("Invalid orientation: " + orientation);
 		}
 	}
 
 	public int getScrollableBlockIncrement(
-		Rectangle visible, int orientation, int direction)
+			Rectangle visible, int orientation, int direction)
 	{
 		switch(orientation)
 		{
-			case SwingConstants.HORIZONTAL:
-				return getScrollableIncrement(horizontalBlock, visible.width);
-			case SwingConstants.VERTICAL:
-				return getScrollableIncrement(verticalBlock, visible.height);
-			default:
-				throw new IllegalArgumentException("Invalid orientation: " + orientation);
+		case SwingConstants.HORIZONTAL:
+			return getScrollableIncrement(horizontalBlock, visible.width);
+		case SwingConstants.VERTICAL:
+			return getScrollableIncrement(verticalBlock, visible.height);
+		default:
+			throw new IllegalArgumentException("Invalid orientation: " + orientation);
 		}
 	}
 
@@ -286,7 +289,7 @@ public class ScrollablePanel extends JPanel
 
 		if (getParent() instanceof JViewport)
 		{
-		    return (((JViewport)getParent()).getWidth() > getPreferredSize().width);
+			return (((JViewport)getParent()).getWidth() > getPreferredSize().width);
 		}
 
 		return false;
@@ -305,7 +308,7 @@ public class ScrollablePanel extends JPanel
 
 		if (getParent() instanceof JViewport)
 		{
-		    return (((JViewport)getParent()).getHeight() > getPreferredSize().height);
+			return (((JViewport)getParent()).getHeight() > getPreferredSize().height);
 		}
 
 		return false;
@@ -338,9 +341,9 @@ public class ScrollablePanel extends JPanel
 		public String toString()
 		{
 			return
-				"ScrollablePanel[" +
-				type + ", " +
-				amount + "]";
+					"ScrollablePanel[" +
+					type + ", " +
+					amount + "]";
 		}
 	}
 }

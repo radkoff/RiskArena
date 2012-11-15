@@ -47,17 +47,17 @@ public class GameInfo {
 	public World getWorldInfo() {
 		return new World(risk_game.world);
 	}
-	
+
 	// Get this player's hand of cards
 	public int[] getCardInfo() {
 		return player.getCards();
 	}
-	
+
 	// Get how many armies the next set turned in is worth
 	public int getArmiesFromNextSet(){
 		return risk_game.getArmiesFromNextSet();
 	}
-	
+
 	public int me() {
 		return player.getId();
 	}

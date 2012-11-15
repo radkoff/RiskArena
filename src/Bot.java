@@ -14,7 +14,7 @@ public class Bot extends Player {
 	private RiskListener risk_listener;	// Very simple object given to skynet that adds choices to from_bot
 	private LinkedBlockingQueue<Integer> from_bot = new LinkedBlockingQueue<Integer>();	// A Queue of answers given by skynet
 	long timeout = 5;	// seconds to wait
-	
+
 	// Constructs a Bot object given its name, color, and player id
 	public Bot(String bot_name, Color c, int id) {
 		super(1, bot_name, c, id);	// Player constructor
@@ -27,13 +27,13 @@ public class Bot extends Player {
 		}
 		risk_listener = new RiskListener();
 	}
-	
+
 	// This is called once in order to pass along a GameInfo object
 	// and the RiskListener to skynet so that it may communicate with the game.
 	public void initializeBot(Game g) {
 		skynet.init(new GameInfo(g, this), risk_listener);
 	}
-	
+
 	// Starts a new thread, calls skynet's implemented claimTerritory method
 	public void claimTerritory() {
 		try {
@@ -47,7 +47,7 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
+
 	// Within a new thread, calls skynet's implemented forifyTerritory method
 	public void fortifyTerritory(final int num_to_place) {
 		try {
@@ -61,7 +61,7 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
+
 	// Within a new thread, calls skynet's implemented launchAttack method
 	public void launchAttack() {
 		try {
@@ -75,7 +75,7 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
+
 	// Within a new thread, calls skynet's implemented forifyAfterVictory method
 	public void fortifyAfterVictory(final int attacker, final int defender, final int min, final int max) {
 		try {
@@ -89,7 +89,7 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
+
 	// Within a new thread, calls skynet's implemented chooseCardSet method
 	public void chooseCardSet(final int[][] possible_sets) {
 		try {
@@ -103,7 +103,7 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
+
 	// Within a new thread, calls skynet's implemented chooseToTurnInSet method
 	public void chooseToTurnInSet() {
 		try {
@@ -117,7 +117,7 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
+
 	// Within a new thread, calls skynet's implemented forifyPosition method
 	public void fortifyPosition() {
 		try {
@@ -131,8 +131,8 @@ public class Bot extends Player {
 			}
 		}.start();
 	}
-	
-	
+
+
 	// When the game engine is expecting the bot to provide an integer, this method
 	// grabs the int in the front of the LinkedBlockingQueue
 	public int askInt() throws RiskBotException {
@@ -144,10 +144,10 @@ public class Bot extends Player {
 		}
 		if(answer == null)
 			throw new RiskBotException(timeout + " second time limit exceeded.");
-		
+
 		return answer;
 	}
-	
+
 	// When the game engine is expecting the bot to provide an integer, this method
 	// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
 	// above MIN (otherwise it throws a RiskBotException)
@@ -163,13 +163,13 @@ public class Bot extends Player {
 			throw new RiskBotException(timeout + " second time limit exceeded.");
 		if(answer < MIN)
 			throw new RiskBotException(answer + " is not bigger than or equal to " + MIN);
-		
+
 		return answer;
 	}
-	
+
 	// When the game engine is expecting the bot to provide an integer, this method
-		// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
-		// above MIN and below MAX (otherwise it throws a RiskBotException)
+	// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
+	// above MIN and below MAX (otherwise it throws a RiskBotException)
 	public int askInt(int MIN, int MAX) throws RiskBotException {
 		Integer answer = null;
 		try {
@@ -182,16 +182,16 @@ public class Bot extends Player {
 			throw new RiskBotException(timeout + " second time limit exceeded.");
 		if(answer < MIN || answer > MAX)
 			throw new RiskBotException(answer + " is not in the range of " + MIN + " to " + MAX);
-		
+
 		return answer;
 	}
-	
+
 	// Currently not in use
 	public String askLine() {
 		return "\n";
 	}
-	
-	// A simply object capable of adding new Integers to the LinkedBlockingQueue "from_bot."
+
+	// A simply object capable of adding new Integers to the LinkedBlockingQueue "from_bot"
 	// An instance of RiskListener is passed to skynet, allowing it to supply this
 	// class with its game time decisions.
 	public class RiskListener {
@@ -200,12 +200,12 @@ public class Bot extends Player {
 			from_bot.add(new Integer(to_send));
 		}
 	}
-	
+
 	// For now this is just like a normal exception
 	public static class RiskBotException extends Exception {
 		public RiskBotException(String msg) {
 			super(msg);
 		}
 	}
-	
+
 }

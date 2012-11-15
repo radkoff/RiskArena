@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class BotSniffer {
 	private ArrayList<String> good_bots;
-	
+
 	public BotSniffer(String botpath) {
 		good_bots = new ArrayList<String>();
 		File folder = new File(botpath);
@@ -31,7 +31,7 @@ public class BotSniffer {
 			}
 		}
 	}
-	
+
 	// Checks if a file passes the tests to be considered as an AI agent.
 	// If this returns true it passed, else it did not.
 	private boolean botChecker(String bot_file) {
@@ -44,13 +44,13 @@ public class BotSniffer {
 		// Is the name something more than just "Risk.RISKBOT_PREFIX + .java"?
 		if(bot_file.length() <= Risk.RISKBOT_PREFIX.length() + 5)
 			return false;
-		
+
 		// TODO Check the source code of the bot. Perhaps someday compile it,
 		//	and use test cases to make sure it works and doesn't cheat
-		
+
 		return true;
 	}
-	
+
 	// Returns an ArrayList of the accepted bot's names
 	public ArrayList<String> getBots() {
 		return good_bots;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<map name="North America">
+<map name="N. America">
 	<continent>
-		<name>North America</name>
+		<name>N. America</name>
 		<bonus>5</bonus>
 		<R>1.0</R>
 		<G>1.0</G>
@@ -43,7 +43,8 @@
 			<x>800</x>
 			<y>590</y>
 			<label>
-				<direction>0.15</direction>
+				<direction>0.05</direction>
+				<distance>1</distance>
 			</label>
 		</territory>
 		<territory>
@@ -59,7 +60,7 @@
 			<x>540</x>
 			<y>860</y>
 			<label>
-				<direction>0.8</direction>
+				<direction>0.0</direction>
 			</label>
 		</territory>
 		<territory>
@@ -81,7 +82,7 @@
 	</continent>
 	
 	<continent>
-		<name>South America</name>
+		<name>S. America</name>
 		<bonus>2</bonus>
 		<R>.61</R>
 		<G>.15</G>
@@ -107,6 +108,7 @@
 			<x>1150</x>
 			<y>1640</y>
 			<label>
+				<size>3</size>
 				<direction>0.45</direction>
 			</label>
 		</territory>
@@ -161,7 +163,7 @@
 			<x>1530</x>
 			<y>800</y>
 			<label>
-				<direction>0.8</direction>
+				<direction>0.0</direction>
 				<distance>1</distance>
 				<size>1</size>
 			</label>
@@ -172,8 +174,8 @@
 			<y>870</y>
 			<label>
 				<direction>0.4</direction>
-				<distance>2</distance>
-				<size>2</size>
+				<distance>1</distance>
+				<size>1</size>
 			</label>
 		</territory>
 <territory>
@@ -181,8 +183,8 @@
 			<x>1490</x>
 			<y>1050</y>
 			<label>
-				<direction>0.8</direction>
-				<distance>2</distance>
+				<direction>0.9</direction>
+				<distance>1</distance>
 				<size>2</size>
 			</label>
 		</territory>
@@ -191,7 +193,8 @@
 			<x>1850</x>
 			<y>1150</y>
 			<label>
-				<distance>2</distance>
+				<direction>0.05</direction>
+				<distance>1</distance>
 				<size>2</size>
 			</label>
 		</territory>
@@ -283,7 +286,7 @@
 			<y>1250</y>
 			<label>
 				<direction>0.0</direction>
-				<distance>2</distance>
+				<distance>1</distance>
 				<size>2</size>
 			</label>
 		</territory>
@@ -292,8 +295,8 @@
 			<x>2500</x>
 			<y>970</y>
 			<label>
-				<direction>0.0</direction>
-				<distance>2</distance>
+				<direction>0.05</direction>
+				<distance>1</distance>
 				<size>2</size>
 			</label>
 		</territory>
@@ -443,8 +446,8 @@
 			<x>3230</x>
 			<y>2100</y>
 			<label>
-				<direction>0.5</direction>
-				<distance>2</distance>
+				<direction>0.0</direction>
+				<distance>1</distance>
 				<size>2</size>
 			</label>
 		</territory>

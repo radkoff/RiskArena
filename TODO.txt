@@ -1,41 +1,15 @@
-Short:
-In the all AI sim, why were there no cards?
-HTML grabber can't work fast enough..
-connect console input to game setup
-automatically create dummy.html upon init, remove it upon closing
-don't allow console view to go under scrollbar (it's going pretty far over)
-Perfect world map (north europe mag to 1, etc)
+Short-term:
 
-Medium:
+"Soon":
+Un-clutter Game.java
 README
 If a game is configured to be all AI, you can choose to simulate any number of games very quickly.
-alaska-kamchatka adjacency
-Panel/method that displays continent info, player army numbers (highlight whoever's turn it is)
- perhaps in the future, compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat in any way
-resizeability of the window
-After something is typed in cmd and the game is asking for a country, highlight in pretty whatever countries are currently in the cmd text
+Handle edge adjacencies such as alaska-kamchatka.
+Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
+Allow for resizeability of the window
+After something is typed in cmd and the game is asking for a country, highlight in Pretty whatever countries are currently in the cmd text
 
-Long:
+Long-term:
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Map Creator
-Multiplayer via Internet, client/server
-
-Ideas:
-Have my bot maintain player profiles. At any time, it can guess what each player will do soon, or even run several war games to try and predict future moves. In the war games, its player profiles (history of army placement, continent ownership, etc) will effect how it guesses players play.
-
-v This is a bit void, I didn't consider the randomness of dice rolls and cards. v
-Is randomness needed to keep games from repeating after multiple simulations? It seems as if only deterministic strategies competing against each other might result in just n possible games, where n is the number of players (because depending on who goes first, the initial placement and hence the game will be unique).
-The only way to overcome this is to have at least one bot change its strategy based on simulation results (machine learning) dynamically. Thus, it's necessary to give bots feedback on game results.
-
-Save a game (especially all-AI sims) as a series of gameplay world screenshots, then a GUI that lets you use a slider to see the change of world states over time.
-
-Notes:
-PEAS
-Performance Measure - Win the game of risk. Shorter term: own as many territories as possible.
-Environment - Risk game.
-Actuators - 3-step turns
-Sensors - Other player moves, card results, battle results
-
-Risk is a partially observable (can't see other player cards), multi-agent, stochastic (uncertainty exists in future happenings), sequential (decisions affect future decisions), static (the world doesn't change while deliberating), and known (knowledge of the rules of Risk) AI problem.
-
-
+Multiplayer via Internet using the client/server model

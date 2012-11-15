@@ -7,7 +7,6 @@
  * Evan Radkoff
  */
 
-
 import java.awt.Font;
 import java.io.File;
 

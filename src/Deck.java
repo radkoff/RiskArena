@@ -12,7 +12,7 @@ import java.util.*;
 public class Deck {
 	private List<Integer> cardz; // cards in deck
 	private Random gen;
-	
+
 	/* Deck() constructs a deck object by supplying cardz[] with ints
 	 	These ints represent the card type */
 	public Deck(Random rand) {
@@ -26,7 +26,7 @@ public class Deck {
 		cardz.add(new Integer(3)); // wildcard
 		cardz.add(new Integer(3)); // wildcard
 	}
-	
+
 	/* 
 	 * Draw a card from the deck. If no cards are left, return -1
 	 * The returning int indicates the card type.
@@ -40,7 +40,7 @@ public class Deck {
 		cardz.remove(an_index);
 		return a_card;
 	}
-	
+
 	/*
 	 * When cards (3 at a time) are played, they are added
 	 * back to the deck. This method accomplishes this by appending cardz
@@ -49,7 +49,7 @@ public class Deck {
 		for(int i=0; i<toAdd.length;i++)
 			cardz.add(new Integer(toAdd[i]));
 	}
-	
+
 	/*
 	 * Returns the type of card int 'type' represents
 	 */
@@ -64,7 +64,7 @@ public class Deck {
 			return "";
 		}
 	}
-	
+
 	// Only used in possibleCardTriples because ArrayList<int[]> is not allowed
 	private class CardSet {
 		public CardSet(int a_, int b_, int c_) {
@@ -72,7 +72,7 @@ public class Deck {
 		}
 		public int a, b, c;
 	}
-	
+
 	/*
 	 * Calculates all possible triples that a player with cards[] could turn in.
 	 * @return int[num_possibilities][3] where the 3 is the card type (0-3).
@@ -91,7 +91,7 @@ public class Deck {
 			trips.add(new CardSet(1,1,1));
 		if(cards[2]>=3)	// Checks for a AAA set
 			trips.add(new CardSet(2,2,2));
-		
+
 		// The rest of these involve a wildcard, which can become any type
 		if(cards[3]>=1) {
 			if(cards[0] >= 2)
@@ -125,5 +125,5 @@ public class Deck {
 		}
 		return ret;
 	}
-	
+
 }
