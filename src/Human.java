@@ -10,6 +10,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Human extends Player {
+	public static final String ICON_URL = "src/images/human.png";
 	private static Scanner ask;	// Static Scanner object takes input from System.in
 	private static InputListener console_input;
 	//private String from_console;
@@ -20,7 +21,7 @@ public class Human extends Player {
 		console_input = new InputListener();
 	}
 
-	public void sendInputToGraphics(Graphics graphics) {
+	public void sendInputToGraphics(GameBoard graphics) {
 		graphics.sendInputListener(console_input);
 	}
 

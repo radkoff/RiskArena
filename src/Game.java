@@ -10,7 +10,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
+import javax.swing.SwingUtilities;
+
 public class Game {
+	final long bot_playing_speed = 30; // milliseconds bots wait before sending game decisions
+	
+	private GameBoard board; // The Graphics object that draws everything
+	
 	public final int NUM_PLAYERS; // number of players, set in constructor
 	public final int NUM_COUNTRIES; // number of territories
 
@@ -35,12 +41,22 @@ public class Game {
 	 * @param String map_file file path to the map file, sent to a MapReader object
 	 */
 	public Game(Player p[], String map_file) {
+		initializeGraphics();
+		// Wait for the graphics to be initialized on its own thread.
+		while(board==null) {
+			try {
+				Thread.sleep(10);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		NUM_PLAYERS = p.length;
 		// make map reader, read map info
 		try {
 			mapreader = new MapReader(map_file);
 		} catch(Exception e) {
-			Risk.sayError("Something is wrong with " + map_file + ": " + e.getMessage());
+			sayError("Something is wrong with " + map_file + ": " + e.getMessage());
 			exit();
 		}
 
@@ -67,7 +83,114 @@ public class Game {
 
 		setPlayerThatGoesFirst();
 	}
+	
+	public void init() {
+		sendGameToBots();
+		sendGameToBoard();
+		sendHumanListenersToBoard();
+	}
+	
+	public void play() {
+		placeInitialArmies();	// Game setup, involving players placing initial armies
+		while(!over()) {	// over returns true when the game is done
+			sayOutput("=======================================");
+			sayOutput("Beginning " + getPlayerName() + "'s turn.");
+			fortifyArmies();  		// Step 1 of a player's turn
+			attackCountries();		// Step 2 of a player's turn
+			if(!over()) {
+				fortifyPosition();		// Step 3 of a player's turn
+				advanceTurn();
+			}
+		}
+		int winner = getWinner(); // get the winner from the game engine
+		sayOutput("Congratulations " + players[winner].getName() + ", you win " + Risk.PROJECT_NAME + "!");
+	}
+	
+	/*
+	 * This method creates and initializes the GameBoard object
+	 */
+	private void initializeGraphics() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				board = new GameBoard();
+				board.setVisible(true);
+			}
+		});
+	}
+	
+	/*
+	 * Once the game object is constructed, it must be sent along to each Bot player
+	 */
+	private void sendGameToBots() {
+		for(int i=0;i<NUM_PLAYERS;i++) {
+			if(players[i].getType() == Player.BOT)
+				((Bot)players[i]).initializeBot(this);
+		}
+	}
 
+	
+
+	private void sendGameToBoard() {
+		board.sendGameInfo(this, world.getAdjacencyList());
+		refreshGraphics();
+	}
+	
+	public void refreshGraphics() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				board.refresh();
+			}
+		});
+	}
+
+	private void sendHumanListenersToBoard() {
+		for(int i=0;i<NUM_PLAYERS;i++) {
+			if(players[i].getType() == Player.HUMAN)
+				((Human)players[i]).sendInputToGraphics(board);
+		}
+	}
+
+	/* Called by various methods to send something to whatever
+	 * output is being used.
+	 * toSay is the string wishing to be outputted
+	 * tabbed is whether or not it should be prepended with a \t
+	 */
+	public void sayOutput(final String toSay, final int output_format_style) {
+		if( Risk.output_to_std ) {
+			if(output_format_style == OutputFormat.TABBED)
+				System.out.println("\t" + toSay);
+			else if (output_format_style == OutputFormat.ERROR) {
+				System.err.println("ERROR: " + toSay);
+				System.err.flush();
+			} else if(output_format_style != OutputFormat.ANSWER)
+				System.out.println(toSay);
+		}
+		if(board != null) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					board.sayOutput(toSay, output_format_style);
+				}
+			});
+		}
+	}
+
+	/*
+	 * Called by various methods to send something to whatever
+	 * output is being used.
+	 * toSay is the string wishing to be outputted
+	 */
+	public void sayOutput(final String toSay) {
+		sayOutput(toSay, OutputFormat.NORMAL);
+	}
+
+	/* Called by various methods to send something to whatever
+	 * error output is being used.
+	 * @param The string wishing to be outputted error message.
+	 */
+	public void sayError(final String toSay) {
+		sayOutput(toSay, OutputFormat.ERROR);
+	}
+	
 	/*
 	 * Chooses a random player to go first, sets the global int player_id_that_goes_first.
 	 */
@@ -77,15 +200,15 @@ public class Game {
 		player_id_that_goes_first = some_player;
 		turn_player_id = player_id_that_goes_first;
 		if(currentPlayerHuman())
-			Risk.sayOutput(getPlayerName() + ", you have been chosen to go first.");
+			sayOutput(getPlayerName() + ", you have been chosen to go first.");
 		else
-			Risk.sayOutput(getPlayerName() + " has been chosen to go first.");
+			sayOutput(getPlayerName() + " has been chosen to go first.");
 	}
 
 	/*
 	 * At the beginning of the game, this method has the players claim territories and place their initial armies
 	 */
-	public void placeInitialArmies() {
+	private void placeInitialArmies() {
 		int armiesToPlace = 20;
 		switch(NUM_PLAYERS) {
 		case 2: armiesToPlace = 45;
@@ -98,10 +221,10 @@ public class Game {
 		break;
 		case 6: armiesToPlace = 20;
 		break;
-		default: Risk.sayError("Army placement is only configured for 2-6 players. Set armiesToPlace in Game.placeInitialArmies() for " + NUM_PLAYERS + " players.");
+		default: sayError("Army placement is only configured for 2-6 players. Set armiesToPlace in Game.placeInitialArmies() for " + NUM_PLAYERS + " players.");
 		break;
 		}
-		Risk.sayOutput("Each player has " + armiesToPlace + " armies to place.");
+		sayOutput("Each player has " + armiesToPlace + " armies to place.");
 
 		/* Initial army placement */
 		int pile[] = new int[NUM_PLAYERS]; // array representing each player's pile of initial armies to place
@@ -111,7 +234,7 @@ public class Game {
 			for(int i=0;i<COUNTRIES.length;i++) {
 				int claimed;
 				if(currentPlayerHuman()) {
-					Risk.sayOutput(getPlayerName() + ": Enter the number of the territory you would like to claim.", OutputFormat.QUESTION);
+					sayOutput(getPlayerName() + ": Enter the number of the territory you would like to claim.", OutputFormat.QUESTION);
 					claimed = players[turn_player_id].askInt(1,NUM_COUNTRIES);
 				} else {
 					((Bot)players[turn_player_id]).claimTerritory();	// Signal to the bot that they need to make a decision
@@ -122,12 +245,12 @@ public class Game {
 					if(!currentPlayerHuman())
 						throw new Bot.RiskBotException("Tried to claim a territory that was already claimed.");
 
-					Risk.sayError("Territory already taken. Choose another.");
+					sayError("Territory already taken. Choose another.");
 					claimed = players[turn_player_id].askInt(1,NUM_COUNTRIES);
 				}
 				if(!currentPlayerHuman())
-					Risk.sayOutput(getPlayerName() + " has claimed " + COUNTRIES[claimed-1].getName() + ".");
-				Risk.refreshGraphics();
+					sayOutput(getPlayerName() + " has claimed " + COUNTRIES[claimed-1].getName() + ".");
+				refreshGraphics();
 				pile[turn_player_id]--;
 				advanceTurn();
 			}
@@ -135,7 +258,7 @@ public class Game {
 			while(true) {
 				int to_fortify;
 				if(currentPlayerHuman()) {
-					Risk.sayOutput(getPlayerName() + ": Enter the number of the territory you would like to fortify.", OutputFormat.QUESTION);
+					sayOutput(getPlayerName() + ": Enter the number of the territory you would like to fortify.", OutputFormat.QUESTION);
 					to_fortify = players[turn_player_id].askInt(1, NUM_COUNTRIES);
 				} else {
 					((Bot)players[turn_player_id]).fortifyTerritory(pile[turn_player_id]);
@@ -146,17 +269,17 @@ public class Game {
 				while(COUNTRIES[to_fortify].getPlayer() != turn_player_id) {
 					if(!currentPlayerHuman())
 						throw new Bot.RiskBotException("Tried to fortify a territory that wasn't his.");
-					Risk.sayError("Not your territory to fortify. Enter another.");
+					sayError("Not your territory to fortify. Enter another.");
 					to_fortify = players[turn_player_id].askInt(1, NUM_COUNTRIES);
 					to_fortify--;
 				}
 				if(currentPlayerHuman())
-					Risk.sayOutput("How many armies would you like to add to " + COUNTRIES[to_fortify].getName() + "? " + pile[turn_player_id] + " armies left in your pile.", OutputFormat.QUESTION);
+					sayOutput("How many armies would you like to add to " + COUNTRIES[to_fortify].getName() + "? " + pile[turn_player_id] + " armies left in your pile.", OutputFormat.QUESTION);
 				int armies_added = players[turn_player_id].askInt(1, pile[turn_player_id]);
 
 				fortifyCountry(to_fortify, armies_added);
 				pile[turn_player_id] -= armies_added;
-				Risk.refreshGraphics();
+				refreshGraphics();
 
 				boolean done_fortifying = false;
 				for(int i=0;;i++) {
@@ -169,7 +292,7 @@ public class Game {
 				}
 				if(done_fortifying) break;
 			}
-			Risk.refreshGraphics();
+			refreshGraphics();
 			turn_player_id = player_id_that_goes_first; // after initial fortifying, the player to go first
 			// should be the same player that claimed territory first.
 		} catch(Bot.RiskBotException e) {
@@ -181,13 +304,13 @@ public class Game {
 	 * Step 1 of a player turn. Fortifies territories for the player.
 	 * Called from Risk.java
 	 */
-	public void fortifyArmies() {
+	private void fortifyArmies() {
 		int armies_to_place = 0;
 		armies_to_place += armiesFromCards();
 		armies_to_place += armiesFromContinents();
 		armies_to_place += armiesFromTerritories();
 		if(currentPlayerHuman())
-			Risk.sayOutput("You have " + armies_to_place + " armies to fortify with.");
+			sayOutput("You have " + armies_to_place + " armies to fortify with.");
 		placeArmies(armies_to_place);
 	}
 
@@ -197,7 +320,7 @@ public class Game {
 			while(armies_to_place > 0) {
 				int country_improving;
 				if(currentPlayerHuman()) {
-					Risk.sayOutput("Territory number to fortify?", OutputFormat.QUESTION);
+					sayOutput("Territory number to fortify?", OutputFormat.QUESTION);
 					country_improving = players[turn_player_id].askInt(1, NUM_COUNTRIES);
 				} else {
 					((Bot)players[turn_player_id]).fortifyTerritory(armies_to_place);
@@ -208,7 +331,7 @@ public class Game {
 				while(COUNTRIES[country_improving].getPlayer() != turn_player_id) {
 					if(!currentPlayerHuman())
 						throw new Bot.RiskBotException("Tried to place armies on a territory that wasn't his.");
-					Risk.sayError("Not your territory, enter another.");
+					sayError("Not your territory, enter another.");
 					country_improving = players[turn_player_id].askInt(1, NUM_COUNTRIES);
 					country_improving--;
 				}
@@ -217,20 +340,20 @@ public class Game {
 					num_to_add = 1;
 				else {
 					if(currentPlayerHuman())
-						Risk.sayOutput("How many armies?", OutputFormat.QUESTION);
+						sayOutput("How many armies?", OutputFormat.QUESTION);
 					num_to_add = players[turn_player_id].askInt(1,armies_to_place);
 				}
 				fortifyCountry(country_improving, num_to_add);
 				armies_to_place -= num_to_add;
-				Risk.refreshGraphics();
+				refreshGraphics();
 
 				if(currentPlayerHuman()) {
 					String to_out = COUNTRIES[country_improving].getName() + " fortified with " + num_to_add + " armies.";
 					if(armies_to_place > 0)
 						to_out += " " + armies_to_place + " remaining.";
-					Risk.sayOutput(to_out);
+					sayOutput(to_out);
 				} else if(armies_to_place > 0) {
-					Risk.sayOutput(getPlayerName() + " has " + armies_to_place + " armies remaining.");
+					sayOutput(getPlayerName() + " has " + armies_to_place + " armies remaining.");
 				}
 			}
 		} catch(Bot.RiskBotException e) {
@@ -242,13 +365,13 @@ public class Game {
 	 * Runs through the main attack loop for turn_player_id.
 	 * Attacking can end at any time by entering 0 for the country id
 	 */
-	public void attackCountries() {
+	private void attackCountries() {
 		boolean gained_territory = false;	// whether or not the player gained a territory this turn
 
 		try {
 			while(true) {	// main attack loop
 				if(currentPlayerHuman())
-					Risk.sayOutput(getPlayerName() + ", which of your territories would you like to attack with? When finished attacking, enter 0.", OutputFormat.QUESTION);
+					sayOutput(getPlayerName() + ", which of your territories would you like to attack with? When finished attacking, enter 0.", OutputFormat.QUESTION);
 				else
 					((Bot)players[turn_player_id]).launchAttack();
 				int attacking_from; // the country id of the attacking country
@@ -274,14 +397,14 @@ public class Game {
 					}
 					if(COUNTRIES[attacking_from].getPlayer() != turn_player_id) {
 						if(currentPlayerHuman())
-							Risk.sayError("Not your territory, enter another.");
+							sayError("Not your territory, enter another.");
 						else
 							throw new Bot.RiskBotException("Attempted to attack from " + COUNTRIES[attacking_from].getName() + ", but does not own it.");
 						continue;
 					}
 					if(COUNTRIES[attacking_from].getArmies() <= 1) {
 						if(currentPlayerHuman())
-							Risk.sayError("At least 2 armies are required to attack.");
+							sayError("At least 2 armies are required to attack.");
 						else
 							throw new Bot.RiskBotException("Attempted to attack from " + COUNTRIES[attacking_from].getName() + ", but there are not enough armies in it to do so.");
 						continue;
@@ -291,7 +414,7 @@ public class Game {
 				if(done_attacking) break;
 				int adj[] = world.getAdjacencies(attacking_from);	// Get territory adjacency list from World class
 				if(adj.length == 0 || adj[0] == 0) {
-					Risk.sayError("According to the map file, " + COUNTRIES[attacking_from] + " doesn't have any adjacencies.");
+					sayError("According to the map file, " + COUNTRIES[attacking_from] + " doesn't have any adjacencies.");
 					continue;
 				}
 				ArrayList<Integer> foreign_adjacencies = new ArrayList<Integer>();
@@ -302,29 +425,29 @@ public class Game {
 				}
 				if(foreign_adjacencies.size() == 0) {
 					if(currentPlayerHuman())
-						Risk.sayError("No foreign adjacencies found for " + COUNTRIES[attacking_from].getName() + ".");
+						sayError("No foreign adjacencies found for " + COUNTRIES[attacking_from].getName() + ".");
 					else
 						throw new Bot.RiskBotException("Tried to attack from " + COUNTRIES[attacking_from].getName() + ", which has no foreign adjacencies.");
 					continue;
 				}
 				if(currentPlayerHuman()) {
 					if(foreign_adjacencies.size() == 1) {
-						Risk.sayOutput(COUNTRIES[foreign_adjacencies.get(0)].getName() + " is the only foreign territory adjacent to " + COUNTRIES[attacking_from].getName() + ". Launching attack.");
+						sayOutput(COUNTRIES[foreign_adjacencies.get(0)].getName() + " is the only foreign territory adjacent to " + COUNTRIES[attacking_from].getName() + ". Launching attack.");
 						attacking_to = foreign_adjacencies.get(0);
 					} else {
-						Risk.sayOutput("Which territory would you like to attack from " + COUNTRIES[attacking_from].getName() + "?", OutputFormat.QUESTION);
+						sayOutput("Which territory would you like to attack from " + COUNTRIES[attacking_from].getName() + "?", OutputFormat.QUESTION);
 						for(int i=1; i<=foreign_adjacencies.size(); i++) {
-							Risk.sayOutput(i+": " + COUNTRIES[foreign_adjacencies.get(i-1)].getName(), OutputFormat.TABBED);
+							sayOutput(i+": " + COUNTRIES[foreign_adjacencies.get(i-1)].getName(), OutputFormat.TABBED);
 						}
 						int choice = players[turn_player_id].askInt(1,foreign_adjacencies.size());
 						attacking_to = foreign_adjacencies.get(choice-1);
-						Risk.sayOutput("Launching attack on " + COUNTRIES[attacking_to].getName() + ".");
+						sayOutput("Launching attack on " + COUNTRIES[attacking_to].getName() + ".");
 					}
 				} else {
 					attacking_to = players[turn_player_id].askInt(0, NUM_COUNTRIES-1);
 					if(!foreign_adjacencies.contains(new Integer(attacking_to)))
 						throw new Bot.RiskBotException("Tried to attack from " + COUNTRIES[attacking_from].getName() + " to " + COUNTRIES[attacking_to].getName() + ", which is not a valid target.");
-					Risk.sayOutput(getPlayerName() + " is launching an attack from " + COUNTRIES[attacking_from].getName() + " to " + COUNTRIES[attacking_to].getName() + ".");
+					sayOutput(getPlayerName() + " is launching an attack from " + COUNTRIES[attacking_from].getName() + " to " + COUNTRIES[attacking_to].getName() + ".");
 				}
 				if(attack(attacking_from, attacking_to)) {		// attack() plays out the attack
 					if(over()) return;
@@ -337,22 +460,22 @@ public class Game {
 		if(gained_territory) {
 			int drawn = deck.drawCard();
 			if(drawn == -1) {
-				Risk.sayError("No cards left in deck.");
+				sayError("No cards left in deck.");
 			} else {
 				players[turn_player_id].incrementCardType(drawn); // give card to player for winning territory
 				if(currentPlayerHuman()) {
 					switch(drawn) {
-					case 0:	Risk.sayOutput("As you have gained territory this turn, you get to draw a card. Picked up an infantry card.");
+					case 0:	sayOutput("As you have gained territory this turn, you get to draw a card. Picked up an infantry card.");
 					break;
-					case 1:	Risk.sayOutput("As you have gained territory this turn, you get to draw a card. Picked up a cavalry card.");
+					case 1:	sayOutput("As you have gained territory this turn, you get to draw a card. Picked up a cavalry card.");
 					break;
-					case 2:	Risk.sayOutput("As you have gained territory this turn, you get to draw a card. Picked up an artillery card.");
+					case 2:	sayOutput("As you have gained territory this turn, you get to draw a card. Picked up an artillery card.");
 					break;
-					case 3:	Risk.sayOutput("As you have gained territory this turn, you get to draw a card. Picked up a wildcard.");
+					case 3:	sayOutput("As you have gained territory this turn, you get to draw a card. Picked up a wildcard.");
 					break;
 					}
 				} else {
-					Risk.sayOutput("As " + getPlayerName() + " has gained territory this turn, they get to draw a card. They are now holding " + players[turn_player_id].getNumCards() + ".");
+					sayOutput("As " + getPlayerName() + " has gained territory this turn, they get to draw a card. They are now holding " + players[turn_player_id].getNumCards() + ".");
 				}
 			}
 		}
@@ -365,27 +488,27 @@ public class Game {
 	private boolean attack(int attacker, int defender) {
 		try {
 			while(true) {
-				Risk.refreshGraphics();
+				refreshGraphics();
 				int armies_attacking, armies_defending;
 				if(currentPlayerHuman()) {
 					if(COUNTRIES[attacker].getArmies() == 1) {
-						Risk.sayOutput("No more armies to attack with.", OutputFormat.TABBED);
+						sayOutput("No more armies to attack with.", OutputFormat.TABBED);
 						return false;
 					}
 					if(COUNTRIES[attacker].getArmies() == 2) {
-						Risk.sayOutput("Only 2 armies are left in " + COUNTRIES[attacker].getName() + ", continue the attack with one army? (Y)es or (n)o", OutputFormat.TABBED_QUESTION);
+						sayOutput("Only 2 armies are left in " + COUNTRIES[attacker].getName() + ", continue the attack with one army? (Y)es or (n)o", OutputFormat.TABBED_QUESTION);
 						while(true) {
 							String answer = players[turn_player_id].askLine();
 							if(answer.equalsIgnoreCase("no") || answer.equalsIgnoreCase("n")) return false;
 							else if(answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) break;
-							else Risk.sayError("Invalid input. Enter (y)es or (n)o.");
+							else sayError("Invalid input. Enter (y)es or (n)o.");
 						}
 						armies_attacking = 1;
 					} else if(COUNTRIES[attacker].getArmies() == 3) {
-						Risk.sayOutput("How many armies do you send to battle - 1 or 2? 0 to cancel the attack.", OutputFormat.TABBED_QUESTION);
+						sayOutput("How many armies do you send to battle - 1 or 2? 0 to cancel the attack.", OutputFormat.TABBED_QUESTION);
 						armies_attacking = players[turn_player_id].askInt(0, 2);
 					} else {
-						Risk.sayOutput("How many armies do you send to battle - 1, 2, or 3? 0 to cancel the attack.", OutputFormat.TABBED_QUESTION);
+						sayOutput("How many armies do you send to battle - 1, 2, or 3? 0 to cancel the attack.", OutputFormat.TABBED_QUESTION);
 						armies_attacking = players[turn_player_id].askInt(0, 3);
 					}
 					if(armies_attacking == 0) {
@@ -395,7 +518,7 @@ public class Game {
 					armies_attacking = players[turn_player_id].askInt(1, 3);
 				}
 				if(!currentPlayerHuman()) {
-					Risk.sayOutput(getPlayerName() + " is sending " + armies_attacking + " armies to battle...", OutputFormat.TABBED);
+					sayOutput(getPlayerName() + " is sending " + armies_attacking + " armies to battle...", OutputFormat.TABBED);
 				}
 				if(COUNTRIES[defender].getArmies() == 1)
 					armies_defending = 1;
@@ -403,42 +526,42 @@ public class Game {
 					armies_defending = 2;
 
 				if(currentPlayerHuman())
-					Risk.sayOutput("Rolling dice...", OutputFormat.TABBED);
+					sayOutput("Rolling dice...", OutputFormat.TABBED);
 				Dice dice = new Dice(rand, armies_attacking, armies_defending);
 				COUNTRIES[attacker].setArmies(COUNTRIES[attacker].getArmies() + dice.attackerArmyChange);
 				COUNTRIES[defender].setArmies(COUNTRIES[defender].getArmies() + dice.defenderArmyChange);
-				Risk.refreshGraphics();
+				refreshGraphics();
 
 				switch(dice.attackerArmyChange) {
 				case 0:
 					if(dice.defenderArmyChange == -1)
-						Risk.sayOutput(COUNTRIES[defender].getName() + " (" + players[COUNTRIES[defender].getPlayer()].getName() + ") loses 1 army.", OutputFormat.TABBED);
-					else Risk.sayOutput(COUNTRIES[defender].getName() + " (" + players[COUNTRIES[defender].getPlayer()].getName() + ") loses 2 armies.", OutputFormat.TABBED);
+						sayOutput(COUNTRIES[defender].getName() + " (" + players[COUNTRIES[defender].getPlayer()].getName() + ") loses 1 army.", OutputFormat.TABBED);
+					else sayOutput(COUNTRIES[defender].getName() + " (" + players[COUNTRIES[defender].getPlayer()].getName() + ") loses 2 armies.", OutputFormat.TABBED);
 					break;
 				case -1:
 					if(dice.defenderArmyChange == -1)
-						Risk.sayOutput("Each player loses 1 army.", OutputFormat.TABBED);
-					else Risk.sayOutput(COUNTRIES[attacker].getName() + " (" + getPlayerName() + ") loses 1 army.", OutputFormat.TABBED);
+						sayOutput("Each player loses 1 army.", OutputFormat.TABBED);
+					else sayOutput(COUNTRIES[attacker].getName() + " (" + getPlayerName() + ") loses 1 army.", OutputFormat.TABBED);
 					break;
 				case -2:
-					Risk.sayOutput(COUNTRIES[attacker].getName() + " (" + getPlayerName() + ") loses 2 armies.", OutputFormat.TABBED);
+					sayOutput(COUNTRIES[attacker].getName() + " (" + getPlayerName() + ") loses 2 armies.", OutputFormat.TABBED);
 					break;
 				}
 
 				// Territory captured
 				if(COUNTRIES[defender].getArmies() == 0) {
 					if(currentPlayerHuman())
-						Risk.sayOutput("Congratulations " + getPlayerName() + ", you captured " + COUNTRIES[defender].getName() + "!", OutputFormat.TABBED);
+						sayOutput("Congratulations " + getPlayerName() + ", you captured " + COUNTRIES[defender].getName() + "!", OutputFormat.TABBED);
 					else
-						Risk.sayOutput(getPlayerName() + " has captured " + COUNTRIES[defender].getName() + " (" + players[COUNTRIES[defender].getPlayer()].getName() + ")", OutputFormat.TABBED);
+						sayOutput(getPlayerName() + " has captured " + COUNTRIES[defender].getName() + " (" + players[COUNTRIES[defender].getPlayer()].getName() + ")", OutputFormat.TABBED);
 					int losing_player = COUNTRIES[defender].getPlayer();
 					COUNTRIES[defender].setPlayer(turn_player_id);	// transfer ownership to the attacker
-					Risk.refreshGraphics();
+					refreshGraphics();
 					if(playerEliminated(losing_player)) {
-						Risk.sayOutput("*** " + getPlayerName() + " has eliminated " + players[losing_player].getName() + " ***", OutputFormat.TABBED);
+						sayOutput("*** " + getPlayerName() + " has eliminated " + players[losing_player].getName() + " ***", OutputFormat.TABBED);
 						if(over()) return true;	// if the game is over
 						if(players[losing_player].getNumCards() > 0) { // turn_player_id gets some free cards from defender
-							Risk.sayOutput("* " + getPlayerName() + " gets " + players[losing_player].getNumCards() + " free cards. *", OutputFormat.TABBED);
+							sayOutput("* " + getPlayerName() + " gets " + players[losing_player].getNumCards() + " free cards. *", OutputFormat.TABBED);
 							players[turn_player_id].increaseCardType(0, players[losing_player].getNumCardType(0));
 							players[turn_player_id].increaseCardType(1, players[losing_player].getNumCardType(1));
 							players[turn_player_id].increaseCardType(2, players[losing_player].getNumCardType(2));
@@ -447,17 +570,17 @@ public class Game {
 							if(players[turn_player_id].getNumCards() >= 6) {
 								int additional_armies = 0;
 								if(currentPlayerHuman())
-									Risk.sayOutput("Since you have more than 5 cards, you must immediately turn in sets for armies.");
+									sayOutput("Since you have more than 5 cards, you must immediately turn in sets for armies.");
 								else
-									Risk.sayOutput("Since he has more than 5, he is required to turn in sets for armies.");
+									sayOutput("Since he has more than 5, he is required to turn in sets for armies.");
 								additional_armies += turnInSet(false);
 								while(players[turn_player_id].getNumCards() > 4) {
 									if(currentPlayerHuman())
-										Risk.sayOutput("Since you have at least 5 cards, you must immediately turn in another set for armies.");
+										sayOutput("Since you have at least 5 cards, you must immediately turn in another set for armies.");
 									else
-										Risk.sayOutput("Since he has at least 5 cards, he is required to turn in another set for armies.");
+										sayOutput("Since he has at least 5 cards, he is required to turn in another set for armies.");
 									additional_armies += turnInSet(false);
-									Risk.sayOutput("The total is now up to " + additional_armies);
+									sayOutput("The total is now up to " + additional_armies);
 								}
 								placeArmies(additional_armies);
 							}
@@ -466,17 +589,17 @@ public class Game {
 					int armies_to_move = 1;
 					if(COUNTRIES[attacker].getArmies() - armies_attacking > 1) {
 						if(currentPlayerHuman())
-							Risk.sayOutput("How many armies would you like to move in for occupation? Min " + armies_attacking + ", Max " + (COUNTRIES[attacker].getArmies()-1), OutputFormat.TABBED_QUESTION);
+							sayOutput("How many armies would you like to move in for occupation? Min " + armies_attacking + ", Max " + (COUNTRIES[attacker].getArmies()-1), OutputFormat.TABBED_QUESTION);
 						else
 							((Bot)players[turn_player_id]).fortifyAfterVictory(attacker, defender, armies_attacking, (COUNTRIES[attacker].getArmies()-1));
 						armies_to_move = players[turn_player_id].askInt(armies_attacking, (COUNTRIES[attacker].getArmies()-1));
 					} else armies_to_move = armies_attacking;
 					if(!currentPlayerHuman())
-						Risk.sayOutput(getPlayerName() + " moves " + armies_to_move + " armies into " + COUNTRIES[defender].getName() + " for occupation.");
+						sayOutput(getPlayerName() + " moves " + armies_to_move + " armies into " + COUNTRIES[defender].getName() + " for occupation.");
 					COUNTRIES[attacker].setArmies( COUNTRIES[attacker].getArmies() - armies_to_move );
 					COUNTRIES[defender].setArmies( COUNTRIES[defender].getArmies() + armies_to_move );
 
-					Risk.refreshGraphics();
+					refreshGraphics();
 					return true;
 				}
 				if(!currentPlayerHuman())
@@ -501,22 +624,22 @@ public class Game {
 
 			if(optional) {
 				if(currentPlayerHuman()) {
-					Risk.sayOutput("You have enough cards for a set. Would you like to turn it in for " + armies_from_next_set + " additional armies? (Y)es or (n)o.", OutputFormat.QUESTION);
+					sayOutput("You have enough cards for a set. Would you like to turn it in for " + armies_from_next_set + " additional armies? (Y)es or (n)o.", OutputFormat.QUESTION);
 					while(true) {
 						String answer = players[turn_player_id].askLine();
 						if(answer.equalsIgnoreCase("no") || answer.equalsIgnoreCase("n")) { 
-							Risk.sayOutput(cardReport());
+							sayOutput(cardReport());
 							return armies;
 						}
 						else if(answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) break;
-						else Risk.sayError("Invalid input. Enter (y)es or (n)o.");
+						else sayError("Invalid input. Enter (y)es or (n)o.");
 					}
 				} else {
 					((Bot)players[turn_player_id]).chooseToTurnInSet();
 					int choice = players[turn_player_id].askInt();
 					if(choice != 1)
 						return armies;
-					Risk.sayOutput(getPlayerName() + " is turning in a set of cards for armies.");
+					sayOutput(getPlayerName() + " is turning in a set of cards for armies.");
 				}
 			}
 
@@ -531,9 +654,9 @@ public class Game {
 			} else {
 				int choice;
 				if(currentPlayerHuman()) {
-					Risk.sayOutput("Which combination would you like to turn in?", OutputFormat.QUESTION);
+					sayOutput("Which combination would you like to turn in?", OutputFormat.QUESTION);
 					for(int i=0;i<possible_triples.length;i++)
-						Risk.sayOutput((i+1) + ": " + deck.getCardType(possible_triples[i][0]) + " " + deck.getCardType(possible_triples[i][1]) + " " + deck.getCardType(possible_triples[i][2]), OutputFormat.TABBED);
+						sayOutput((i+1) + ": " + deck.getCardType(possible_triples[i][0]) + " " + deck.getCardType(possible_triples[i][1]) + " " + deck.getCardType(possible_triples[i][2]), OutputFormat.TABBED);
 					choice = players[turn_player_id].askInt(1,possible_triples.length);
 					choice--;
 				} else {
@@ -547,9 +670,9 @@ public class Game {
 				armies += armies_from_next_set;
 			}
 			if(currentPlayerHuman())
-				Risk.sayOutput("You get to place an additional " + armies_from_next_set + " armies.");
+				sayOutput("You get to place an additional " + armies_from_next_set + " armies.");
 			else
-				Risk.sayOutput(getPlayerName() + " gets to place an additional " + armies_from_next_set + " armies.");
+				sayOutput(getPlayerName() + " gets to place an additional " + armies_from_next_set + " armies.");
 			advanceCardArmies();
 		} catch(Bot.RiskBotException e) {
 			BadRobot(turn_player_id, "While turning in a set of cards:", e);
@@ -565,7 +688,7 @@ public class Game {
 		if(COUNTRIES[country_to_fortify].getPlayer() != turn_player_id)
 			return false;
 		if(!currentPlayerHuman())
-			Risk.sayOutput(getPlayerName() + " has placed " + num_armies_added + " armies on " + COUNTRIES[country_to_fortify].getName() + ".");
+			sayOutput(getPlayerName() + " has placed " + num_armies_added + " armies on " + COUNTRIES[country_to_fortify].getName() + ".");
 		COUNTRIES[country_to_fortify].setArmies(COUNTRIES[country_to_fortify].getArmies() + num_armies_added);
 		return true;
 	}
@@ -587,9 +710,9 @@ public class Game {
 	 * Player_id is the bot that messed up. Scope is some message about what part of the game/turn it occured in.
 	 */
 	public void BadRobot(int player_id, String scope, Exception e) {
-		Risk.sayError("The RiskBot " + players[player_id].getName() + " messed up big time, and the game could not go on.");
-		Risk.sayOutput(scope);
-		Risk.sayOutput(e.getMessage());
+		sayError("The RiskBot " + players[player_id].getName() + " messed up big time, and the game could not go on.");
+		sayOutput(scope);
+		sayOutput(e.getMessage());
 		exit();
 	}
 
@@ -628,7 +751,7 @@ public class Game {
 		for(int i=0;i<continents_won.length;i++) {
 			if(continents_won[i]) {
 				bonus_armies += CONTINENT_BONUSES[i];
-				Risk.sayOutput("+ " + CONTINENT_BONUSES[i] + " armies for owning all of " + CONTINENT_NAMES[i] + ".", OutputFormat.TABBED);
+				sayOutput("+ " + CONTINENT_BONUSES[i] + " armies for owning all of " + CONTINENT_NAMES[i] + ".", OutputFormat.TABBED);
 			}
 		}
 		return bonus_armies;
@@ -642,9 +765,9 @@ public class Game {
 		int armies = 0;
 		if(players[turn_player_id].getNumCards() >= 5) {
 			if(currentPlayerHuman())
-				Risk.sayOutput("Since you have " + players[turn_player_id].getNumCards() + " cards, you must turn in a set for armies.");
+				sayOutput("Since you have " + players[turn_player_id].getNumCards() + " cards, you must turn in a set for armies.");
 			else
-				Risk.sayOutput("Since " + getPlayerName() + " has " + players[turn_player_id].getNumCards() + " cards, he must turn in a set for armies.");
+				sayOutput("Since " + getPlayerName() + " has " + players[turn_player_id].getNumCards() + " cards, he must turn in a set for armies.");
 			armies += turnInSet(false);
 		}
 
@@ -653,7 +776,7 @@ public class Game {
 			armies += turnInSet(true);
 		}
 		if(currentPlayerHuman())
-			Risk.sayOutput(cardReport());
+			sayOutput(cardReport());
 		return armies;
 	}
 
@@ -688,23 +811,23 @@ public class Game {
 	 * Step 3 of a player's turn. Lets the player move armies from 1 country
 	 * to 1 neighboring country. This move is optional.
 	 */
-	public void fortifyPosition() {
+	private void fortifyPosition() {
 		int move_from = 0, move_to = 0, army_change = 0;
 		try {
 
 			if(currentPlayerHuman()) {
-				Risk.sayOutput("You may now fortify your position.");
-				Risk.sayOutput("From which territory would you like to move armies? To skip fortification, enter 0.", OutputFormat.QUESTION);
+				sayOutput("You may now fortify your position.");
+				sayOutput("From which territory would you like to move armies? To skip fortification, enter 0.", OutputFormat.QUESTION);
 				while(true) {	// Loop asking for the country number that they'd like to move armies from
 					move_from = players[turn_player_id].askInt(0, NUM_COUNTRIES);
 					if(move_from == 0) return;
 					move_from--; // The number entered is 1-NUM_COUNTRIES, but we want 0-(NUM_COUNTRIES-1)
 					if(COUNTRIES[move_from].getPlayer() != turn_player_id) {
-						Risk.sayError("Not your territory, enter another.");
+						sayError("Not your territory, enter another.");
 						continue;
 					}
 					if(COUNTRIES[move_from].getArmies() <= 1) {
-						Risk.sayError("A minimum of 1 army must be present in each territory. Enter another.");
+						sayError("A minimum of 1 army must be present in each territory. Enter another.");
 						continue;
 					}
 					break;
@@ -730,7 +853,7 @@ public class Game {
 			if(adj.length == 0 || adj[0] == 0) {
 				if(!currentPlayerHuman())
 					throw new Bot.RiskBotException("Tried to move armies from a territory that has no adjacencies.");
-				Risk.sayError("According to the map file, " + COUNTRIES[move_from] + " doesn't have any adjacencies.");
+				sayError("According to the map file, " + COUNTRIES[move_from] + " doesn't have any adjacencies.");
 				fortifyPosition();
 			}
 			ArrayList<Integer> domestic_adjacencies = new ArrayList<Integer>();
@@ -742,17 +865,17 @@ public class Game {
 			if(domestic_adjacencies.size() == 0) {
 				if(!currentPlayerHuman())
 					throw new Bot.RiskBotException("Tried to move armies from a territory that has no friendly adjacencies.");
-				Risk.sayError("No friendly adjacencies found for " + COUNTRIES[move_from].getName() + ".");
+				sayError("No friendly adjacencies found for " + COUNTRIES[move_from].getName() + ".");
 				fortifyPosition();
 			}
 			if(currentPlayerHuman()) {
 				if(domestic_adjacencies.size() == 1) {
-					Risk.sayOutput(COUNTRIES[domestic_adjacencies.get(0)].getName() + " is the only friendly territory adjacent to " + COUNTRIES[move_from].getName() + ".");
+					sayOutput(COUNTRIES[domestic_adjacencies.get(0)].getName() + " is the only friendly territory adjacent to " + COUNTRIES[move_from].getName() + ".");
 					move_to = domestic_adjacencies.get(0);
 				} else {
-					Risk.sayOutput("Which territory would you like to foritfy?", OutputFormat.QUESTION);
+					sayOutput("Which territory would you like to foritfy?", OutputFormat.QUESTION);
 					for(int i=1; i<=domestic_adjacencies.size(); i++) {
-						Risk.sayOutput(i+": " + COUNTRIES[domestic_adjacencies.get(i-1)].getName(), OutputFormat.TABBED);
+						sayOutput(i+": " + COUNTRIES[domestic_adjacencies.get(i-1)].getName(), OutputFormat.TABBED);
 					}
 					int choice = ((Human)players[turn_player_id]).askInt(1,domestic_adjacencies.size());
 					move_to = domestic_adjacencies.get(choice-1);
@@ -765,14 +888,14 @@ public class Game {
 			BadRobot(turn_player_id, "During the fortification phase:", e);
 		}
 		if(currentPlayerHuman()) {
-			Risk.sayOutput("How many armies would you like to move into " + COUNTRIES[move_to].getName() + "? Max " + (COUNTRIES[move_from].getArmies()-1), OutputFormat.QUESTION);
+			sayOutput("How many armies would you like to move into " + COUNTRIES[move_to].getName() + "? Max " + (COUNTRIES[move_from].getArmies()-1), OutputFormat.QUESTION);
 			army_change = ((Human)players[turn_player_id]).askInt(1, COUNTRIES[move_from].getArmies()-1);
 		} else {
-			Risk.sayOutput(getPlayerName() + " is fortifying " + COUNTRIES[move_to].getName() + " with " + army_change + " armies from " + COUNTRIES[move_from].getName() + ".");
+			sayOutput(getPlayerName() + " is fortifying " + COUNTRIES[move_to].getName() + " with " + army_change + " armies from " + COUNTRIES[move_from].getName() + ".");
 		}
 		COUNTRIES[move_from].setArmies(COUNTRIES[move_from].getArmies() - army_change);
 		COUNTRIES[move_to].setArmies(COUNTRIES[move_to].getArmies() + army_change);
-		Risk.refreshGraphics();
+		refreshGraphics();
 	}
 
 	/*
@@ -793,10 +916,10 @@ public class Game {
 	/* Advances the turns by one player. Edits the turn_player_id variable
 	 * Called to advance turn_player_id to the next int in a looped sequence of PLAYER_NAMES indices
 	 */
-	public void advanceTurn() {
+	private void advanceTurn() {
 		if(turn_player_id > NUM_PLAYERS - 1) {
 			turn_player_id = 0;
-			Risk.sayOutput("First player not randomly chosen. " + getPlayerName() + " goes first.");
+			sayOutput("First player not randomly chosen. " + getPlayerName() + " goes first.");
 		}
 		if(turn_player_id == NUM_PLAYERS - 1)
 			turn_player_id = 0;
@@ -806,7 +929,7 @@ public class Game {
 
 	// advances armies_from_next_set according to how much the army amount should go up
 	// Follows 4->6->8->10->12->15->20->25 etc..
-	public void advanceCardArmies() {
+	private void advanceCardArmies() {
 		if(armies_from_next_set < 12) armies_from_next_set += 2;
 		else if(armies_from_next_set == 12) armies_from_next_set += 3;
 		else armies_from_next_set += 5;
@@ -837,7 +960,7 @@ public class Game {
 
 	public String getPlayerName(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
-			Risk.sayError("Invalid player id for Game.getPlayerName(id)");
+			sayError("Invalid player id for Game.getPlayerName(id)");
 			exit();
 		}
 		return players[id].getName();
@@ -849,7 +972,7 @@ public class Game {
 
 	public int getPlayerArmies(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
-			Risk.sayError("Invalid player id for Game.getPlayerArmies(id)");
+			sayError("Invalid player id for Game.getPlayerArmies(id)");
 			exit();
 		}
 		int total = 0;
@@ -862,7 +985,7 @@ public class Game {
 
 	public boolean playerStillIn(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
-			Risk.sayError("Invalid player id for Game.playerStillIn(id)");
+			sayError("Invalid player id for Game.playerStillIn(id)");
 			exit();
 		}
 		return players[id].getStillIn();
@@ -873,6 +996,15 @@ public class Game {
 		if(players[turn_player_id].getType() == Player.HUMAN)
 			return true;
 		else return false;
+	}
+	
+	// Get player's type (human vs bot)
+	public int getPlayerType(int player_id) {
+		if(player_id < 0 || player_id >= NUM_PLAYERS) {
+			sayError("Invalid player id for Game.getPlayerType(id)");
+			exit();
+		}
+		return players[player_id].getType();
 	}
 
 	// Retrieves the color of a given player id. Otherwise, returns a gray
@@ -885,7 +1017,7 @@ public class Game {
 	// Returns the Color at some index of CONTINENT_COLORS
 	public Color getContinentColor(int cont) {
 		if(cont < 0 || cont > CONTINENT_NAMES.length-1) {
-			Risk.sayError("Could not get continent color of continent id " + cont);
+			sayError("Could not get continent color of continent id " + cont);
 			exit();
 		}
 		return CONTINENT_COLORS[cont];

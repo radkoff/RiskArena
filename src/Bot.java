@@ -10,10 +10,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Bot extends Player {
+	public static final String ICON_URL = "src/images/robot.png";
 	private RiskBot skynet;		// The bot itself
 	private RiskListener risk_listener;	// Very simple object given to skynet that adds choices to from_bot
 	private LinkedBlockingQueue<Integer> from_bot = new LinkedBlockingQueue<Integer>();	// A Queue of answers given by skynet
-	long timeout = 5;	// seconds to wait
+	long timeout = 5;	// Max seconds to wait for an answer
+	private Game game;
 
 	// Constructs a Bot object given its name, color, and player id
 	public Bot(String bot_name, Color c, int id) {
@@ -23,7 +25,7 @@ public class Bot extends Player {
 			Class dynamic_class = Class.forName(Risk.RISKBOT_PREFIX + bot_name);
 			skynet = (RiskBot)dynamic_class.newInstance();
 		} catch ( Exception e ) {
-			Risk.sayError("Source file for bot name " + bot_name + " not found.");
+			game.sayError("Source file for bot name " + bot_name + " not found.");
 		}
 		risk_listener = new RiskListener();
 	}
@@ -31,13 +33,14 @@ public class Bot extends Player {
 	// This is called once in order to pass along a GameInfo object
 	// and the RiskListener to skynet so that it may communicate with the game.
 	public void initializeBot(Game g) {
+		game = g;
 		skynet.init(new GameInfo(g, this), risk_listener);
 	}
 
 	// Starts a new thread, calls skynet's implemented claimTerritory method
 	public void claimTerritory() {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -51,7 +54,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented forifyTerritory method
 	public void fortifyTerritory(final int num_to_place) {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -65,7 +68,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented launchAttack method
 	public void launchAttack() {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -79,7 +82,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented forifyAfterVictory method
 	public void fortifyAfterVictory(final int attacker, final int defender, final int min, final int max) {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -93,7 +96,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented chooseCardSet method
 	public void chooseCardSet(final int[][] possible_sets) {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -107,7 +110,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented chooseToTurnInSet method
 	public void chooseToTurnInSet() {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -121,7 +124,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented forifyPosition method
 	public void fortifyPosition() {
 		try {
-			Thread.sleep(Risk.bot_playing_speed);
+			Thread.sleep(game.bot_playing_speed);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

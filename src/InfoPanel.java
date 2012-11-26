@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.GroupLayout.Alignment;
@@ -28,6 +29,7 @@ public class InfoPanel extends JPanel {
 	private String[] cont_names;	// Continent names
 
 	private int NUM_PLAYERS;
+	private JLabel[] player_icons; // Player human/bot icons
 	private String[] player_names;	// Player names
 	private Color[] player_colors;	// Player colors
 	private JLabel[] player_name_labels;	// Array of JLabels of player names
@@ -106,6 +108,7 @@ public class InfoPanel extends JPanel {
 		GroupLayout.ParallelGroup second_column_players = layout.createParallelGroup(Alignment.CENTER);
 
 		NUM_PLAYERS = game.NUM_PLAYERS;
+		player_icons = new JLabel[NUM_PLAYERS];
 		player_names = new String[NUM_PLAYERS];
 		player_colors = new Color[NUM_PLAYERS];
 		player_name_labels = new JLabel[NUM_PLAYERS];
@@ -114,6 +117,17 @@ public class InfoPanel extends JPanel {
 		for(int i=0;i<NUM_PLAYERS;i++) {
 			player_names[i] = game.getPlayerName(i);
 			player_colors[i] = game.getPlayerColor(i);
+			
+			// Player's icon (human or bot)
+			String icon = "";
+			int player_type = game.getPlayerType(i);
+			if(player_type == Player.BOT)
+				icon = Bot.ICON_URL;
+			else if(player_type == Player.HUMAN)
+				icon = Human.ICON_URL;
+			else
+				Risk.sayError("Unrecognized player type for " + player_names[i]);
+			player_icons[i] = new JLabel("", new ImageIcon(icon), JLabel.CENTER);
 			// Player's name
 			player_name_labels[i] = new JLabel(player_names[i] + " - ");
 			player_name_labels[i].setForeground(player_colors[i]);
@@ -124,7 +138,9 @@ public class InfoPanel extends JPanel {
 			player_army_amounts[i] = new JLabel(""+game.getPlayerArmies(i));
 			player_army_amounts[i].setForeground(player_colors[i]);
 			player_army_amounts[i].setFont(FontMaker.makeCustomFont(player_label_size));
-			first_column_players.addComponent(player_name_labels[i]);
+			
+			first_column_players.addGroup(layout.createSequentialGroup().addComponent(player_icons[i])
+				.addComponent(player_name_labels[i]));
 			second_column_players.addComponent(player_army_amounts[i]);
 		}
 
@@ -150,7 +166,9 @@ public class InfoPanel extends JPanel {
 		}
 		vGroup.addComponent(players);
 		for(int i=0;i<NUM_PLAYERS;i++) {
-			vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(player_name_labels[i])
+			vGroup.addGroup(layout.createParallelGroup(Alignment.CENTER)
+					.addComponent(player_icons[i])
+					.addComponent(player_name_labels[i])
 					.addComponent(player_army_amounts[i]));
 		}
 		layout.setVerticalGroup(vGroup);

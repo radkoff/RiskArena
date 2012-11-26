@@ -13,8 +13,9 @@ import java.awt.Insets;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public class Graphics extends JFrame {
+public class GameBoard extends JFrame {
 	private int WINDOW_WIDTH = 1200, WINDOW_HEIGHT = 750;
 	private int lower_left_width = 300;
 	private int lower_left_height = 300;
@@ -25,7 +26,7 @@ public class Graphics extends JFrame {
 	private InfoPanel lower_left; // Not sure what this will become yet
 	private JPanel main_panel;
 
-	public Graphics() {
+	public GameBoard() {
 		initUI();
 	}
 
@@ -66,9 +67,13 @@ public class Graphics extends JFrame {
 	}
 
 	// Send the game information to the Pretty and InfoPanel objects
-	public void sendGameInfo(Game game, int[][] adj) {
-		pretty.sendGame(game, adj);
-		lower_left.sendGame(game);
+	public void sendGameInfo(final Game game, final int[][] adj) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				pretty.sendGame(game, adj);
+				lower_left.sendGame(game);
+			}
+		});
 	}
 
 	// Refreshes graphics by re-drawing everything
