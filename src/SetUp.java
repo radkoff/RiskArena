@@ -5,8 +5,6 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,12 +20,10 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -35,11 +31,10 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class SetUp  extends JDialog {
+public class SetUp extends JDialog {
 	private final Color BGCOLOR = new Color(0.4f, 0.4f, 0.4f);	// Background color, currently set to some ugly grey
 
 	private CardLayout switcher;
@@ -103,6 +98,8 @@ public class SetUp  extends JDialog {
 		private ArrayList<PlayerConfig> player_configs;
 		private JButton start_button;
 		private ArrayList<String> available_bots;
+		private JLabel logo;
+		private final String LOGO_URL = "src/images/RiskArena.png";
 
 		private int question_size = 14;
 		private Border error_border = BorderFactory.createLineBorder(Color.red, 3);
@@ -115,6 +112,8 @@ public class SetUp  extends JDialog {
 			players_question = new JLabel("How many players are there?");
 			players_question.setFont(FontMaker.makeCustomFont(question_size));
 			players_question.setForeground(Color.white);
+			
+			logo = new JLabel("",new ImageIcon(LOGO_URL), JLabel.CENTER);
 			
 			File maps_dir = new File(Risk.MAPS_DIR_NAME);
 			String[] files = maps_dir.list();
@@ -217,7 +216,7 @@ public class SetUp  extends JDialog {
 
 			// Draw layout using GroupLayout:
 			GroupLayout.ParallelGroup hGroup = layout.createParallelGroup();
-			//hGroup.addComponent(addstuff);
+			hGroup.addComponent(logo);
 			hGroup.addGroup(layout.createSequentialGroup()
 					.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 							.addGroup(layout.createSequentialGroup()
@@ -261,7 +260,8 @@ public class SetUp  extends JDialog {
 
 			GroupLayout.SequentialGroup vGroup = layout
 					.createSequentialGroup();
-			//vGroup.addComponent(addstuff);
+			vGroup.addComponent(logo);
+			vGroup.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,30, 30);
 			vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 					.addComponent(maps_question)
 					.addComponent(mapChooser));

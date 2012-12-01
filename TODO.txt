@@ -1,6 +1,6 @@
 Short-term:
-Design Logo
 close gameboard window when the game is over
+Bot v Bot war games
 "Bot speed" slider in gameboard
 
 "Soon":
@@ -17,5 +17,3 @@ Long-term:
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Map Creator
 Multiplayer via Internet using the client/server model
-
-rogued
