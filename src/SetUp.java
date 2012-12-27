@@ -1,7 +1,6 @@
 /*
  * The SetUp class is responsible for the initial game set up dialog,
- * including choosing the players and map, as well as the war games set
- * up when all players are AI.
+ * including choosing the players and map
  * 
  * Evan Radkoff
  */
@@ -45,13 +44,11 @@ import javax.swing.event.ChangeListener;
 public class SetUp  extends JDialog {
 	private final Color BGCOLOR = new Color(0.4f, 0.4f, 0.4f);	// Background color, currently set to some ugly grey
 
-	private CardLayout switcher;
-	private JPanel main_panel;	// Primary panel that uses switcher to go from FirstPanel to WarGameSetUp
-	private FirstPanel fp;	// card 1
-	private WarGameSetUp wargame;	// card 2
+	private SetUpPanel sup;
 
 	private Player players[];
 	private String map_name;
+	private boolean war_games = true; // If true, all players are AI and the set up is for War Games
 
 	public SetUp() {
 		initUI();
@@ -59,13 +56,9 @@ public class SetUp  extends JDialog {
 
 	/* Initializes the dialog UI */
 	private void initUI() {
-		switcher = new CardLayout();
-		main_panel = new JPanel(switcher);
-		fp = new FirstPanel();	// FirstPanel, a private class, represents the first game set up panel
-		main_panel.add(fp, "first");
+		sup = new SetUpPanel();	// SetUpPanel, a private class, represents the first game set up panel
 
-		add(main_panel);
-		switcher.show(main_panel, "first");
+		add(sup);
 		setResizable(false);
 		setTitle("Welcome to " + Risk.PROJECT_NAME);
 
@@ -78,7 +71,7 @@ public class SetUp  extends JDialog {
 
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 		
-		fp.newPlayersChosen(Risk.MIN_PLAYERS);
+		sup.newPlayersChosen(Risk.MIN_PLAYERS);
 		setVisible(true);
 	}
 
@@ -88,6 +81,12 @@ public class SetUp  extends JDialog {
 	private void startClicked(Player p[], String m) {
 		players = p;
 		map_name = m;
+		if(players != null) {
+		for(int i=0;i<players.length;i++) {
+			if(players[i].getType() == Player.HUMAN)
+				war_games = false;
+		}
+		}
 		this.setVisible(false);	// close the dialog
 	}
 
@@ -108,9 +107,13 @@ public class SetUp  extends JDialog {
 		}
 		return map_name;
 	}
+	
+	public boolean warGames() {
+		return war_games;
+	}
 
 	// A panel that represents the first game set up phase (choose map, player info)
-	private class FirstPanel extends JPanel {
+	private class SetUpPanel extends JPanel {
 		private JComboBox mapChooser;
 		private PlayersSlider players_slider;
 		private JLabel maps_question, players_question;
@@ -122,7 +125,7 @@ public class SetUp  extends JDialog {
 		private Border error_border = BorderFactory.createLineBorder(Color.red, 3);	// Invalid input causes a red border
 		private Border original_border;	// for red border removal
 		
-		public FirstPanel() {
+		public SetUpPanel() {
 			// Set up the label asking "What map would like you to play?"
 			maps_question = new JLabel("What map would like you to play?");
 			maps_question.setFont(FontMaker.makeCustomFont(question_size));
@@ -481,9 +484,5 @@ public class SetUp  extends JDialog {
 				}
 			}
 		}
-	}
-
-	private class WarGameSetUp extends JPanel {
-		
 	}
 }

@@ -33,23 +33,32 @@ public class Risk {
 	final static boolean input_from_std = false;
 
 	//private static InputListener console_input;
-	private static int num_players;	// The number of players in a given game.
 	private static Player players[];	// Structure to hold player names when read from input
 	private static Game game;	// The instance of the game engine class, Game
 	private static SetUp setup; // Game set up panel
+	private static WarGameSetUp wargamesetup; // Set up panel for all-AI war games
 
 	// Hello World!
 	public static void main(String[] args) {
 		
 		setup = new SetUp();
 		players = setup.getPlayers();
-		if(players == null) {
-			System.exit(1);
+		if(setup.warGames()) {
+			wargamesetup = new WarGameSetUp();
+			int num_games = wargamesetup.getNumGames();
+			int watch_mode = wargamesetup.getMode();
+			String save_file = wargamesetup.getSaveFile();
+			for(int i=0;i<num_games;i++) {
+				boolean watch = (watch_mode == WarGameSetUp.WATCH_ALL || (watch_mode == WarGameSetUp.WATCH_ONE && i == 0) ) ? true : false;
+				game = new Game(players, MAPS_DIR_NAME + setup.getMap(), watch);
+				game.init();
+				game.play();
+			}
+		} else {
+			game = new Game(players, MAPS_DIR_NAME + setup.getMap(), true);
+			game.init();
+			game.play();
 		}
-		
-		game = new Game(players, MAPS_DIR_NAME + setup.getMap());
-		game.init();
-		game.play();
 	}
 
 	/*

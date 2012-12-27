@@ -13,7 +13,8 @@ import java.util.Random;
 import javax.swing.SwingUtilities;
 
 public class Game {
-	final long bot_playing_speed = 30; // milliseconds bots wait before sending game decisions
+	public long bot_playing_speed = 30; // milliseconds bots wait before sending game decisions
+	private boolean watch;
 	
 	private GameBoard board; // The Graphics object that draws everything
 	
@@ -40,7 +41,9 @@ public class Game {
 	 * @param ArrayList<String> player_names, the names of players of the game
 	 * @param String map_file file path to the map file, sent to a MapReader object
 	 */
-	public Game(Player p[], String map_file) {
+	public Game(Player p[], String map_file, boolean w) {
+		watch = w; // whether or not to show the game
+		if(watch) {
 		initializeGraphics();
 		// Wait for the graphics to be initialized on its own thread.
 		while(board==null) {
@@ -50,6 +53,8 @@ public class Game {
 				e.printStackTrace();
 			}
 		}
+		}
+		if(!watch) bot_playing_speed = 0;
 		
 		NUM_PLAYERS = p.length;
 		// make map reader, read map info
@@ -86,8 +91,10 @@ public class Game {
 	
 	public void init() {
 		sendGameToBots();
-		sendGameToBoard();
-		sendHumanListenersToBoard();
+		if(watch) {
+			sendGameToBoard();
+			sendHumanListenersToBoard();
+		}
 	}
 	
 	public void play() {
@@ -136,6 +143,8 @@ public class Game {
 	}
 	
 	public void refreshGraphics() {
+		if(!watch)
+			return;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				board.refresh();
@@ -165,7 +174,7 @@ public class Game {
 			} else if(output_format_style != OutputFormat.ANSWER)
 				System.out.println(toSay);
 		}
-		if(board != null) {
+		if(watch && board != null) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					board.sayOutput(toSay, output_format_style);
