@@ -18,7 +18,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -47,7 +49,7 @@ public class SetUp  extends JDialog {
 	private SetUpPanel sup;
 
 	private Player players[];
-	private String map_name;
+	private String map_name, log_file_path;
 	private boolean war_games = true; // If true, all players are AI and the set up is for War Games
 
 	public SetUp() {
@@ -87,6 +89,7 @@ public class SetUp  extends JDialog {
 				war_games = false;
 		}
 		}
+		setLogFilePath();
 		this.setVisible(false);	// close the dialog
 	}
 
@@ -108,8 +111,33 @@ public class SetUp  extends JDialog {
 		return map_name;
 	}
 	
+	public String getLogFilePath() {
+		if(map_name == null) {
+			Risk.sayError("SetUp is returning a null log file path.");
+			System.exit(1);
+		}
+		return log_file_path;
+	}
+	
 	public boolean warGames() {
 		return war_games;
+	}
+	
+	private void setLogFilePath() {
+		String logp = Risk.LOG_PATH; // path of the logs directory
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); 
+		String dateStr = sdf.format(cal.getTime());
+		logp += dateStr;	// Add the current date to the file name
+		int unique = 1;	// To ensure it's unique, keep adding a number until it is
+		while(true) {
+			File f = new File(logp + "-" + unique + ".html");
+			if(!f.exists())
+				break;
+			unique++;
+		}
+		logp += "-" + unique + ".html";
+		log_file_path = logp;
 	}
 
 	// A panel that represents the first game set up phase (choose map, player info)

@@ -1,13 +1,12 @@
 Short-term:
-Design Logo
-close gameboard window when the game is over
+WarGamesReport GUI window and results file
+
 "Bot speed" slider in gameboard
 
 "Soon":
 Play/pause buttons during bots' turns
 Un-clutter Game.java
 README
-If a game is configured to be all AI, you can choose to simulate any number of games very quickly.
 Handle edge adjacencies such as alaska-kamchatka.
 Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the window
@@ -17,5 +16,3 @@ Long-term:
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Map Creator
 Multiplayer via Internet using the client/server model
-
-rogued

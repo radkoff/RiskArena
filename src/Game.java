@@ -6,6 +6,10 @@
  */
 
 import java.awt.Color;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
@@ -13,11 +17,11 @@ import java.util.Random;
 import javax.swing.SwingUtilities;
 
 public class Game {
-	public long bot_playing_speed = 30; // milliseconds bots wait before sending game decisions
+	public long bot_playing_speed = 40; // milliseconds bots wait before sending game decisions
 	private boolean watch;
-	
+
 	private GameBoard board; // The Graphics object that draws everything
-	
+
 	public final int NUM_PLAYERS; // number of players, set in constructor
 	public final int NUM_COUNTRIES; // number of territories
 
@@ -35,27 +39,30 @@ public class Game {
 	private int player_id_that_goes_first; // The index of PLAYER_NAMES that goes first. Randomly set in game initialization
 	private int winner = 0;	// player id of the winner
 	private Random rand;
+	private BufferedWriter log_writer;	// writes to log_path
+	private String log_path;
 
 	/* This is the primary Game constructor. It sets up the data
 	 * structure in Game.java that hold game information.
 	 * @param ArrayList<String> player_names, the names of players of the game
 	 * @param String map_file file path to the map file, sent to a MapReader object
 	 */
-	public Game(Player p[], String map_file, boolean w) {
+	public Game(Player p[], String map_file, String log_file_path, boolean w) {
 		watch = w; // whether or not to show the game
 		if(watch) {
-		initializeGraphics();
-		// Wait for the graphics to be initialized on its own thread.
-		while(board==null) {
-			try {
-				Thread.sleep(10);
-			} catch(Exception e) {
-				e.printStackTrace();
+			initializeGraphics();
+			// Wait for the graphics to be initialized on its own thread.
+			while(board==null) {
+				try {
+					Thread.sleep(10);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
-		}
 		if(!watch) bot_playing_speed = 0;
-		
+		log_path = log_file_path;
+
 		NUM_PLAYERS = p.length;
 		// make map reader, read map info
 		try {
@@ -88,17 +95,30 @@ public class Game {
 
 		setPlayerThatGoesFirst();
 	}
-	
+
 	public void init() {
+		// Create the BufferedWriter that will write to log path
+		try {
+			File file = new File(log_path);
+			file.createNewFile();
+			FileWriter fstream = new FileWriter(log_path,true);
+			log_writer = new BufferedWriter(fstream);
+			log_writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\"><html><head><title>Game at " + new Date().toString()
+					+ "</title><link rel=\"stylesheet\" type=\"text/css\" href=\"log_format.css\"></head><body>");
+		} catch(Exception e) {
+			Risk.sayError("Unable to create log file at " + log_path);
+		}
+
 		sendGameToBots();
 		if(watch) {
 			sendGameToBoard();
 			sendHumanListenersToBoard();
 		}
 	}
-	
+
 	public void play() {
 		placeInitialArmies();	// Game setup, involving players placing initial armies
+
 		while(!over()) {	// over returns true when the game is done
 			sayOutput("=======================================");
 			sayOutput("Beginning " + getPlayerName() + "'s turn.");
@@ -112,7 +132,7 @@ public class Game {
 		int winner = getWinner(); // get the winner from the game engine
 		sayOutput("Congratulations " + players[winner].getName() + ", you win " + Risk.PROJECT_NAME + "!");
 	}
-	
+
 	/*
 	 * This method creates and initializes the GameBoard object
 	 */
@@ -124,7 +144,7 @@ public class Game {
 			}
 		});
 	}
-	
+
 	/*
 	 * Once the game object is constructed, it must be sent along to each Bot player
 	 */
@@ -135,13 +155,13 @@ public class Game {
 		}
 	}
 
-	
+
 
 	private void sendGameToBoard() {
 		board.sendGameInfo(this, world.getAdjacencyList());
 		refreshGraphics();
 	}
-	
+
 	public void refreshGraphics() {
 		if(!watch)
 			return;
@@ -181,6 +201,16 @@ public class Game {
 				}
 			});
 		}
+		if(log_writer != null) {
+		// Append to the log_path file
+		try {
+			String HTMLtoSay = "<p class=\"" + OutputFormat.getClassName(output_format_style) + "\">" + toSay + "</p>";
+			log_writer.write(HTMLtoSay + '\n');
+		} catch (IOException e) {
+			Risk.sayError("Unable to write to " + log_path + ":");
+			Risk.sayError(e.getMessage());
+		}
+		}
 	}
 
 	/*
@@ -199,12 +229,11 @@ public class Game {
 	public void sayError(final String toSay) {
 		sayOutput(toSay, OutputFormat.ERROR);
 	}
-	
+
 	/*
 	 * Chooses a random player to go first, sets the global int player_id_that_goes_first.
 	 */
 	private void setPlayerThatGoesFirst() {
-		Date dat = new Date();
 		int some_player = rand.nextInt(NUM_PLAYERS);
 		player_id_that_goes_first = some_player;
 		turn_player_id = player_id_that_goes_first;
@@ -459,8 +488,8 @@ public class Game {
 					sayOutput(getPlayerName() + " is launching an attack from " + COUNTRIES[attacking_from].getName() + " to " + COUNTRIES[attacking_to].getName() + ".");
 				}
 				if(attack(attacking_from, attacking_to)) {		// attack() plays out the attack
-					if(over()) return;
 					gained_territory = true;
+					if(over()) return;
 				}
 			}
 		} catch (Bot.RiskBotException e) {
@@ -659,7 +688,6 @@ public class Game {
 				players[turn_player_id].decrementCardType(possible_triples[0][2]);
 				deck.addCards(possible_triples[0]);
 				armies += armies_from_next_set;
-				advanceCardArmies();
 			} else {
 				int choice;
 				if(currentPlayerHuman()) {
@@ -706,7 +734,7 @@ public class Game {
 	 * Checks if player_id has been eliminated from the game.
 	 * If so, sets still_in[player_id] as false to indicate they are out.
 	 */
-	private boolean playerEliminated(int player_id) {		
+	private boolean playerEliminated(int player_id) {
 		for(int i=0;i<NUM_COUNTRIES;i++) {
 			if(COUNTRIES[i].getPlayer() == player_id) return false;
 		}
@@ -1006,7 +1034,7 @@ public class Game {
 			return true;
 		else return false;
 	}
-	
+
 	// Get player's type (human vs bot)
 	public int getPlayerType(int player_id) {
 		if(player_id < 0 || player_id >= NUM_PLAYERS) {
@@ -1056,5 +1084,21 @@ public class Game {
 	// Returns how many armies the next person to turn in a set of cards will get.
 	public int getArmiesFromNextSet() {
 		return armies_from_next_set;
+	}
+
+	public void resetPlayers() {
+		for(int i=0;i<players.length;i++)
+			players[i].reset();
+	}
+
+	public void close(boolean close_board) {
+		try {
+			log_writer.write("</body></html>");
+			log_writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if(watch && close_board)
+			board.setVisible(false);
 	}
 }

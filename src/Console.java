@@ -1,6 +1,6 @@
 /*
  * The console class is the UI component that shows a history of game
- * messages, and allows the user to enter input. It is used by the Graphics class.
+ * messages, and allows the user to enter input. It is used by the GameBoard class.
  * 
  * Evan Radkoff
  */
@@ -103,25 +103,12 @@ public class Console extends JPanel{
 	// ScrollablePanel is a type of JPanel that allows for the lines within to wrap
 	private class HistoryView extends ScrollablePanel {
 		private JEditorPane tarea;		// HTML style JEditorPane
-		private String log_path;		// Path of the log file the game history is saved to
-		BufferedWriter log_writer;	// writes to log_path
 
 		public HistoryView() {
 			setScrollableWidth( ScrollablePanel.ScrollableSizeHint.FIT );
 			setLayout(new BorderLayout());
 			tarea = new JEditorPane();
 
-			// Generate the log path
-			log_path = generateLogPath();
-			// Create the BufferedWriter that will write to log_path
-			try {
-				File file = new File(log_path);
-				file.createNewFile();
-				FileWriter fstream = new FileWriter(log_path,true);
-				log_writer = new BufferedWriter(fstream);
-			} catch(Exception e) {
-				Risk.sayError("Unable to create log file at " + log_path);
-			}
 			tarea.setEditorKit(new StyledEditorKit());
 			tarea.setBackground(BGCOLOR);
 			tarea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
@@ -155,14 +142,6 @@ public class Console extends JPanel{
 				Risk.sayError(e.getMessage());
 			}
 
-			try {
-				// append to the file log_path
-				log_writer.write(to_add);
-			} catch (IOException e) {
-				Risk.sayError("Unable to write to " + log_path + ":");
-				Risk.sayError(e.getMessage());
-			}
-
 		}
 
 		// Scrolls the output history down to the bottom (in a new Thread)
@@ -173,30 +152,7 @@ public class Console extends JPanel{
 				}
 			});
 		}
-
-		// All game histories are kept in log files. This method generates the
-		// path for this game's log. It is garunteed to be unique.
-		private String generateLogPath() {
-			if(log_path != null) {
-				Risk.sayError("Trying to generate a log path twice.");
-			}
-			String logp = Risk.LOG_PATH; // path of the logs directory
-			Calendar cal = Calendar.getInstance();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); 
-			String dateStr = sdf.format(cal.getTime());
-			logp += dateStr;	// Add the current date to the file name
-			int unique = 1;	// To ensure it's unique, keep adding a number until it is
-			while(true) {
-				File f = new File(logp + "-" + unique + ".html");
-				if(!f.exists())
-					break;
-				unique++;
-			}
-			logp += "-" + unique + ".html";
-			return logp;
-		}
 	}
-
 	// The "command line" JTextField used for human input
 	private class CommandLine extends JTextField {
 		// Constructs the CommandLine given the prompt text (ie ">> ")

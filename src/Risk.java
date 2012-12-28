@@ -33,7 +33,7 @@ public class Risk {
 	final static boolean input_from_std = false;
 
 	//private static InputListener console_input;
-	private static Player players[];	// Structure to hold player names when read from input
+	private static Player players[];	// Structure to hold player information
 	private static Game game;	// The instance of the game engine class, Game
 	private static SetUp setup; // Game set up panel
 	private static WarGameSetUp wargamesetup; // Set up panel for all-AI war games
@@ -43,6 +43,10 @@ public class Risk {
 		
 		setup = new SetUp();
 		players = setup.getPlayers();
+		String log_file_path = setup.getLogFilePath();
+		String map_file_path = MAPS_DIR_NAME + setup.getMap();
+		
+		// War Games are when the players are all AI
 		if(setup.warGames()) {
 			wargamesetup = new WarGameSetUp();
 			int num_games = wargamesetup.getNumGames();
@@ -50,15 +54,20 @@ public class Risk {
 			String save_file = wargamesetup.getSaveFile();
 			for(int i=0;i<num_games;i++) {
 				boolean watch = (watch_mode == WarGameSetUp.WATCH_ALL || (watch_mode == WarGameSetUp.WATCH_ONE && i == 0) ) ? true : false;
-				game = new Game(players, MAPS_DIR_NAME + setup.getMap(), watch);
+				game = new Game(players, map_file_path, log_file_path, watch);
 				game.init();
 				game.play();
+				game.close(true);	// close the game and board
+				game.resetPlayers();
 			}
 		} else {
-			game = new Game(players, MAPS_DIR_NAME + setup.getMap(), true);
+			game = new Game(players, map_file_path, log_file_path, true);
 			game.init();
 			game.play();
+			game.close(false);	// close down the game but leave the board intact
 		}
+		
+		System.exit(0);
 	}
 
 	/*

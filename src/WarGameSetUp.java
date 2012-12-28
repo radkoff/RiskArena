@@ -1,3 +1,9 @@
+/*
+ * WarGameSetUp represents the window that allows the user to configure
+ * War Game settings before they commence. (War games are all-AI)
+ * The user can choose the number of games, the "game watching" mode, and the results file
+ */
+
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
