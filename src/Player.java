@@ -110,4 +110,10 @@ abstract public class Player implements PlayerInterface {
 	public boolean isPlayerAGoat() {
 		return false;
 	}
+	
+	public void reset() {
+		for(int i=0;i<cards.length;i++)
+			cards[i] = 0;
+		still_in = true;
+	}
 }

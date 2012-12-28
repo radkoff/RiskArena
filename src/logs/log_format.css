@@ -1,0 +1,7 @@
+p {margin:0; padding:0;}
+
+p.err {color:red;}
+p.tabbed {margin-left:10px; padding-left:10px;}
+p.question {color:#175C10;}
+p.tabbedquestion {margin-left:10px; padding-left:10px; color:#175C10;}
+p.answer {color:#1C9C25;}

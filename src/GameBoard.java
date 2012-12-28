@@ -1,5 +1,5 @@
 /*
- * Graphics draws the world using javax.swing. It's comprised of three elements:
+ * GameBoard draws the world using javax.swing. It's comprised of three elements:
  * A Console object for input and output, a Pretty object to draw the game board,
  * and a InfoPanel object to show continent/player info.
  * 
@@ -33,6 +33,7 @@ public class GameBoard extends JFrame {
 	// Initializes graphics
 	private void initUI() {
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		main_panel = new JPanel(new BorderLayout());
 		JPanel side = new JPanel(new BorderLayout());
 		pretty = new Pretty(WINDOW_WIDTH-lower_left_width, WINDOW_HEIGHT);
