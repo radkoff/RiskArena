@@ -11,6 +11,7 @@ import java.awt.Font;
 import java.io.File;
 
 public class FontMaker {
+	// Use the font at Risk.FONT_PATH with the given size
 	public static Font makeCustomFont(int size) {
 		Font font;
 		try {
@@ -21,10 +22,12 @@ public class FontMaker {
 		}
 		return font;
 	}
+	// Use a plain font with the given size
 	public static Font makePlainFont(int size) {
 		return new Font("herp",Font.PLAIN, size);
 	}
 
+	// Use the font at Risk.FONT_PATH with the given size and Font.style
 	public static Font makeCustomFont(int style, int size) {
 		Font font;
 		try {
@@ -35,6 +38,7 @@ public class FontMaker {
 		}
 		return font;
 	}
+	// Use a plain font with the given size and style
 	public static Font makePlainFont(int style, int size) {
 		return new Font("herp",style, size);
 	}

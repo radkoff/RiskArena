@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 
 public class Pretty extends JPanel {
 	private int WIDTH, HEIGHT;
-	protected final Color BGCOLOR = new Color(0.4f, 0.4f, 0.4f);	// Background color, currently set to some ugly grey
+	protected final Color BGCOLOR = Risk.UGLY_GREY;	// Background color, currently set to some ugly grey
 	protected final int country_circle_radius = 16;	// The radius of each territory node (in pixels)
 	private final int shadow_distance = 2;	// To make text stand out, it is all drawn twice, with one of the
 	// times shadow_distance away and behind the other.

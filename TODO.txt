@@ -1,6 +1,4 @@
 Short-term:
-WarGamesReport GUI window and results file
-
 "Bot speed" slider in gameboard
 
 "Soon":
@@ -10,7 +8,7 @@ README
 Handle edge adjacencies such as alaska-kamchatka.
 Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the window
-After something is typed in cmd and the game is asking for a country, highlight in Pretty whatever countries are currently "in play"
+After something is typed in cmd and the game is asking for a country, highlight on the board whatever countries are currently "in play"
 
 Long-term:
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)

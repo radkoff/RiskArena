@@ -6,7 +6,6 @@
  */
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -17,10 +16,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -44,12 +43,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class SetUp extends JDialog {
-	private final Color BGCOLOR = new Color(0.4f, 0.4f, 0.4f);	// Background color, currently set to some ugly grey
-
 	private SetUpPanel sup;
 
 	private Player players[];
-	private String map_name, log_file_path;
+	private String map_name;
 	private boolean war_games = true; // If true, all players are AI and the set up is for War Games
 
 	public SetUp() {
@@ -63,6 +60,15 @@ public class SetUp extends JDialog {
 		add(sup);
 		setResizable(false);
 		setTitle("Welcome to " + Risk.PROJECT_NAME);
+		
+		// When this window is closed, exit the application
+				addWindowListener(new WindowAdapter()
+			      {
+			         public void windowClosing(WindowEvent e)
+			         {
+			           System.exit(0);
+			         }
+			      });
 
 		pack();
 		// Center the dialog:
@@ -89,7 +95,6 @@ public class SetUp extends JDialog {
 				war_games = false;
 		}
 		}
-		setLogFilePath();
 		this.setVisible(false);	// close the dialog
 	}
 
@@ -111,33 +116,8 @@ public class SetUp extends JDialog {
 		return map_name;
 	}
 	
-	public String getLogFilePath() {
-		if(map_name == null) {
-			Risk.sayError("SetUp is returning a null log file path.");
-			System.exit(1);
-		}
-		return log_file_path;
-	}
-	
 	public boolean warGames() {
 		return war_games;
-	}
-	
-	private void setLogFilePath() {
-		String logp = Risk.LOG_PATH; // path of the logs directory
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); 
-		String dateStr = sdf.format(cal.getTime());
-		logp += dateStr;	// Add the current date to the file name
-		int unique = 1;	// To ensure it's unique, keep adding a number until it is
-		while(true) {
-			File f = new File(logp + "-" + unique + ".html");
-			if(!f.exists())
-				break;
-			unique++;
-		}
-		logp += "-" + unique + ".html";
-		log_file_path = logp;
 	}
 
 	// A panel that represents the first game set up phase (choose map, player info)
@@ -149,7 +129,6 @@ public class SetUp extends JDialog {
 		private JButton start_button;
 		private ArrayList<String> available_bots;
 		private JLabel logo;
-		private final String LOGO_URL = "src/images/RiskArena.png";
 
 		private int question_size = 14;	// Font size of "How many players?" etc
 		private Border error_border = BorderFactory.createLineBorder(Color.red, 3);	// Invalid input causes a red border
@@ -166,7 +145,7 @@ public class SetUp extends JDialog {
 			players_question.setFont(FontMaker.makeCustomFont(question_size));
 			players_question.setForeground(Color.white);
 			
-			logo = new JLabel("",new ImageIcon(LOGO_URL), JLabel.CENTER);
+			logo = new JLabel("",new ImageIcon(Risk.LOGO_URL), JLabel.CENTER);
 			
 			// Obtain a list of available maps
 			ArrayList<String> map_candidates = getMaps();
@@ -177,24 +156,27 @@ public class SetUp extends JDialog {
 
 			// Start button
 			start_button = new JButton("Start");
-			start_button.addActionListener(new StartAction());
+			StartAction start_action = new StartAction();
+			start_button.addActionListener(start_action);
 
 			// Use the BotSniffer class to get all available bots
 			BotSniffer bot_sniffer = new BotSniffer(Risk.BOT_PATH);
 			available_bots = bot_sniffer.getBots();
+			
 			
 			// newPlayersChosen is called when a new number of players is chosen via the slider, calling for
 			// the re-rendering of player configs. To make sure the window is initially sized big enough, it is
 			// called with the max number of players.
 			newPlayersChosen(Risk.MAX_PLAYERS);
 			pack();
+
 		}
 		
 		// Draws the layout using a GroupLayout
 		private void initUI() {
 			this.removeAll();
 			GroupLayout layout = new GroupLayout(this);
-			this.setBackground(BGCOLOR);
+			this.setBackground(Risk.UGLY_GREY);
 			this.setLayout(layout);
 			this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			// Turn on automatically added gaps between components
@@ -335,6 +317,7 @@ public class SetUp extends JDialog {
 						playerz[i].setName(bot_name);
 					}
 				}
+				
 				if(!should_continue)
 					return;
 				String selected_map = (String)mapChooser.getSelectedItem() + ".map";
@@ -430,10 +413,10 @@ public class SetUp extends JDialog {
 				else if(available_bots.size() != 0)
 					type = Player.BOT;
 				
-				setBackground(BGCOLOR);
+				setBackground(Risk.UGLY_GREY);
 				button_group = new ButtonGroup();
 				radioButtonPanel = new JPanel(new FlowLayout());
-				radioButtonPanel.setBackground(BGCOLOR);
+				radioButtonPanel.setBackground(Risk.UGLY_GREY);
 				
 				// Human radio button
 				human = new JRadioButton();
@@ -492,7 +475,7 @@ public class SetUp extends JDialog {
 		        }
 		    }
 			// Human name text field
-			public class NameField extends JTextField implements FocusListener{
+			public class NameField extends JTextField implements FocusListener {
 				public boolean ready;	// True when a name has been entered
 				// By default, the text "Enter Name" appears in grey
 				public NameField() {
@@ -509,6 +492,7 @@ public class SetUp extends JDialog {
 						this.setForeground(Color.black);
 					}
 				}
+				
 				// When focus goes away, set "ready" to true unless no name was actually entered
 				public void focusLost(FocusEvent arg0) {
 					if(this.getText().isEmpty()) {
@@ -518,6 +502,7 @@ public class SetUp extends JDialog {
 					} else
 						ready = true;
 				}
+
 			}
 		}
 	}

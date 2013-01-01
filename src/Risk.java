@@ -18,21 +18,22 @@ import javax.swing.SwingUtilities;
  * The Risk class, containing main()
  */
 public class Risk {
-
+	
 	final static String PROJECT_NAME = "RiskArena";
 	final static int MIN_PLAYERS = 2;	// Minimum numbers that can play
 	final static int MAX_PLAYERS = 6;	// Maximum numbers that can play
-	// ^ If changing MAX_PLAYERS, you may need to set the number of armies each player starts with in Game.placeArmies()
-	// 		^ as well as Risk.getPlayerColor()
 	final static String MAPS_DIR_NAME = "src/maps/"; // name of the directory containing map files
 	final static String FONT_PATH = "src/fonts/AmericanTypewriter.ttc";
 	final static String BOT_PATH = "src"; // location of bots
-	final static String LOG_PATH = "src/logs/";
+	final static String GAME_LOG_PATH = "logs/game_reports/";
+	final static String WAR_GAME_LOG_PATH = "logs/war_games/";
+	final static String IMAGES_PATH = "src/images/";
+	final static String LOGO_URL = Risk.IMAGES_PATH + "RiskArena.png";
 	final static String RISKBOT_PREFIX = "RiskBot";	// any file beginning with this is considered by BotSniffer as a potential AI option
-	final static boolean output_to_std = true;
+	final static Color UGLY_GREY = new Color(0.4f,0.4f,0.4f); // many dialogs throughout the application use the same ugly grey background
+	final static boolean output_to_std = false;
 	final static boolean input_from_std = false;
 
-	//private static InputListener console_input;
 	private static Player players[];	// Structure to hold player information
 	private static Game game;	// The instance of the game engine class, Game
 	private static SetUp setup; // Game set up panel
@@ -43,31 +44,60 @@ public class Risk {
 		
 		setup = new SetUp();
 		players = setup.getPlayers();
-		String log_file_path = setup.getLogFilePath();
 		String map_file_path = MAPS_DIR_NAME + setup.getMap();
 		
 		// War Games are when the players are all AI
 		if(setup.warGames()) {
 			wargamesetup = new WarGameSetUp();
-			int num_games = wargamesetup.getNumGames();
-			int watch_mode = wargamesetup.getMode();
-			String save_file = wargamesetup.getSaveFile();
+			final int num_games = wargamesetup.getNumGames();
+			final int watch_mode = wargamesetup.getMode();
+			final String results_file = wargamesetup.getSaveFile();
+			final WarGameReport battle_window = new WarGameReport(players, setup.getMap(), num_games, results_file);
+			if(watch_mode == WarGameSetUp.WATCH_NONE) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					 battle_window.display();
+				}
+			});
+			}
 			for(int i=0;i<num_games;i++) {
+				if(i==1 && watch_mode == WarGameSetUp.WATCH_ONE) {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							 battle_window.display();
+						}
+					});
+				}
 				boolean watch = (watch_mode == WarGameSetUp.WATCH_ALL || (watch_mode == WarGameSetUp.WATCH_ONE && i == 0) ) ? true : false;
-				game = new Game(players, map_file_path, log_file_path, watch);
+				game = new Game(players, map_file_path, watch, wargamesetup.getSaveGameLogs());
 				game.init();
 				game.play();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						battle_window.sendResults(game.getResults());
+					}
+				});
 				game.close(true);	// close the game and board
 				game.resetPlayers();
 			}
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if(watch_mode == WarGameSetUp.WATCH_ALL)
+						 battle_window.display();
+						battle_window.finished();
+					}
+				});
+		
+			
 		} else {
-			game = new Game(players, map_file_path, log_file_path, true);
+			game = new Game(players, map_file_path, true, true);
 			game.init();
 			game.play();
 			game.close(false);	// close down the game but leave the board intact
+			System.exit(0);
 		}
 		
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	/*

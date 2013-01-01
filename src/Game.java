@@ -10,15 +10,18 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
 
 import javax.swing.SwingUtilities;
 
 public class Game {
-	public long bot_playing_speed = 40; // milliseconds bots wait before sending game decisions
-	private boolean watch;
+	public long bot_playing_speed = 20; // milliseconds bots wait before sending game decisions
+	private boolean watch;	// Becomes true if the game is being watched (otherwise it is simulated without graphics)
 
 	private GameBoard board; // The Graphics object that draws everything
 
@@ -39,15 +42,20 @@ public class Game {
 	private int player_id_that_goes_first; // The index of PLAYER_NAMES that goes first. Randomly set in game initialization
 	private int winner = 0;	// player id of the winner
 	private Random rand;
+
+	private boolean save_game_log; // If true, write game messages to log_path
 	private BufferedWriter log_writer;	// writes to log_path
 	private String log_path;
+
+	private ArrayList<Integer> game_results; // As players are eliminated, their IDs are added to this ArrayList
 
 	/* This is the primary Game constructor. It sets up the data
 	 * structure in Game.java that hold game information.
 	 * @param ArrayList<String> player_names, the names of players of the game
 	 * @param String map_file file path to the map file, sent to a MapReader object
 	 */
-	public Game(Player p[], String map_file, String log_file_path, boolean w) {
+	public Game(Player p[], String map_file, boolean w, boolean sgl) {
+		save_game_log = sgl;
 		watch = w; // whether or not to show the game
 		if(watch) {
 			initializeGraphics();
@@ -60,10 +68,15 @@ public class Game {
 				}
 			}
 		}
+		// If the game is not being watched, there's no need to have Bots pause before making decisions
 		if(!watch) bot_playing_speed = 0;
-		log_path = log_file_path;
+
+		if(save_game_log)	// If a game log is being written
+			setLogFilePath();
 
 		NUM_PLAYERS = p.length;
+		game_results = new ArrayList<Integer>();	// Initialize game results, keeping track of how players finish
+
 		// make map reader, read map info
 		try {
 			mapreader = new MapReader(map_file);
@@ -72,6 +85,7 @@ public class Game {
 			exit();
 		}
 
+		// Initialize the Random generator with the current time
 		Date dat = new Date();
 		rand = new Random(dat.getTime());
 
@@ -97,16 +111,19 @@ public class Game {
 	}
 
 	public void init() {
-		// Create the BufferedWriter that will write to log path
-		try {
-			File file = new File(log_path);
-			file.createNewFile();
-			FileWriter fstream = new FileWriter(log_path,true);
-			log_writer = new BufferedWriter(fstream);
-			log_writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\"><html><head><title>Game at " + new Date().toString()
-					+ "</title><link rel=\"stylesheet\" type=\"text/css\" href=\"log_format.css\"></head><body>");
-		} catch(Exception e) {
-			Risk.sayError("Unable to create log file at " + log_path);
+		if(save_game_log) {
+			// Create the BufferedWriter that will write to log path
+			try {
+				File file = new File(log_path);
+				file.createNewFile();
+				FileWriter fstream = new FileWriter(log_path,true);
+				log_writer = new BufferedWriter(fstream);
+				// Write the beginnings of an HTML game report
+				log_writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\"><html><head><title>Game at " + new Date().toString()
+						+ "</title><link rel=\"stylesheet\" type=\"text/css\" href=\"log_format.css\"></head><body>");
+			} catch(Exception e) {
+				Risk.sayError("Unable to create log file at " + log_path);
+			}
 		}
 
 		sendGameToBots();
@@ -131,6 +148,7 @@ public class Game {
 		}
 		int winner = getWinner(); // get the winner from the game engine
 		sayOutput("Congratulations " + players[winner].getName() + ", you win " + Risk.PROJECT_NAME + "!");
+		game_results.add(new Integer(players[winner].getId()));
 	}
 
 	/*
@@ -201,15 +219,15 @@ public class Game {
 				}
 			});
 		}
-		if(log_writer != null) {
-		// Append to the log_path file
-		try {
-			String HTMLtoSay = "<p class=\"" + OutputFormat.getClassName(output_format_style) + "\">" + toSay + "</p>";
-			log_writer.write(HTMLtoSay + '\n');
-		} catch (IOException e) {
-			Risk.sayError("Unable to write to " + log_path + ":");
-			Risk.sayError(e.getMessage());
-		}
+		if(save_game_log && log_writer != null) {
+			// Append to the log_path file
+			try {
+				String HTMLtoSay = "<p class=\"" + OutputFormat.getClassName(output_format_style) + "\">" + toSay + "</p>";
+				log_writer.write(HTMLtoSay + '\n');
+			} catch (IOException e) {
+				Risk.sayError("Unable to write to " + log_path + ":");
+				Risk.sayError(e.getMessage());
+			}
 		}
 	}
 
@@ -739,6 +757,7 @@ public class Game {
 			if(COUNTRIES[i].getPlayer() == player_id) return false;
 		}
 		players[player_id].setStillIn(false);
+		game_results.add(new Integer(players[player_id].getId()));
 		return true;
 	}
 
@@ -988,13 +1007,12 @@ public class Game {
 		return true;
 	}
 
-	/*
-	 * Gets the name of the player whose turn it is.
-	 */
+	// Gets the name of the player whose turn it is.
 	public String getPlayerName() {
 		return players[turn_player_id].getName();
 	}
 
+	// Returns a player's name given their id
 	public String getPlayerName(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
 			sayError("Invalid player id for Game.getPlayerName(id)");
@@ -1003,10 +1021,12 @@ public class Game {
 		return players[id].getName();
 	}
 
+	// Returns the id of the player whose turn it is
 	public int getCurrentPlayerID() {
 		return turn_player_id;
 	}
 
+	// Returns how many armies a given player has in total
 	public int getPlayerArmies(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
 			sayError("Invalid player id for Game.getPlayerArmies(id)");
@@ -1020,6 +1040,7 @@ public class Game {
 		return total;
 	}
 
+	// Returns whether or not the given player id is still in the game
 	public boolean playerStillIn(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
 			sayError("Invalid player id for Game.playerStillIn(id)");
@@ -1060,6 +1081,7 @@ public class Game {
 		return CONTINENT_COLORS[cont];
 	}
 
+	// Returns the winner of the game
 	public int getWinner() {
 		return winner;
 	}
@@ -1086,18 +1108,52 @@ public class Game {
 		return armies_from_next_set;
 	}
 
+	// Generates a file name/path for writing to as a game log
+	private void setLogFilePath() {
+		String logp = Risk.GAME_LOG_PATH; // path of the logs directory
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); 
+		String dateStr = sdf.format(cal.getTime());
+		logp += dateStr;	// Add the current date to the file name
+		int unique = 1;	// To ensure it's unique, keep adding a number until it is
+		while(true) {
+			File f = new File(logp + "-" + unique + ".html");
+			if(!f.exists())
+				break;
+			unique++;
+		}
+		logp += "-" + unique + ".html";
+		log_path = logp;
+	}
+
+	// Resets the players (clears cards, makes them all "still in")
 	public void resetPlayers() {
 		for(int i=0;i<players.length;i++)
 			players[i].reset();
 	}
 
+	// Returns an ArrayList<Interger> of player ID's from 1st place to last place
+	public ArrayList<Integer> getResults() {
+		// game_results adds player ID's as they are eliminated from the game.
+		// This returns the top finishers in order from 1st-last, requiring a reversal of order.
+		ArrayList<Integer> results_copy = new ArrayList<Integer>(game_results);
+		Collections.reverse(results_copy);
+		return results_copy;
+	}
+
+	// Called by the Risk class upon completion of the game to close loose ends.
+	// If close_board is true, the game board is closed. Otherwise it is left open.
 	public void close(boolean close_board) {
-		try {
-			log_writer.write("</body></html>");
-			log_writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		// Finish writing game log, close the BufferedWriter
+		if(save_game_log) {
+			try {
+				log_writer.write("</body></html>");
+				log_writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+		// Close the game board
 		if(watch && close_board)
 			board.setVisible(false);
 	}

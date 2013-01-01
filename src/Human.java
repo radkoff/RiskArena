@@ -10,7 +10,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Human extends Player {
-	public static final String ICON_URL = "src/images/human.png";
+	public static final String ICON_URL = Risk.IMAGES_PATH + "human.png";
 	private static Scanner ask;	// Static Scanner object takes input from System.in
 	private static InputListener console_input;
 	//private String from_console;

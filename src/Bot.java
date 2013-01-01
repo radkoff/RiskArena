@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Bot extends Player {
-	public static final String ICON_URL = "src/images/robot.png";
+	public static final String ICON_URL = Risk.IMAGES_PATH + "robot.png";
 	private RiskBot skynet;		// The bot itself
 	private RiskListener risk_listener;	// Very simple object given to skynet that adds choices to from_bot
 	private LinkedBlockingQueue<Integer> from_bot = new LinkedBlockingQueue<Integer>();	// A Queue of answers given by skynet
