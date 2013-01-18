@@ -14,7 +14,7 @@ public class RiskBotSkynet implements RiskBot{
 	private World world = null;
 	private PlayerInfo[] players = null;
 
-	Random gen;
+	Random gen; // Random number generator used for some decisions
 
 	// Initialize the bot, locally store the given instance of GameInfo so that we can
 	// get board info any time we want, as well as a RiskListener so we can communicate our answers.
@@ -58,7 +58,7 @@ public class RiskBotSkynet implements RiskBot{
 		for(int i=0;i<countries.length;i++) {
 			if(countries[i].getPlayer() == risk_info.me() && countries[i].getArmies() > 4) {
 				int[] adj = world.getAdjacencies(i);
-				for(int j=1;j<adj.length;j++) {
+				for(int j=0;j<adj.length;j++) {
 					if(countries[adj[j]].getPlayer() != risk_info.me()) {
 						//System.out.println("LOLOLOLOL ATTACKING FROM " + countries[i].getName() + "(" + countries[i].getArmies() + " armies) to " + countries[adj[j]].getName());
 						to_game.sendInt(i);

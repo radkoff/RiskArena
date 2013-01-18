@@ -42,20 +42,18 @@ public class World {
 	public int[] getAdjacencies(int countryid)
 	{
 		// Returns an array containing the country ID numbers of countries who are adjacent to the input country's country ID.
-		// The value of adjlist[0] is the total number n of adjacencies and the next n values are the respective country IDs of the n adjacent countries
 		int adjchecker=0;
-		for(int i=0;i<adjacencytruth.length;i++)
+		for(int i=0;i<NUM_COUNTRIES;i++)
 		{
 			if (isAdjacent(countryid,i)) adjchecker++;
 		}
-		int[] adjlist = new int[adjchecker+1];
-		adjlist[0]=adjchecker;
+		int[] adjlist = new int[adjchecker];
 		adjchecker=0;
-		for(int i=0;i<adjacencytruth.length;i++)
+		for(int i=0;i<NUM_COUNTRIES;i++)
 		{
 			if (isAdjacent(countryid,i)) {
+				adjlist[adjchecker] = i;
 				adjchecker++;
-				adjlist[adjchecker]=i;
 			}
 		}
 		return adjlist;
@@ -79,6 +77,16 @@ public class World {
 			}
 		}
 		return adjs;
+	}
+	
+	// For debugging purposes, prints the adjacency array with 0's and 1's
+	private void printAdjacencies() {
+		for(int i=0;i<adjacencytruth.length;i++) {
+			for(int j=0;j<adjacencytruth[i].length;j++) {
+				System.out.print(adjacencytruth[i][j] ? 1 : 0);
+			}
+			System.out.println();
+		}
 	}
 
 	// Returns the adjacency array as-is

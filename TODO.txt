@@ -1,13 +1,13 @@
 Short-term:
-"Bot speed" slider in gameboard
+Comment
+Play/pause buttons during bots' turns
 
 "Soon":
-Play/pause buttons during bots' turns
 Un-clutter Game.java
-README
+README.txt
 Handle edge adjacencies such as alaska-kamchatka.
 Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
-Allow for resizeability of the window
+Allow for resizeability of the GameBoard window
 After something is typed in cmd and the game is asking for a country, highlight on the board whatever countries are currently "in play"
 
 Long-term:

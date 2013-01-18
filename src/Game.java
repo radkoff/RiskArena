@@ -20,7 +20,7 @@ import java.util.Random;
 import javax.swing.SwingUtilities;
 
 public class Game {
-	public long bot_playing_speed = 20; // milliseconds bots wait before sending game decisions
+	private long bot_playing_speed = 120; // milliseconds bots wait before sending game decisions
 	private boolean watch;	// Becomes true if the game is being watched (otherwise it is simulated without graphics)
 
 	private GameBoard board; // The Graphics object that draws everything
@@ -202,8 +202,8 @@ public class Game {
 	 * toSay is the string wishing to be outputted
 	 * tabbed is whether or not it should be prepended with a \t
 	 */
-	public void sayOutput(final String toSay, final int output_format_style) {
-		if( Risk.output_to_std ) {
+	public void sayOutput(final String toSay, final int output_format_style, boolean forced) {
+		if( Risk.output_to_std || forced ) {
 			if(output_format_style == OutputFormat.TABBED)
 				System.out.println("\t" + toSay);
 			else if (output_format_style == OutputFormat.ERROR) {
@@ -236,8 +236,25 @@ public class Game {
 	 * output is being used.
 	 * toSay is the string wishing to be outputted
 	 */
+	public void sayOutput(final String toSay, final boolean forced) {
+		sayOutput(toSay, OutputFormat.NORMAL, forced);
+	}
+
+	/* Called by various methods to send something to whatever
+	 * error output is being used.
+	 * @param The string wishing to be outputted error message.
+	 */
+	public void sayError(final String toSay, final boolean forced) {
+		sayOutput(toSay, OutputFormat.ERROR, forced);
+	}
+	
+	/*
+	 * Called by various methods to send something to whatever
+	 * output is being used.
+	 * toSay is the string wishing to be outputted
+	 */
 	public void sayOutput(final String toSay) {
-		sayOutput(toSay, OutputFormat.NORMAL);
+		sayOutput(toSay, OutputFormat.NORMAL, false);
 	}
 
 	/* Called by various methods to send something to whatever
@@ -245,7 +262,11 @@ public class Game {
 	 * @param The string wishing to be outputted error message.
 	 */
 	public void sayError(final String toSay) {
-		sayOutput(toSay, OutputFormat.ERROR);
+		sayOutput(toSay, OutputFormat.ERROR, false);
+	}
+	
+	public void sayOutput(final String toSay, final int output_format_style) {
+		sayOutput(toSay, output_format_style, false);
 	}
 
 	/*
@@ -469,13 +490,13 @@ public class Game {
 				}
 				if(done_attacking) break;
 				int adj[] = world.getAdjacencies(attacking_from);	// Get territory adjacency list from World class
-				if(adj.length == 0 || adj[0] == 0) {
+				if(adj.length == 0) {
 					sayError("According to the map file, " + COUNTRIES[attacking_from] + " doesn't have any adjacencies.");
 					continue;
 				}
 				ArrayList<Integer> foreign_adjacencies = new ArrayList<Integer>();
 				// We are only interested in those surrounding territories that are of foreign ownership
-				for(int i=1 ; i<adj.length; i++) {
+				for(int i=0 ; i<adj.length; i++) {
 					if(COUNTRIES[adj[i]].getPlayer() != turn_player_id)
 						foreign_adjacencies.add(new Integer(adj[i]));
 				}
@@ -670,14 +691,13 @@ public class Game {
 	/*
 	 * Turns a set of cards in for turn_player_id, and returns the number of armies
 	 * If there is more than one possibility for set combinations, it prompts for one of them.
-	 * NOTE: This method, as opposed to armiesFromCards, forces the player to play a set instead of offering.
+	 * If 'optional' is true, the player can choose to skip turning in a set
 	 */
 	private int turnInSet(boolean optional) {
 		int armies = 0;
 		int possible_triples[][] = deck.possibleCardTriples(players[turn_player_id].getCards());
 
 		try {
-
 			if(optional) {
 				if(currentPlayerHuman()) {
 					sayOutput("You have enough cards for a set. Would you like to turn it in for " + armies_from_next_set + " additional armies? (Y)es or (n)o.", OutputFormat.QUESTION);
@@ -690,7 +710,7 @@ public class Game {
 						else if(answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) break;
 						else sayError("Invalid input. Enter (y)es or (n)o.");
 					}
-				} else {
+				} else {	// Bot
 					((Bot)players[turn_player_id]).chooseToTurnInSet();
 					int choice = players[turn_player_id].askInt();
 					if(choice != 1)
@@ -699,14 +719,13 @@ public class Game {
 				}
 			}
 
-
 			if(possible_triples.length == 1) {
 				players[turn_player_id].decrementCardType(possible_triples[0][0]);
 				players[turn_player_id].decrementCardType(possible_triples[0][1]);
 				players[turn_player_id].decrementCardType(possible_triples[0][2]);
 				deck.addCards(possible_triples[0]);
 				armies += armies_from_next_set;
-			} else {
+			} else {		// If there are more than one possible sets to turn in
 				int choice;
 				if(currentPlayerHuman()) {
 					sayOutput("Which combination would you like to turn in?", OutputFormat.QUESTION);
@@ -736,8 +755,8 @@ public class Game {
 	}
 
 	/*
-	 * Fortifies the country at COUNTRIES index country_to_foritfy-1, and adds num_armies_added
-	 * @return A boolean indicating success (different player ownership than turn_player_id yields false)
+	 * Fortifies the country at COUNTRIES index country_to_foritfy, and adds num_armies_added
+	 * @return A boolean indicating success (different player ownership than turn_player_id will yield false)
 	 */
 	private boolean fortifyCountry(int country_to_fortify, int num_armies_added) {
 		if(COUNTRIES[country_to_fortify].getPlayer() != turn_player_id)
@@ -766,9 +785,9 @@ public class Game {
 	 * Player_id is the bot that messed up. Scope is some message about what part of the game/turn it occured in.
 	 */
 	public void BadRobot(int player_id, String scope, Exception e) {
-		sayError("The RiskBot " + players[player_id].getName() + " messed up big time, and the game could not go on.");
-		sayOutput(scope);
-		sayOutput(e.getMessage());
+		sayError("The RiskBot " + players[player_id].getName() + " messed up big time, and the game could not go on.", true);
+		sayOutput(scope, true);
+		sayOutput(e.getMessage(), true);
 		exit();
 	}
 
@@ -838,7 +857,7 @@ public class Game {
 
 	/*
 	 * Generates a string describing the current player's hand.
-	 * Examples: Your hand consists of 2 infantry, 1 cannon, and 1 wildcard.
+	 * Example: "Your hand consists of 2 infantry, 1 cannon, and 1 wildcard."
 	 */
 	private String cardReport() {
 		String card_report = "";
@@ -906,7 +925,7 @@ public class Game {
 
 
 			int adj[] = world.getAdjacencies(move_from);	// Get territory adjacency list from World class
-			if(adj.length == 0 || adj[0] == 0) {
+			if(adj.length == 0) {
 				if(!currentPlayerHuman())
 					throw new Bot.RiskBotException("Tried to move armies from a territory that has no adjacencies.");
 				sayError("According to the map file, " + COUNTRIES[move_from] + " doesn't have any adjacencies.");
@@ -914,7 +933,7 @@ public class Game {
 			}
 			ArrayList<Integer> domestic_adjacencies = new ArrayList<Integer>();
 			// We are only interested in those surrounding territories that belong to the player
-			for(int i=1 ; i<adj.length; i++) {
+			for(int i=0 ; i<adj.length; i++) {
 				if(COUNTRIES[adj[i]].getPlayer() == turn_player_id)
 					domestic_adjacencies.add(new Integer(adj[i]));
 			}
@@ -1005,6 +1024,14 @@ public class Game {
 		}
 		winner = possible_winner;
 		return true;
+	}
+	
+	public void setPlayingSpeed(long speed) {
+		bot_playing_speed = speed;
+	}
+	
+	public long getPlayingSpeed() {
+		return bot_playing_speed;
 	}
 
 	// Gets the name of the player whose turn it is.

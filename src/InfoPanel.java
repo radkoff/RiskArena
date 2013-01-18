@@ -42,6 +42,7 @@ public class InfoPanel extends JPanel {
 	// Construct an InfoPanel object. Dimension d is the size of the panel, Color c is the background color
 	public InfoPanel(Dimension d, Color c) {
 		setMinimumSize(d);
+		setMaximumSize(d);
 		setPreferredSize(d);
 		BGCOLOR = c;
 		init();

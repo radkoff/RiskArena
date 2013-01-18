@@ -50,12 +50,12 @@ public class Console extends JPanel{
 	private ArrayList<InputListener> waiting_for_answers;	// InputListeners belonging to either a human player
 	// or the Risk class (for game setup) are given answers typed into the console
 
-	public Console(int width, int max_h) {	// Width and height given as arguments
+	public Console(Dimension d) {	// Width and height given as arguments
 		waiting_for_answers = new ArrayList<InputListener>();
-		max_height = max_h;
+		max_height = d.height;
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(width,max_height));
-		setMaximumSize(new Dimension(width, max_height));
+		setPreferredSize(new Dimension(d.width,max_height));
+		setMaximumSize(new Dimension(d.width, max_height));
 		setBackground(BGCOLOR);
 		setBorder(panel_border);
 
@@ -66,7 +66,7 @@ public class Console extends JPanel{
 
 		// Set up the scroll area containing output history
 		history_scroller = new JScrollPane(history_view, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		history_scroller.setPreferredSize(new Dimension(width, max_height - getCmdHeight()));
+		history_scroller.setPreferredSize(new Dimension(d.width, max_height - getCmdHeight()));
 		history_scroller.setAlignmentX(LEFT_ALIGNMENT);
 		history_scroller.setAlignmentY(BOTTOM_ALIGNMENT);
 		history_scroller.setBorder(BorderFactory.createEmptyBorder());

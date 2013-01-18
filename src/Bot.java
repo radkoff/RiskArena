@@ -40,7 +40,7 @@ public class Bot extends Player {
 	// Starts a new thread, calls skynet's implemented claimTerritory method
 	public void claimTerritory() {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -54,7 +54,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented forifyTerritory method
 	public void fortifyTerritory(final int num_to_place) {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -68,7 +68,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented launchAttack method
 	public void launchAttack() {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -82,7 +82,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented forifyAfterVictory method
 	public void fortifyAfterVictory(final int attacker, final int defender, final int min, final int max) {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -96,7 +96,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented chooseCardSet method
 	public void chooseCardSet(final int[][] possible_sets) {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +110,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented chooseToTurnInSet method
 	public void chooseToTurnInSet() {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -124,7 +124,7 @@ public class Bot extends Player {
 	// Within a new thread, calls skynet's implemented forifyPosition method
 	public void fortifyPosition() {
 		try {
-			Thread.sleep(game.bot_playing_speed);
+			Thread.sleep(game.getPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -178,14 +178,12 @@ public class Bot extends Player {
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if(answer == null)
 			throw new RiskBotException(timeout + " second time limit exceeded.");
 		if(answer < MIN || answer > MAX)
 			throw new RiskBotException(answer + " is not in the range of " + MIN + " to " + MAX);
-
 		return answer;
 	}
 

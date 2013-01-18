@@ -82,7 +82,7 @@ public class Risk {
 			}
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						if(watch_mode == WarGameSetUp.WATCH_ALL)
+						if(watch_mode == WarGameSetUp.WATCH_NONE)
 						 battle_window.display();
 						battle_window.finished();
 					}

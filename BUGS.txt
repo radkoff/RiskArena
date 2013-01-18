@@ -1,0 +1,11 @@
+Known or possible RiskArena bugs.
+
+1/18/13: Noticed that some results were not being counted or generated (ei the total number of points given out did not match how many should have been given out). The actual results were as follows:
+Number of games - 100
+Standings:
+1. BurghBot 4 - 287 points
+2. BurghBot 3 - 276 points
+3. BurghBot 2 - 263 points
+4. BurghBot 5 - 232 points
+5. BurghBot 6 - 215 points
+6. BurghBot - 197 points

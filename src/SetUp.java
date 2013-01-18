@@ -266,7 +266,6 @@ public class SetUp extends JDialog {
 				// For each player config
 				for(int i=0;i<player_configs.size();i++) {
 					PlayerConfig.NameField this_config = player_configs.get(i).name_field;
-					//this_config.setBorder(BorderFactory.createEmptyBorder());
 					
 					// If the player is Human, the name field is checked
 					if(player_configs.get(i).type == Player.HUMAN) {
