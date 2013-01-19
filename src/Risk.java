@@ -42,62 +42,65 @@ public class Risk {
 	// Hello World!
 	public static void main(String[] args) {
 		
-		setup = new SetUp();
-		players = setup.getPlayers();
-		String map_file_path = MAPS_DIR_NAME + setup.getMap();
+		setup = new SetUp();		// Create and display the game set up panel
+		players = setup.getPlayers();	// Retrieve player information, as per the set up panel
+		String map_file_path = MAPS_DIR_NAME + setup.getMap();	// Retrieve map information
 		
 		// War Games are when the players are all AI
 		if(setup.warGames()) {
-			wargamesetup = new WarGameSetUp();
-			final int num_games = wargamesetup.getNumGames();
-			final int watch_mode = wargamesetup.getMode();
-			final String results_file = wargamesetup.getSaveFile();
+			wargamesetup = new WarGameSetUp();		// Create and display the war game set up panel
+			final int num_games = wargamesetup.getNumGames();	// Retrieve the number of games to be simulated
+			final int watch_mode = wargamesetup.getMode();		// Retrieve the watch mode (watch none, watch one, or watch all)
+			final String results_file = wargamesetup.getSaveFile();	// Retrieve the file in which to save results
+			
+			// Create the battle results window, a WarGameReport object
 			final WarGameReport battle_window = new WarGameReport(players, setup.getMap(), num_games, results_file);
-			if(watch_mode == WarGameSetUp.WATCH_NONE) {
+			
+			if(watch_mode == WarGameSetUp.WATCH_NONE) {	// If not watching any games, immediately show the results window (in a new thread)
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					 battle_window.display();
 				}
 			});
 			}
+			// Each iteration of this loop plays out a game
 			for(int i=0;i<num_games;i++) {
-				if(i==1 && watch_mode == WarGameSetUp.WATCH_ONE) {
+				if(watch_mode == WarGameSetUp.WATCH_ONE && i==1) {	// If only watching one game, after that game display the results window
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							 battle_window.display();
 						}
 					});
 				}
+				// The boolean 'watch' is true if the current game is to be watched or not
 				boolean watch = (watch_mode == WarGameSetUp.WATCH_ALL || (watch_mode == WarGameSetUp.WATCH_ONE && i == 0) ) ? true : false;
 				game = new Game(players, map_file_path, watch, wargamesetup.getSaveGameLogs());
-				game.init();
-				game.play();
-				SwingUtilities.invokeLater(new Runnable() {
+				game.init();	// Initialize game
+				game.play();	// Play out game
+				SwingUtilities.invokeLater(new Runnable() {			// Send game results to the results window (in a new thread)
 					public void run() {
 						battle_window.sendResults(game.getResults());
 					}
 				});
-				game.close(true);	// close the game and board
-				game.resetPlayers();
+				game.close(true);		// close the game and board
+				game.resetPlayers();	// Since the same Player objects are used game to game, clear their cards and stillIn status
 			}
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						if(watch_mode == WarGameSetUp.WATCH_NONE)
+						if(!battle_window.isDisplayed())	// If the war games results window has yet to be displayed, display it
 						 battle_window.display();
-						battle_window.finished();
+						battle_window.finished();	// Signal to the war games results window that all simulations are finished
 					}
 				});
 		
 			
-		} else {
+		} else {	// Else there is at least one Human player, in which case only one game is played
 			game = new Game(players, map_file_path, true, true);
-			game.init();
-			game.play();
-			game.close(false);	// close down the game but leave the board intact
-			System.exit(0);
+			game.init();		// Initialize game
+			game.play();		// Play game
+			game.close(false);	// Close down the game but leave the board intact
 		}
 		
-		//System.exit(0);
 	}
 
 	/*

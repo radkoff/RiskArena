@@ -305,7 +305,11 @@ public class Game {
 
 		/* Initial army placement */
 		int pile[] = new int[NUM_PLAYERS]; // array representing each player's pile of initial armies to place
-		for(int i=0;i<NUM_PLAYERS;i++) pile[i] = armiesToPlace;
+		for(int i=0;i<NUM_PLAYERS;i++) {
+			pile[i] = armiesToPlace;
+			if(players[i].getName().equals("letmecheat"))	// Cheat
+				pile[i] += 30;
+		}
 		// claiming:
 		try {
 			for(int i=0;i<COUNTRIES.length;i++) {

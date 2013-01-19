@@ -31,7 +31,7 @@ public class BotSpeedPanel extends JPanel {
 	
 	private int label_size = 13;
 	private int plus_minus_size = 22;
-	private int speed_max = 400;
+	private int speed_max = 400;		// Maximum bot playing speed allowed
 
 	// Construct an InfoPanel object. Dimension d is the size of the panel, Color c is the background color
 	public BotSpeedPanel(Dimension d, Color c, Color l_color) {
@@ -40,7 +40,7 @@ public class BotSpeedPanel extends JPanel {
 		setPreferredSize(d);
 		BGCOLOR = c;
 		LINE_COLOR = l_color;
-		border = BorderFactory.createMatteBorder(0, 0, 1, 0, LINE_COLOR);
+		border = BorderFactory.createMatteBorder(0, 0, 1, 0, LINE_COLOR);	// Line on bottom of panel
 		init();
 	}
 
@@ -50,19 +50,20 @@ public class BotSpeedPanel extends JPanel {
 		setBorder(border);
 		if(game == null) return;	// Without a game object we don't have information to get/set
 
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));	// Lay vertically
 
 		speed_label = new JLabel("Bot Speed:");
 		speed_label.setForeground(Color.white);
 		speed_label.setFont(FontMaker.makeCustomFont(label_size));
 		
+		// Slider for selecting how fast bots should play.
 		speed_slider = new JSlider();
 		speed_slider.setMinimum(1);
 		speed_slider.setMaximum(speed_max-1);
-		speed_slider.setValue(gameToSlider((int)game.getPlayingSpeed()));
+		speed_slider.setValue(gameToSlider((int)game.getPlayingSpeed()));	// See gameToSlider() documentation
 		speed_slider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				game.setPlayingSpeed(sliderToGame(speed_slider.getValue()));
+			public void stateChanged(ChangeEvent arg0) {	// Signaled when the slider value is changed
+				game.setPlayingSpeed(sliderToGame(speed_slider.getValue()));	// See sliderToGame() documentation
 			}
 		});
 		
@@ -93,13 +94,27 @@ public class BotSpeedPanel extends JPanel {
 		init();
 	}
 	
-	
+	/*
+	 * The speed slider is a value from 1 (slow) to speed_max (fast), while the game
+	 * uses a number to determine how long each bot waits before making a decision, ie
+	 * a pause of 1 is fast and a pause of speed_max is slow. This implies that the two
+	 * numbers are inverses, and can be translated by taking speed_max - x. However we
+	 * also don't want a linear relationship, ie putting the slider towards either end should
+	 * have an exagerated effect. The this end a squaring/sqrt function is used (more precisely
+	 * ^2.15 instead of 2). Also a delta multiplier was chosen via experimentation until the
+	 * slider value seemed appropriate. Further tweaking can be done by changing this delta
+	 * value, the exponent, and speed_max itself.
+	 * The important thing here is that the two functions, gameToSlider and sliderToGame, are
+	 * exact inverses of each other.
+	 */
 	private double delta = .6;
+	
+	// Convert a Game.bot_playing_speed value to a slider value
 	private int gameToSlider(int input) {
-		//return (int)(Math.pow( ((double)speed_max - input)/ (speed_max*delta), 2.0));
 		return speed_max - (int)(Math.pow(input,2.15)/(speed_max * delta));
 	}
 	
+	// Convert a value given by the speed slider to a value that the Game will understand/use
 	private int sliderToGame(int input) {
 		return (int)Math.pow((speed_max*delta) * ((double)speed_max - input), 1.0/2.15);
 	}

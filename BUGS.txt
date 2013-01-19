@@ -9,3 +9,10 @@ Standings:
 4. BurghBot 5 - 232 points
 5. BurghBot 6 - 215 points
 6. BurghBot - 197 points
+Also these point totals are incorrect:
+Number of games - 4000
+Standings:
+1. BurghBot 2 - 6741 points
+2. BurghBot - 6284 points
+3. BurghBot 3 - 5826 points
+4. BurghBot 4 - 5032 points

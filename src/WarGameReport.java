@@ -71,6 +71,10 @@ public class WarGameReport extends JDialog {
 		initUI();
 	}
 	
+	public boolean isDisplayed() {
+		return displayed;
+	}
+	
 	// Initialize the report window, consisting of a CenterPanel and StandingsPanel
 	private void initUI() {
 		main_panel = new JPanel(new BorderLayout());
@@ -121,6 +125,7 @@ public class WarGameReport extends JDialog {
 	// Called when all games are complete
 	public void finished() {
 		writeResultsToFile();	// Write war game results to a file
+		
 		center_panel.finished();
 		// Refresh both panels
 		center_panel.refresh();
