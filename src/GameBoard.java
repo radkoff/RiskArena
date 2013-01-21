@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -93,10 +94,11 @@ public class GameBoard extends JFrame {
 	}
 
 	// Send the game information to the Pretty and InfoPanel objects
-	public void sendGameInfo(final Game game, final int[][] adj) {
+	public void sendGameInfo(final Game game, final ArrayList<Adjacency> adjs) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				pretty.sendGame(game, adj);
+				pretty.sendGame(game);
+				pretty.sendAdjacencies(adjs);
 				bot_speed_panel.sendGame(game);
 				lower_left.sendGame(game);
 			}

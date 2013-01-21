@@ -15,6 +15,7 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -29,7 +30,7 @@ public class Pretty extends JPanel {
 	private int triple_digit_army_label_size = 14; // When the army amount has three digits, use this text size
 
 	private Game game;		// Reference to the game engine instance being drawn
-	private int[][] adjacencies;
+	private ArrayList<Adjacency> adjacencies;
 	private Country[] countries;
 	private Point2D.Float[] country_positions;	// The normalized coordinates of each territory
 
@@ -52,7 +53,7 @@ public class Pretty extends JPanel {
 		g2d.setBackground(BGCOLOR);
 		g2d.setColor(BGCOLOR);
 		g2d.clearRect(0, 0, WIDTH, HEIGHT);
-		if(game == null) return;
+		if(game == null) return;	// If sendGame has yet to be called, there is nothing to draw
 
 		// Anti-aliasing:
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -62,11 +63,15 @@ public class Pretty extends JPanel {
 		drawCountries(g2d);
 	}
 
-	public void sendGame(Game g, int[][] adj) {
+	
+	public void sendGame(Game g) {
 		game = g;
-		adjacencies = adj;
 		countries = game.getCountries();
 		convertCountryCoordinates();
+	}
+	
+	public void sendAdjacencies(ArrayList<Adjacency> adjs) {
+		adjacencies = adjs;
 	}
 
 	/*
@@ -188,29 +193,81 @@ public class Pretty extends JPanel {
 		}
 	}
 
-	// Draw all adjacency lines given in the adjacencies[][] array and given contry_positions
+	// Draw all adjacency lines given in the adjacencies array and given contry_positions
 	private void drawAdjacencies(Graphics2D g2d) {
 		int line_width = 2;
 
-		for(int i=0;i<adjacencies.length;i++) {
+		for(int i=0;i<adjacencies.size();i++) {
 			// draw a line from countries[i] to countries[j]
-			float x1 = (int)country_positions[adjacencies[i][0]].x + country_circle_radius;
-			float y1 = (int)country_positions[adjacencies[i][0]].y + country_circle_radius;
-			float x2 = (int)country_positions[adjacencies[i][1]].x + country_circle_radius;
-			float y2 = (int)country_positions[adjacencies[i][1]].y + country_circle_radius;
+			float x1 = (int)country_positions[adjacencies.get(i).fromCountryID()].x + country_circle_radius;
+			float y1 = (int)country_positions[adjacencies.get(i).fromCountryID()].y + country_circle_radius;
+			float x2 = (int)country_positions[adjacencies.get(i).toCountryID()].x + country_circle_radius;
+			float y2 = (int)country_positions[adjacencies.get(i).toCountryID()].y + country_circle_radius;
 
 			Stroke old_stroke = g2d.getStroke();
 			g2d.setStroke(new BasicStroke(line_width));
 			// If the adjacency is between two territories of the same continent, draw in the continent's color
-			if(countries[adjacencies[i][0]].getCont() == countries[adjacencies[i][1]].getCont()) {
-				g2d.setColor(game.getContinentColor(countries[adjacencies[i][0]].getCont()));
-				g2d.drawLine((int)x1, (int)y1, (int)x2, (int)y2);
+			if(countries[adjacencies.get(i).fromCountryID()].getCont() == countries[adjacencies.get(i).toCountryID()].getCont()) {
+				g2d.setColor(game.getContinentColor(countries[adjacencies.get(i).fromCountryID()].getCont()));
 			} else {	// otherwise, draw it white
 				g2d.setColor(Color.white);
-				g2d.drawLine((int)x1, (int)y1, (int)x2, (int)y2);
 			}
-			g2d.setStroke(old_stroke);
+			
+			/*
+			 * The following ifelse handles the fact that some adjacency lines need to cross the edge and not go through
+			 * the center of the map, like Alaska-Kamchatka in Earth.map. The 5 policies possible, found in Adjacency.java, are:
+			 * CROSS_NONE - normal adjacency, no edge crossing
+			 * CROSS_HORIZONTAL - crosses horizontally
+			 * CROSS_VERTICAL - crosses the map edges vertically
+			 * CROSS_DIAG_RIGHT - crosses by going diagonally up and to the right (and down and to the left)
+			 * CROSS_DIAG_LEFT - crosses by going diagonally up and to the left (and down and to the right)
+			 */
+			if(adjacencies.get(i).getCrossPolicy() == Adjacency.CROSS_NONE) {
+				drawLine(g2d, x1, y1, x2, y2);	// draw normally
+			} else if(adjacencies.get(i).getCrossPolicy() == Adjacency.CROSS_HORIZONTAL) {
+				if(x1 < x2) {		// Determine which country's location is left-most
+					drawLine(g2d, x1, y1, x2 - WIDTH, y2);	// From the first country to outside the left edge
+					drawLine(g2d, x2, y2, x1 + WIDTH, y1);	// From the second country to the outside of the right edge
+				} else {
+					drawLine(g2d, x2, y2, x1 - WIDTH, y1);	// From the second country to outside the left edge
+					drawLine(g2d, x1, y1, x2 + WIDTH, y2);	// From the first country to the outside of the right edge
+				}
+			} else if(adjacencies.get(i).getCrossPolicy() == Adjacency.CROSS_VERTICAL) {
+				if(y1 < y2) {		// Determine which country's location is upper-most (smaller y value)
+					drawLine(g2d, x1, y1, x2, y2 - HEIGHT);	// From the first country to above the top of the map
+					drawLine(g2d, x2, y2, x1, y1 + HEIGHT);	// From the second country to below the bottom of the map
+				} else {
+					drawLine(g2d, x2, y2, x1, y1 - HEIGHT);	// From the second country to above the top of the map
+					drawLine(g2d, x1, y1, x2, y2 + HEIGHT);	// From the first country to below the bottom of the map
+				}
+			} else if(adjacencies.get(i).getCrossPolicy() == Adjacency.CROSS_DIAG_RIGHT) {
+				// If the "from" country is closer to the top right corner (using a^2 + b^2 = c^2)
+				if( (WIDTH-x1)*(WIDTH-x1) + (y1)*(y1) < (WIDTH-x2)*(WIDTH-x2) + (y2)*(y2) ) {
+					drawLine(g2d, x1, y1, x2 + WIDTH, y2 - HEIGHT);	// From the first country, up and to the right
+					drawLine(g2d, x2, y2, x1 - WIDTH, y1 + HEIGHT);	// From the second country, down and to the left
+				} else {
+					drawLine(g2d, x2, y2, x1 + WIDTH, y1 - HEIGHT);	// From the second country, up and to the right
+					drawLine(g2d, x1, y1, x2 - WIDTH, y2 + HEIGHT);	// From the first country, down and to the left
+				}
+			} else if(adjacencies.get(i).getCrossPolicy() == Adjacency.CROSS_DIAG_LEFT) {
+				if( (x1)*(x1) + (y1)*(y1) < (x2)*(x2) + (y2)*(y2) ) {	// Determine which country is closer to the top left corner
+					drawLine(g2d, x1, y1, x2 - WIDTH, y2 - HEIGHT);	// From the first country up and to the left
+					drawLine(g2d, x2, y2, x1 + WIDTH, y1 + HEIGHT);	// From the second country down and to the right
+				} else {
+					drawLine(g2d, x2, y2, x1 - WIDTH, y1 - HEIGHT);	// From the second country up and to the left
+					drawLine(g2d, x1, y1, x2 + WIDTH, y2 + HEIGHT);	// From the first country down and to the right
+				}
+			} else {
+				Risk.sayError("Unrecognized edge crossing policy for adjacency.");
+			}
+			
+			g2d.setStroke(old_stroke);	// Since a different thickness was used for adjacency lines, reset it to its old value
 		}
+	}
+	
+	// Draws a line on the Graphics2D object, casting from float coordinates to ints
+	private void drawLine(Graphics2D g2d, float x1, float y1, float x2, float y2) {
+		g2d.drawLine((int)x1, (int)y1, (int)x2, (int)y2);
 	}
 
 	/*

@@ -81,7 +81,7 @@ public class Game {
 		try {
 			mapreader = new MapReader(map_file);
 		} catch(Exception e) {
-			sayError("Something is wrong with " + map_file + ": " + e.getMessage());
+			Risk.sayError("Something is wrong with " + map_file + ": " + e.getMessage());
 			exit();
 		}
 
@@ -94,8 +94,8 @@ public class Game {
 		NUM_COUNTRIES = COUNTRIES.length;
 
 		// give adjacency info to world (get from map reader, supply to world constructor)
-		boolean[][] adj = mapreader.getAdjacencyInfo();
-		world = new World(NUM_COUNTRIES, adj);
+		ArrayList<Adjacency> adjacencies = mapreader.getAdjacencyInfo();
+		world = new World(NUM_COUNTRIES, adjacencies);
 
 		// get continent info from mapreader
 		CONTINENT_NAMES = mapreader.getContinentNames();
@@ -298,7 +298,7 @@ public class Game {
 		break;
 		case 6: armiesToPlace = 20;
 		break;
-		default: sayError("Army placement is only configured for 2-6 players. Set armiesToPlace in Game.placeInitialArmies() for " + NUM_PLAYERS + " players.");
+		default: Risk.sayError("Army placement is only configured for 2-6 players. Set armiesToPlace in Game.placeInitialArmies() for " + NUM_PLAYERS + " players.");
 		break;
 		}
 		sayOutput("Each player has " + armiesToPlace + " armies to place.");
@@ -326,7 +326,7 @@ public class Game {
 					if(!currentPlayerHuman())
 						throw new Bot.RiskBotException("Tried to claim a territory that was already claimed.");
 
-					sayError("Territory already taken. Choose another.");
+					Risk.sayError("Territory already taken. Choose another.");
 					claimed = players[turn_player_id].askInt(1,NUM_COUNTRIES);
 				}
 				if(!currentPlayerHuman())
@@ -350,7 +350,7 @@ public class Game {
 				while(COUNTRIES[to_fortify].getPlayer() != turn_player_id) {
 					if(!currentPlayerHuman())
 						throw new Bot.RiskBotException("Tried to fortify a territory that wasn't his.");
-					sayError("Not your territory to fortify. Enter another.");
+					Risk.sayError("Not your territory to fortify. Enter another.");
 					to_fortify = players[turn_player_id].askInt(1, NUM_COUNTRIES);
 					to_fortify--;
 				}
@@ -412,7 +412,7 @@ public class Game {
 				while(COUNTRIES[country_improving].getPlayer() != turn_player_id) {
 					if(!currentPlayerHuman())
 						throw new Bot.RiskBotException("Tried to place armies on a territory that wasn't his.");
-					sayError("Not your territory, enter another.");
+					Risk.sayError("Not your territory, enter another.");
 					country_improving = players[turn_player_id].askInt(1, NUM_COUNTRIES);
 					country_improving--;
 				}
@@ -478,14 +478,14 @@ public class Game {
 					}
 					if(COUNTRIES[attacking_from].getPlayer() != turn_player_id) {
 						if(currentPlayerHuman())
-							sayError("Not your territory, enter another.");
+							Risk.sayError("Not your territory, enter another.");
 						else
 							throw new Bot.RiskBotException("Attempted to attack from " + COUNTRIES[attacking_from].getName() + ", but does not own it.");
 						continue;
 					}
 					if(COUNTRIES[attacking_from].getArmies() <= 1) {
 						if(currentPlayerHuman())
-							sayError("At least 2 armies are required to attack.");
+							Risk.sayError("At least 2 armies are required to attack.");
 						else
 							throw new Bot.RiskBotException("Attempted to attack from " + COUNTRIES[attacking_from].getName() + ", but there are not enough armies in it to do so.");
 						continue;
@@ -495,7 +495,7 @@ public class Game {
 				if(done_attacking) break;
 				int adj[] = world.getAdjacencies(attacking_from);	// Get territory adjacency list from World class
 				if(adj.length == 0) {
-					sayError("According to the map file, " + COUNTRIES[attacking_from] + " doesn't have any adjacencies.");
+					Risk.sayError("According to the map file, " + COUNTRIES[attacking_from] + " doesn't have any adjacencies.");
 					continue;
 				}
 				ArrayList<Integer> foreign_adjacencies = new ArrayList<Integer>();
@@ -506,7 +506,7 @@ public class Game {
 				}
 				if(foreign_adjacencies.size() == 0) {
 					if(currentPlayerHuman())
-						sayError("No foreign adjacencies found for " + COUNTRIES[attacking_from].getName() + ".");
+						Risk.sayError("No foreign adjacencies found for " + COUNTRIES[attacking_from].getName() + ".");
 					else
 						throw new Bot.RiskBotException("Tried to attack from " + COUNTRIES[attacking_from].getName() + ", which has no foreign adjacencies.");
 					continue;
@@ -541,7 +541,7 @@ public class Game {
 		if(gained_territory) {
 			int drawn = deck.drawCard();
 			if(drawn == -1) {
-				sayError("No cards left in deck.");
+				Risk.sayError("No cards left in deck.");
 			} else {
 				players[turn_player_id].incrementCardType(drawn); // give card to player for winning territory
 				if(currentPlayerHuman()) {
@@ -582,7 +582,7 @@ public class Game {
 							String answer = players[turn_player_id].askLine();
 							if(answer.equalsIgnoreCase("no") || answer.equalsIgnoreCase("n")) return false;
 							else if(answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) break;
-							else sayError("Invalid input. Enter (y)es or (n)o.");
+							else Risk.sayError("Invalid input. Enter (y)es or (n)o.");
 						}
 						armies_attacking = 1;
 					} else if(COUNTRIES[attacker].getArmies() == 3) {
@@ -712,7 +712,7 @@ public class Game {
 							return armies;
 						}
 						else if(answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) break;
-						else sayError("Invalid input. Enter (y)es or (n)o.");
+						else Risk.sayError("Invalid input. Enter (y)es or (n)o.");
 					}
 				} else {	// Bot
 					((Bot)players[turn_player_id]).chooseToTurnInSet();
@@ -902,11 +902,11 @@ public class Game {
 					if(move_from == 0) return;
 					move_from--; // The number entered is 1-NUM_COUNTRIES, but we want 0-(NUM_COUNTRIES-1)
 					if(COUNTRIES[move_from].getPlayer() != turn_player_id) {
-						sayError("Not your territory, enter another.");
+						Risk.sayError("Not your territory, enter another.");
 						continue;
 					}
 					if(COUNTRIES[move_from].getArmies() <= 1) {
-						sayError("A minimum of 1 army must be present in each territory. Enter another.");
+						Risk.sayError("A minimum of 1 army must be present in each territory. Enter another.");
 						continue;
 					}
 					break;
@@ -932,7 +932,7 @@ public class Game {
 			if(adj.length == 0) {
 				if(!currentPlayerHuman())
 					throw new Bot.RiskBotException("Tried to move armies from a territory that has no adjacencies.");
-				sayError("According to the map file, " + COUNTRIES[move_from] + " doesn't have any adjacencies.");
+				Risk.sayError("According to the map file, " + COUNTRIES[move_from] + " doesn't have any adjacencies.");
 				fortifyPosition();
 			}
 			ArrayList<Integer> domestic_adjacencies = new ArrayList<Integer>();
@@ -944,7 +944,7 @@ public class Game {
 			if(domestic_adjacencies.size() == 0) {
 				if(!currentPlayerHuman())
 					throw new Bot.RiskBotException("Tried to move armies from a territory that has no friendly adjacencies.");
-				sayError("No friendly adjacencies found for " + COUNTRIES[move_from].getName() + ".");
+				Risk.sayError("No friendly adjacencies found for " + COUNTRIES[move_from].getName() + ".");
 				fortifyPosition();
 			}
 			if(currentPlayerHuman()) {
@@ -1046,7 +1046,7 @@ public class Game {
 	// Returns a player's name given their id
 	public String getPlayerName(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
-			sayError("Invalid player id for Game.getPlayerName(id)");
+			Risk.sayError("Invalid player id for Game.getPlayerName(id)");
 			exit();
 		}
 		return players[id].getName();
@@ -1060,7 +1060,7 @@ public class Game {
 	// Returns how many armies a given player has in total
 	public int getPlayerArmies(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
-			sayError("Invalid player id for Game.getPlayerArmies(id)");
+			Risk.sayError("Invalid player id for Game.getPlayerArmies(id)");
 			exit();
 		}
 		int total = 0;
@@ -1074,7 +1074,7 @@ public class Game {
 	// Returns whether or not the given player id is still in the game
 	public boolean playerStillIn(int id) {
 		if(id < 0 || id >= NUM_PLAYERS) {
-			sayError("Invalid player id for Game.playerStillIn(id)");
+			Risk.sayError("Invalid player id for Game.playerStillIn(id)");
 			exit();
 		}
 		return players[id].getStillIn();
@@ -1090,7 +1090,7 @@ public class Game {
 	// Get player's type (human vs bot)
 	public int getPlayerType(int player_id) {
 		if(player_id < 0 || player_id >= NUM_PLAYERS) {
-			sayError("Invalid player id for Game.getPlayerType(id)");
+			Risk.sayError("Invalid player id for Game.getPlayerType(id)");
 			exit();
 		}
 		return players[player_id].getType();
@@ -1106,7 +1106,7 @@ public class Game {
 	// Returns the Color at some index of CONTINENT_COLORS
 	public Color getContinentColor(int cont) {
 		if(cont < 0 || cont > CONTINENT_NAMES.length-1) {
-			sayError("Could not get continent color of continent id " + cont);
+			Risk.sayError("Could not get continent color of continent id " + cont);
 			exit();
 		}
 		return CONTINENT_COLORS[cont];

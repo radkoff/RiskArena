@@ -1,14 +1,16 @@
 Short-term:
+Make continent color part of map files
 Add total elapsed time and avg game time to war game reports
-Play/pause buttons during bots' turns
+Make another map or two
 
 "Soon":
 Un-clutter Game.java
 README.txt
-Handle edge adjacencies such as alaska-kamchatka.
+HOWTO for making maps
 Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the GameBoard window
-After something is typed in cmd and the game is asking for a country, highlight on the board whatever countries are currently "in play"
+Possible alterations of the GameBoard depending on the game, beyond country ownership/armies. For example when you select a country to attack from, the foreign adjacencies are highlighted.
+Play/pause buttons during bots' turns
 
 Long-term:
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)

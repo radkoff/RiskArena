@@ -726,6 +726,7 @@
 	<adjacency>
 		<from>Kamchatka</from>
 		<to>Alaska</to>
+		<cross>horizontal</cross>
 	</adjacency>
 	<adjacency>
 		<from>Kamchatka</from>

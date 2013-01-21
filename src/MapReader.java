@@ -35,7 +35,7 @@ public class MapReader {
 	private ArrayList<String> continent_names = new ArrayList<String>();
 	private ArrayList<Integer> bonuses = new ArrayList<Integer>();
 	private ArrayList<Color> colors = new ArrayList<Color>();
-	private boolean adjacencies[][];
+	private ArrayList<Adjacency> adjacencies;
 
 	public MapReader(String filename) throws Exception {
 		Document document;
@@ -222,12 +222,14 @@ public class MapReader {
 
 		// Read all adjacencies
 		int adj_count = 0;
-		ArrayList<ADJ> adjs = new ArrayList<ADJ>();
+		adjacencies = new ArrayList<Adjacency>();
 		for ( Iterator i = root.elementIterator( "adjacency" ); i.hasNext(); ) {
 			Element some_adj = (Element) i.next();
 			adj_count++;
 			boolean from_exists = false, to_exists = false;
-			String from="", to="";
+			String from="", to="";		// When read from the map file, the "from" and "to" of the adjacency
+			int crosses_edge = Adjacency.CROSS_NONE;	// The edge crossing policy of the adjacency
+			
 			for ( Iterator j = some_adj.elementIterator( "from" ); j.hasNext(); ) {
 				Element f = (Element) j.next();
 				from_exists = true;
@@ -240,26 +242,41 @@ public class MapReader {
 				to = t.getText();
 				break;
 			}
+			// 
+			for ( Iterator j = some_adj.elementIterator( "cross" ); j.hasNext(); ) {
+				Element t = (Element) j.next();
+				if(t.getText().equalsIgnoreCase("horizontal"))
+					crosses_edge = Adjacency.CROSS_HORIZONTAL;
+				else if(t.getText().equalsIgnoreCase("vertical"))
+					crosses_edge = Adjacency.CROSS_VERTICAL;
+				else if(t.getText().equalsIgnoreCase("diagonalright"))
+					crosses_edge = Adjacency.CROSS_DIAG_RIGHT;
+				else if(t.getText().equalsIgnoreCase("diagonalleft"))
+					crosses_edge = Adjacency.CROSS_DIAG_LEFT;
+				else
+					throw new Exception("Invalid edge-crossing policy for adjacency number " + adjacencies.size() + ". Choose "
+							+ "eighter Horizontal, Vertical, DiagonalRight, or DiagonalLeft.");
+				break;
+			}
 			if(!from_exists || !to_exists)
 				throw new Exception("Adjacency number " + adj_count + " is missing a \"from\" or \"to\" tag.");
-			adjs.add(new ADJ(from,to));
+			adjacencies.add(new Adjacency(from, to, crosses_edge));
 		}
 		if(adj_count < minimum_adjacencies)
 			throw new Exception("Only " + adj_count + " adjacencies present, minimum of " + minimum_adjacencies + " needed.");
 
 		// The following two loops use a hashmap of country names to check that all adjacency values are legit
-		adjacencies = new boolean[NUM_COUNTRIES][NUM_COUNTRIES];
+		// In the process of converting from country names to ID's, it also sets the FromID and ToID variables of the Adjacency object
 		HashMap<String,Integer> hm = new HashMap<String,Integer>();
 		for(int i=0;i<countries.size();i++)
 			hm.put(countries.get(i).getName(), new Integer(i));
-		for(int i=0;i<adjs.size();i++) {
-			Integer from = hm.get(adjs.get(i).from);
-			Integer to = hm.get(adjs.get(i).to);
+		for(int i=0;i<adjacencies.size();i++) {
+			Integer from = hm.get(adjacencies.get(i).getFrom());
+			Integer to = hm.get(adjacencies.get(i).getTo());
 			if(from == null || to == null)
 				throw new Exception("<from> or <to> in an adjacency is a territory that doesn't exist.");
-
-			adjacencies[from.intValue()][to.intValue()] = true;
-			adjacencies[to.intValue()][from.intValue()] = true;
+			adjacencies.get(i).setFromID(from.intValue());
+			adjacencies.get(i).setToID(to.intValue());
 		}
 
 	}
@@ -294,12 +311,7 @@ public class MapReader {
 		return c;
 	}
 
-	public boolean[][] getAdjacencyInfo() {
+	public ArrayList<Adjacency> getAdjacencyInfo() {
 		return adjacencies;
-	}
-
-	private class ADJ {		// Adjacency
-		public String from, to;
-		public ADJ(String f, String t) { from = f; to = t; }
 	}
 }
