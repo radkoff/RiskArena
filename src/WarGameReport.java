@@ -18,8 +18,11 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -43,6 +46,9 @@ public class WarGameReport extends JDialog {
 	private JPanel main_panel;	// Contains standings and center_panel
 	
 	private int game_num = 1;	// Current game number
+	private long elapsed_time = 0;		// Upon completion, this value becomes how long all simulations took in nanoseconds
+	private long start_time;		// Time at which all simulations started
+	private long[] game_elapsed_times;	// Array of how long each game took to simulate
 	private int[] points;	// points[i] is how many points player i has
 	private int[][] point_values = {
 			{ 1, 0, 0, 0, 0, 0 },		// 2 players (1st place player gets 1 point)
@@ -63,6 +69,8 @@ public class WarGameReport extends JDialog {
 		for(int i=0;i<players.length;i++) {
 			points[i] = 0;
 		}
+		start_time = System.nanoTime();
+		game_elapsed_times = new long[num_games];
 	}
 
 	// Display the report window
@@ -105,8 +113,10 @@ public class WarGameReport extends JDialog {
 	}
 	
 	// sendResults is called when a game concludes
-	// results[i] is the player id of the person that got i'th in the game
-	public void sendResults(ArrayList<Integer> results) {
+	// results[i] is the player id of the person that got i'th in the game.
+	// game_length is how many nanoseconds the concluding game took to simulate
+	public void sendResults(ArrayList<Integer> results, long game_length) {
+		game_elapsed_times[game_num-1] = game_length;
 		// Give each player the appropriate number of points via point_values
 		for(int i=0;i<results.size();i++) {
 			points[results.get(i)] += point_values[players.length - Risk.MIN_PLAYERS][i];
@@ -124,6 +134,7 @@ public class WarGameReport extends JDialog {
 	
 	// Called when all games are complete
 	public void finished() {
+		elapsed_time = System.nanoTime() - start_time;
 		writeResultsToFile();	// Write war game results to a file
 		
 		center_panel.finished();
@@ -146,6 +157,8 @@ public class WarGameReport extends JDialog {
 			results_writer.write("Players - " + standings.size() + "\n");	// Write the number of players
 			results_writer.write("Map - " + map + "\n");	// Write the map name
 			results_writer.write("Number of games - " + num_games + "\n");	// Write the number of games
+			results_writer.write("Total elapsed time - " + generateElapsedTimeString() + "\n");
+			results_writer.write("Average elapsed time per game - " + generateAvgGameTimeString() + "\n");
 			results_writer.write("\nStandings:\n");
 			for(int i=0;i<standings.size();i++) {
 				results_writer.write((i+1) + ". " + standings.get(i).name + " - " + standings.get(i).points + " points\n");
@@ -155,6 +168,33 @@ public class WarGameReport extends JDialog {
 			Risk.sayError("Unable to open the file " + Risk.WAR_GAME_LOG_PATH + results_file + " for writing game results.");
 		}
 		
+	}
+	
+	/*
+	 * Returns a human readable String describing the amount of time represented by elapsed_time,
+	 * which stores the total elapsed time of all simulations in nanoseconds.
+	 */
+	private String generateElapsedTimeString() {
+		DateFormat formatter = new SimpleDateFormat("HH' hours, 'mm' minutes, 'ss.SSS' seconds'");
+		formatter.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		Date date = new Date(elapsed_time/1000000); // convert from nanoseconds to milliseconds
+		return formatter.format(date);
+	}
+	
+	/*
+	 * Returns a human readable String describing the amount of time game of this simulation
+	 * took on average, given the long[] game_elapsed_times array of nanoseconds
+	 */
+	private String generateAvgGameTimeString() {
+		DateFormat formatter = new SimpleDateFormat("mm' minutes, 'ss.SSS' seconds'");
+		formatter.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		long total = 0;			// Find the average
+		for(int i=0;i<game_elapsed_times.length;i++) {
+			total += game_elapsed_times[i];
+		}
+		long avg = total/(long)game_elapsed_times.length;
+		Date date = new Date(avg/1000000); // convert from nanoseconds to milliseconds
+		return formatter.format(date);
 	}
 	
 	// The StandingsPanel shows the current standings in order, including

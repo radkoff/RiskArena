@@ -48,6 +48,7 @@ public class Game {
 	private String log_path;
 
 	private ArrayList<Integer> game_results; // As players are eliminated, their IDs are added to this ArrayList
+	private long elapsed_time = 0;			// How long the game took
 
 	/* This is the primary Game constructor. It sets up the data
 	 * structure in Game.java that hold game information.
@@ -134,6 +135,7 @@ public class Game {
 	}
 
 	public void play() {
+		long start_time = System.nanoTime();
 		placeInitialArmies();	// Game setup, involving players placing initial armies
 
 		while(!over()) {	// over returns true when the game is done
@@ -149,6 +151,7 @@ public class Game {
 		int winner = getWinner(); // get the winner from the game engine
 		sayOutput("Congratulations " + players[winner].getName() + ", you win " + Risk.PROJECT_NAME + "!");
 		game_results.add(new Integer(players[winner].getId()));
+		elapsed_time = System.nanoTime() - start_time;
 	}
 
 	/*
@@ -1170,6 +1173,12 @@ public class Game {
 		ArrayList<Integer> results_copy = new ArrayList<Integer>(game_results);
 		Collections.reverse(results_copy);
 		return results_copy;
+	}
+	
+	// Once the game is complete, this returns how long it took in nanoseconds.
+	// If the game is not complete, this returns 0.
+	public long getElapsedTime() {
+		return elapsed_time;
 	}
 
 	// Called by the Risk class upon completion of the game to close loose ends.

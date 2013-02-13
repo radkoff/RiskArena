@@ -1,6 +1,4 @@
 Short-term:
-Make continent color part of map files
-Add total elapsed time and avg game time to war game reports
 Make another map or two
 
 "Soon":

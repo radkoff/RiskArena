@@ -79,7 +79,7 @@ public class Risk {
 				game.play();	// Play out game
 				SwingUtilities.invokeLater(new Runnable() {			// Send game results to the results window (in a new thread)
 					public void run() {
-						battle_window.sendResults(game.getResults());
+						battle_window.sendResults(game.getResults(), game.getElapsedTime());
 					}
 				});
 				game.close(true);		// close the game and board
