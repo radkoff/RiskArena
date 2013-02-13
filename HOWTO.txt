@@ -1,6 +1,6 @@
-The following describes how to make your own bot agent for RiskArena. If you need to refresh yourself on the rules of the game, see the Risk Manual pdf included.
+The following describes how to make your own RiskBot AI agent for RiskArena. For a summary of RiskArena in general, see the README. If you need to refresh yourself on the rules of Risk, see the included Risk Manual pdf.
 
-	Any file matching RiskBot*.java in the source directory will be considered by RiskArena, and whatever is the * will become the name used for your bot. Currently in the source directory you will see RiskBotSkynet.java. Skynet is the default dummy bot. While it would never win a game, you can use it as a skeleton to help you get started.
+	Any file matching RiskBot*.java in the src directory will be considered by RiskArena, and whatever is the * will become the name used for your bot. Currently in the source directory you will see RiskBotSkynet.java. Skynet is the default dummy bot. While it would never win a game, you can use it as a skeleton to help you get started.
 
 	All bots must implement the RiskBot interface, located at RiskBot.java. It consists of an initialization method and seven "choice-making" methods. The initialization method is as follows:
 public void init(GameInfo gi, Bot.RiskListener rl);
@@ -67,6 +67,5 @@ public void fortifyPosition();
 Step 3 of a person's turn is the optional fortification of some group of armies from one territory to one adjacent territory. If you want to skip fortification, send a -1 (or some negative number). If you want to fortify something, send three ints: the "from" country, the "to" country, and the number of armies (min is 1, max is "from".getArmies()-1)
 
 
-One final note about how RiskListener sends ints - since the back-end uses a queue, if you accidentally send an int too many in some method, it will not crash but you risk causing a BadRobotException next time because it may be invalid for whatever's next. So don't send too many answers.
-
+One final note about how RiskListener sends ints: since the back-end uses a queue, if you accidentally send an int too many in some method, it will not immediately crash. However, you risk causing a BadRobotException next time an answer from your bot is requested, because it may be an invalid response for whatever is needed next. So don't send too many ints!
 

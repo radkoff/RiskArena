@@ -1,16 +1,15 @@
 Short-term:
 Make another map or two
+HOWTO for making maps
 
 "Soon":
 Un-clutter Game.java
-README.txt
-HOWTO for making maps
 Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the GameBoard window
-Possible alterations of the GameBoard depending on the game, beyond country ownership/armies. For example when you select a country to attack from, the foreign adjacencies are highlighted.
+Alterations of the GameBoard depending on the context of a player's turn. For example, when you select a country to attack from the foreign adjacencies should become highlighted. This will make playing as a human slightly easier.
 Play/pause buttons during bots' turns
 
 Long-term:
-Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Map Creator
+Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Multiplayer via Internet using the client/server model
