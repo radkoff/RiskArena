@@ -8,8 +8,9 @@ Perhaps separately compile all bots and run some analysis to make sure they're n
 Allow for resizeability of the GameBoard window
 Alterations of the GameBoard depending on the context of a player's turn. For example, when you select a country to attack from the foreign adjacencies should become highlighted. This will make playing as a human slightly easier.
 Play/pause buttons during bots' turns
+Integrate selected maps from http://www.conquerclub.com/maps/ (write a program to translate from their XML specification scheme to mine. See http://www.conquerclub.com/forum/viewtopic.php?f=529&t=86562&start=0)
 
 Long-term:
-Map Creator
+Map Creator program
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Multiplayer via Internet using the client/server model

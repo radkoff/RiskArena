@@ -103,6 +103,8 @@ public class Console extends JPanel{
 	// ScrollablePanel is a type of JPanel that allows for the lines within to wrap
 	private class HistoryView extends ScrollablePanel {
 		private JEditorPane tarea;		// HTML style JEditorPane
+		private int max_num_lines = 250;
+		private int num_lines = 0;
 
 		public HistoryView() {
 			setScrollableWidth( ScrollablePanel.ScrollableSizeHint.FIT );
@@ -116,6 +118,8 @@ public class Console extends JPanel{
 			tarea.setBorder(history_border);
 			tarea.setContentType("text/html");
 			tarea.setFont(FontMaker.makeCustomFont(font_size));
+			tarea.getDocument().addDocumentListener(
+				    new LimitLinesDocumentListener(max_num_lines) );
 
 			// If we give the OutputFormat class the JEditorPane's document style sheet
 			// it will apply all CSS formatting rules to it.
@@ -127,7 +131,6 @@ public class Console extends JPanel{
 
 		// Append new output to the history
 		public void append(String to_add) {
-
 			// Append the new message to the JEditorPane tarea
 			try {
 				Document this_doc = tarea.getDocument();
@@ -141,7 +144,6 @@ public class Console extends JPanel{
 				Risk.sayError("Unable to append console with game message:");
 				Risk.sayError(e.getMessage());
 			}
-
 		}
 
 		// Scrolls the output history down to the bottom (in a new Thread)
