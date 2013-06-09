@@ -32,6 +32,7 @@ public class BotSpeedPanel extends JPanel {
 	private int label_size = 13;
 	private int plus_minus_size = 22;
 	private int speed_max = 400;		// Maximum bot playing speed allowed
+	private int speed_min = 1;
 
 	// Construct an InfoPanel object. Dimension d is the size of the panel, Color c is the background color
 	public BotSpeedPanel(Dimension d, Color c, Color l_color) {
@@ -58,7 +59,7 @@ public class BotSpeedPanel extends JPanel {
 		
 		// Slider for selecting how fast bots should play.
 		speed_slider = new JSlider();
-		speed_slider.setMinimum(1);
+		speed_slider.setMinimum(speed_min);
 		speed_slider.setMaximum(speed_max-1);
 		speed_slider.setValue(gameToSlider((int)game.getPlayingSpeed()));	// See gameToSlider() documentation
 		speed_slider.addChangeListener(new ChangeListener() {

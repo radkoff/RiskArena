@@ -94,13 +94,13 @@ public class GameBoard extends JFrame {
 	}
 
 	// Send the game information to the Pretty and InfoPanel objects
-	public void sendGameInfo(final Game game, final ArrayList<Adjacency> adjs) {
+	public void sendGameInfo(final GameData data) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				pretty.sendGame(game);
-				pretty.sendAdjacencies(adjs);
-				bot_speed_panel.sendGame(game);
-				lower_left.sendGame(game);
+				pretty.sendGameData(data);
+				pretty.sendAdjacencies(data.getWorldAdjacencyList());
+				bot_speed_panel.sendGameData(data);
+				lower_left.sendGameData(data);
 			}
 		});
 	}

@@ -7,10 +7,10 @@
  */
 
 public class GameInfo {
-	private Game risk_game;		// The game engine to collect info from
+	private GameData risk_game;		// The game engine to collect info from
 	private Player player;		// The player that is using this GameInfo object
 
-	public GameInfo(Game g, Player p) {
+	public GameInfo(GameData g, Player p) {
 		risk_game = g;
 		player = p;
 	}
