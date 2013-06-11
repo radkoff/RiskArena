@@ -29,9 +29,8 @@ public class Pretty extends JPanel {
 	private int double_digit_army_label_size = 20;	// When the army amount is double digit, use this text size
 	private int triple_digit_army_label_size = 14; // When the army amount has three digits, use this text size
 
-	private Game game;		// Reference to the game engine instance being drawn
+	private GameData game;		// Reference to the game engine instance being drawn
 	private ArrayList<Adjacency> adjacencies;
-	private Country[] countries;
 	private Point2D.Float[] country_positions;	// The normalized coordinates of each territory
 
 	public static int min_size = 1, max_size = 5, min_mag = 1, max_mag = 5;
@@ -64,9 +63,8 @@ public class Pretty extends JPanel {
 	}
 
 	
-	public void sendGame(Game g) {
+	public void sendGameData(GameData g) {
 		game = g;
-		countries = game.getCountries();
 		convertCountryCoordinates();
 	}
 	
@@ -81,7 +79,8 @@ public class Pretty extends JPanel {
 	 * how many armies currently occupy it.
 	 */
 	private void drawCountries(Graphics2D g2d) {
-		for(int i=0;i<countries.length;i++) {
+		for(int i=0; i < game.NUM_COUNTRIES; i++) {
+			Country country = game.getCountry(i);
 			// *********** Draw country circle ************
 			int circle_stroke_width = 2;
 			Ellipse2D.Float circle = new Ellipse2D.Float();
@@ -89,16 +88,16 @@ public class Pretty extends JPanel {
 			circle.height = country_circle_radius*2;
 			circle.x = country_positions[i].x;
 			circle.y = country_positions[i].y;
-			g2d.setColor(game.getPlayerColor(countries[i].getPlayer()));
+			g2d.setColor(game.getPlayerColor(country.getPlayer()));
 			g2d.fill(circle);
-			g2d.setColor(game.getContinentColor(countries[i].getCont()));
+			g2d.setColor(game.getContinentColor(country.getCont()));
 			Stroke old_stroke = g2d.getStroke();
 			g2d.setStroke(new BasicStroke(circle_stroke_width));
 			g2d.draw(circle);
 			g2d.setStroke(old_stroke);
 
 			// ************ Draw country label ************
-			float label_direction = countries[i].getCLV().getDirection();
+			float label_direction = country.getCLV().getDirection();
 			// Convert direction to 0.00 at 12 oclock -----clockwise------> 1.00 at 12 oclock
 			if(label_direction > 0.5f)
 				label_direction -= 1;
@@ -106,7 +105,7 @@ public class Pretty extends JPanel {
 
 			// The CountryLabelVector magnitude is how far away the label text should be.
 			// 1 is closest, 5 is furthest. Each computed radius is based on country_circle_radius
-			int label_magnitude = countries[i].getCLV().getMagnitude();
+			int label_magnitude = country.getCLV().getMagnitude();
 			int label_radius = (int)(1.5*country_circle_radius);
 			switch(label_magnitude) {
 			case 1: label_radius = (int)(1.5*country_circle_radius);
@@ -126,7 +125,7 @@ public class Pretty extends JPanel {
 
 			// How big the font size should be based on the CountryLabelVector's size element
 			int country_label_size = 16;
-			switch(countries[i].getCLV().getFontSize()) {
+			switch(country.getCLV().getFontSize()) {
 			case 1: country_label_size = 14;
 			break;
 			case 2: country_label_size = 16;
@@ -138,11 +137,11 @@ public class Pretty extends JPanel {
 			case 5: country_label_size = 22;
 			break;
 			default:
-				Risk.sayError("Warning: invalid country label size " + countries[i].getCLV().getFontSize() + ". Using 2 instead");
+				Risk.sayError("Warning: invalid country label size " + country.getCLV().getFontSize() + ". Using 2 instead");
 				break;
 			}
 			// Make the text begin with the country's number
-			String label_text = (i+1) + ". " + countries[i].getName();
+			String label_text = (i+1) + ". " + country.getName();
 			Font label_font = FontMaker.makeCustomFont(country_label_size);
 			g2d.setFont(label_font);
 
@@ -165,29 +164,29 @@ public class Pretty extends JPanel {
 			g2d.setColor(Color.GRAY);
 			g2d.drawString(label_text, label_x + delta_x - 1, label_y + delta_y - 1);
 
-			g2d.setColor(game.getContinentColor(countries[i].getCont()));
+			g2d.setColor(game.getContinentColor(country.getCont()));
 			g2d.drawString(label_text, label_x + delta_x, label_y + delta_y);
 
 
 			// ************ Draw army amount *************
-			if(countries[i].getArmies() > 0) {
-				if(countries[i].getArmies() < 10) {		// Single digit
+			if(country.getArmies() > 0) {
+				if(country.getArmies() < 10) {		// Single digit
 					g2d.setColor(Color.DARK_GRAY);
 					g2d.setFont(FontMaker.makeCustomFont(single_digit_army_label_size));
-					g2d.drawString(""+(countries[i].getArmies()), circle.x + shadow_distance + country_circle_radius/2, circle.y + shadow_distance + (1.5f*country_circle_radius));
+					g2d.drawString(""+(country.getArmies()), circle.x + shadow_distance + country_circle_radius/2, circle.y + shadow_distance + (1.5f*country_circle_radius));
 					g2d.setColor(Color.WHITE);
 					//g2d.setFont(FontMaker.makeCustomFont(single_digit_army_label_size));
-					g2d.drawString(""+(countries[i].getArmies()), circle.x + country_circle_radius/2, circle.y + (1.5f*country_circle_radius));
+					g2d.drawString(""+(country.getArmies()), circle.x + country_circle_radius/2, circle.y + (1.5f*country_circle_radius));
 				} else {		// Double/triple digit
 					g2d.setColor(Color.DARK_GRAY);
-					if(countries[i].getArmies() < 100)
+					if(country.getArmies() < 100)
 						g2d.setFont(FontMaker.makeCustomFont(double_digit_army_label_size));
 					else
 						g2d.setFont(FontMaker.makeCustomFont(triple_digit_army_label_size));
-					g2d.drawString(""+(countries[i].getArmies()), circle.x - 5 + shadow_distance + country_circle_radius/2, circle.y - 3 + shadow_distance + (1.5f*country_circle_radius));
+					g2d.drawString(""+(country.getArmies()), circle.x - 5 + shadow_distance + country_circle_radius/2, circle.y - 3 + shadow_distance + (1.5f*country_circle_radius));
 					g2d.setColor(Color.WHITE);
 					//g2d.setFont(FontMaker.makeCustomFont(double_digit_army_label_size));
-					g2d.drawString(""+(countries[i].getArmies()), circle.x - 5 + country_circle_radius/2, circle.y - 3 + (1.5f*country_circle_radius));
+					g2d.drawString(""+(country.getArmies()), circle.x - 5 + country_circle_radius/2, circle.y - 3 + (1.5f*country_circle_radius));
 				}
 			}
 		}
@@ -206,9 +205,10 @@ public class Pretty extends JPanel {
 
 			Stroke old_stroke = g2d.getStroke();
 			g2d.setStroke(new BasicStroke(line_width));
+			Country from = game.getCountry(adjacencies.get(i).fromCountryID());
 			// If the adjacency is between two territories of the same continent, draw in the continent's color
-			if(countries[adjacencies.get(i).fromCountryID()].getCont() == countries[adjacencies.get(i).toCountryID()].getCont()) {
-				g2d.setColor(game.getContinentColor(countries[adjacencies.get(i).fromCountryID()].getCont()));
+			if(from.getCont() == game.getCountry(adjacencies.get(i).toCountryID()).getCont()) {
+				g2d.setColor(game.getContinentColor(from.getCont()));
 			} else {	// otherwise, draw it white
 				g2d.setColor(Color.white);
 			}
@@ -276,7 +276,7 @@ public class Pretty extends JPanel {
 	 * finds the appropriate bounds and normalizes all coordinates to be (0,1)
 	 */
 	private void convertCountryCoordinates() {
-		country_positions = new Point2D.Float[countries.length];
+		country_positions = new Point2D.Float[game.NUM_COUNTRIES];
 		// So that there is some buffer around the edge of the map, these float values
 		// represent how much of the x and y axes are taken up by stuff
 		float percent_xaxis_taken_up_by_countries = .90f;
@@ -285,8 +285,8 @@ public class Pretty extends JPanel {
 		// Find the highest and lowest x and y values:
 		int lowest_x = Integer.MAX_VALUE, lowest_y = Integer.MAX_VALUE;
 		int highest_x = Integer.MIN_VALUE, highest_y = Integer.MIN_VALUE;
-		for(int i=0;i<countries.length;i++) {
-			Point country_pos = countries[i].getPosition();
+		for(int i=0; i < game.NUM_COUNTRIES; i++) {
+			Point country_pos = game.getCountry(i).getPosition();
 			if(country_pos.x < lowest_x)
 				lowest_x = country_pos.x;
 			if(country_pos.x > highest_x)
@@ -302,8 +302,8 @@ public class Pretty extends JPanel {
 
 		// This loops calculates what the coordinate of each territory's node should be based on the
 		// numbers read in from the map file. They are put into country_positions[] and will lie between 0 and 1
-		for(int i=0;i<countries.length;i++) {
-			Point country_pos = countries[i].getPosition();
+		for(int i=0;i<game.NUM_COUNTRIES;i++) {
+			Point country_pos = game.getCountry(i).getPosition();
 			float newx = ((1.00f - percent_xaxis_taken_up_by_countries)/2) * (WIDTH)
 					+ (float)(country_pos.x - lowest_x)/(highest_x - lowest_x) * percent_xaxis_taken_up_by_countries * (WIDTH);
 			newx -= 12;
