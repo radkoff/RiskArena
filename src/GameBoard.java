@@ -1,7 +1,7 @@
 /*
- * GameBoard draws the world using javax.swing. It's comprised of three elements:
+ * GameBoard draws the world using javax.swing. It's comprised of four elements:
  * A Console object for input and output, a Pretty object to draw the game board,
- * and a InfoPanel object to show continent/player info.
+ * an InfoPanel object to show continent/player info, and a bot playing speed panel.
  * 
  * Evan Radkoff
  */
@@ -11,7 +11,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -22,19 +21,19 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 public class GameBoard extends JFrame {
-	private int WINDOW_WIDTH = 1200, WINDOW_HEIGHT = 750;
-	private int side_panel_width = 300;
-	private int info_panel_height = 300;
-	private int bot_speed_height = 50;
+	private int WINDOW_WIDTH = 1200, WINDOW_HEIGHT = 750;	// For now, static width/height
+	private int side_panel_width = 300;	// Absolute width of the left side panel (the rest is WINDOW_WIDTH-side_panel_width)
+	private int info_panel_height = 300; // Absolute height of the info panel (the console takes up the rest)
+	private int bot_speed_height = 50;	// Absolute height of the bot playing speed panel
 	private Color BGCOLOR = Color.black;
-	private Color LINE_COLOR = new Color(0.7f, 0.7f, 0.7f);
+	private Color LINE_COLOR = new Color(0.7f, 0.7f, 0.7f);	// Color of separating line
 	private Border border;
 	private final int border_thickness = 1;
 
 	private Pretty pretty; // The Pretty class draws counties and adjacency lines
 	private Console console; // User input/output text area
 	private BotSpeedPanel bot_speed_panel; // Panel for configuring the bot playing speed
-	private InfoPanel lower_left; // Not sure what this will become yet
+	private InfoPanel lower_left;
 	private JPanel main_panel;
 
 	public GameBoard() {
@@ -94,7 +93,7 @@ public class GameBoard extends JFrame {
 	}
 
 	// Send the game information to the Pretty and InfoPanel objects
-	public void sendGameInfo(final GameData data) {
+	public void sendGameData(final GameData data) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				pretty.sendGameData(data);
