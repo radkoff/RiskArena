@@ -19,7 +19,7 @@ import javax.swing.LayoutStyle;
 import javax.swing.border.Border;
 
 public class InfoPanel extends JPanel {
-	private Game game;		// Game engine object used to grab info
+	private GameData game;		// Game engine object used to grab info
 	private Color BGCOLOR;	// Background color
 	private Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
 	private Color player_eliminated_color = new Color(0.6f,0.6f,0.6f);	// When a player is out, their name appears gray
@@ -65,8 +65,8 @@ public class InfoPanel extends JPanel {
 		continents.setFont(FontMaker.makeCustomFont(label_size));
 		continents.setForeground(Color.white);
 
-		cont_info = game.getContinentInfo();	// Array of continent army bonuses
-		cont_names = game.CONTINENT_NAMES;		// Array of continent names
+		cont_info = game.getContinentBonuses();	// Array of continent army bonuses
+		cont_names = game.getContinentNames();		// Array of continent names
 		JLabel conts[] = new JLabel[cont_info.length];
 		for(int i=0;i<cont_info.length;i++) {		// Construct each continent label
 			JLabel somecont = new JLabel(cont_names[i] + ": + " + cont_info[i]);
@@ -116,12 +116,13 @@ public class InfoPanel extends JPanel {
 		player_army_amounts = new JLabel[NUM_PLAYERS];
 
 		for(int i=0;i<NUM_PLAYERS;i++) {
-			player_names[i] = game.getPlayerName(i);
+			Player player = game.getPlayer(i);
+			player_names[i] = player.getName();
 			player_colors[i] = game.getPlayerColor(i);
 			
 			// Player's icon (human or bot)
 			String icon = "";
-			int player_type = game.getPlayerType(i);
+			int player_type = player.getType();
 			if(player_type == Player.BOT)
 				icon = Bot.ICON_URL;
 			else if(player_type == Player.HUMAN)
@@ -181,7 +182,7 @@ public class InfoPanel extends JPanel {
 	 */
 	public void refresh() {
 		for(int i=0;i<NUM_PLAYERS;i++) {
-			if(!game.playerStillIn(i)) {	// If the player is eliminated
+			if(!game.getPlayer(i).getStillIn()) {	// If the player is eliminated
 				player_army_amounts[i].setText("0");
 				player_army_amounts[i].setForeground(player_eliminated_color);
 				player_name_labels[i].setForeground(player_eliminated_color);
@@ -197,7 +198,7 @@ public class InfoPanel extends JPanel {
 
 	// When the Game is constructed and ready, this method will be called
 	// and the panel will be re-initialized.
-	public void sendGame(Game _g) {
+	public void sendGameData(GameData _g) {
 		game = _g;
 		init();
 	}

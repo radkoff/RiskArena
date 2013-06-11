@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 import java.lang.Math;
 
 public class BotSpeedPanel extends JPanel {
-	private Game game;		// Game engine object used to get/set bot playing speed
+	private GameData data;		// Game engine object used to get/set bot playing speed
 	private Color BGCOLOR, LINE_COLOR;	// Background, separation line color
 	private Border border, pad_sides = BorderFactory.createEmptyBorder(0, 8, 0, 8);
 
@@ -31,7 +31,8 @@ public class BotSpeedPanel extends JPanel {
 	
 	private int label_size = 13;
 	private int plus_minus_size = 22;
-	private int speed_max = 400;		// Maximum bot playing speed allowed
+	private int speed_max = 600;		// Maximum bot playing speed allowed
+	private int speed_min = 1;
 
 	// Construct an InfoPanel object. Dimension d is the size of the panel, Color c is the background color
 	public BotSpeedPanel(Dimension d, Color c, Color l_color) {
@@ -48,7 +49,7 @@ public class BotSpeedPanel extends JPanel {
 	private void init() {
 		setBackground(BGCOLOR);
 		setBorder(border);
-		if(game == null) return;	// Without a game object we don't have information to get/set
+		if(data == null) return;	// Without a game object we don't have information to get/set
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));	// Lay vertically
 
@@ -58,12 +59,12 @@ public class BotSpeedPanel extends JPanel {
 		
 		// Slider for selecting how fast bots should play.
 		speed_slider = new JSlider();
-		speed_slider.setMinimum(1);
+		speed_slider.setMinimum(speed_min);
 		speed_slider.setMaximum(speed_max-1);
-		speed_slider.setValue(gameToSlider((int)game.getPlayingSpeed()));	// See gameToSlider() documentation
+		speed_slider.setValue(gameToSlider((int)data.getBotPlayingSpeed()));	// See gameToSlider() documentation
 		speed_slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {	// Signaled when the slider value is changed
-				game.setPlayingSpeed(sliderToGame(speed_slider.getValue()));	// See sliderToGame() documentation
+				data.setBotPlayingSpeed(sliderToGame(speed_slider.getValue()));	// See sliderToGame() documentation
 			}
 		});
 		
@@ -89,8 +90,8 @@ public class BotSpeedPanel extends JPanel {
 
 	// When the Game is constructed and ready, this method will be called
 	// and the panel will be re-initialized.
-	public void sendGame(Game _g) {
-		game = _g;
+	public void sendGameData(GameData _d) {
+		data = _d;
 		init();
 	}
 	

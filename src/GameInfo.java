@@ -7,17 +7,17 @@
  */
 
 public class GameInfo {
-	private Game risk_game;		// The game engine to collect info from
+	private GameData game_data;		// The game engine to collect info from
 	private Player player;		// The player that is using this GameInfo object
 
-	public GameInfo(Game g, Player p) {
-		risk_game = g;
+	public GameInfo(GameData g, Player p) {
+		game_data = g;
 		player = p;
 	}
 
 	// Returns an array of PlayerInfo objects that describe all opponents still in the game
 	public PlayerInfo[] getPlayerInfo() {
-		Player[] players = risk_game.getPlayersNotEliminated();
+		Player[] players = game_data.getPlayersNotEliminated();
 		PlayerInfo[] player_infos = new PlayerInfo[players.length];
 		for(int i=0;i<players.length;i++) {
 			player_infos[i] = new PlayerInfo(players[i]);
@@ -26,26 +26,22 @@ public class GameInfo {
 	}
 
 	public int getNumCountries() {
-		return risk_game.NUM_COUNTRIES;
+		return game_data.NUM_COUNTRIES;
 	}
 
 	// Returns a copy of the game engine's Country array
 	public CountryInfo[] getCountryInfo() {
-		Country[] old = risk_game.getCountries();
-		CountryInfo[] countries = new CountryInfo[risk_game.NUM_COUNTRIES];
-		for(int i=0;i<risk_game.NUM_COUNTRIES;i++)
-			countries[i] = new CountryInfo(old[i]);
-		return countries;
+		return game_data.getCountryInfo();
 	}
 
 	// Get an array of all continent army bonuses
 	public int[] getContinentBonuses() {
-		return (int[])risk_game.getContinentInfo().clone();
+		return game_data.getContinentBonuses();
 	}
 
 	// Get world info, which contains adjacencies
 	public World getWorldInfo() {
-		return new World(risk_game.world);
+		return game_data.getWorldCopy();
 	}
 
 	// Get this player's hand of cards
@@ -55,7 +51,7 @@ public class GameInfo {
 
 	// Get how many armies the next set turned in is worth
 	public int getArmiesFromNextSet(){
-		return risk_game.getArmiesFromNextSet();
+		return game_data.getArmiesFromNextSet();
 	}
 
 	public int me() {
