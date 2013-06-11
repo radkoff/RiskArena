@@ -198,7 +198,7 @@ public class InfoPanel extends JPanel {
 
 	// When the Game is constructed and ready, this method will be called
 	// and the panel will be re-initialized.
-	public void sendGame(GameData _g) {
+	public void sendGameData(GameData _g) {
 		game = _g;
 		init();
 	}

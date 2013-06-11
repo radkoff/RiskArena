@@ -5,7 +5,6 @@
  * Evan Radkoff
  */
 
-import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -76,7 +75,7 @@ public class Game {
 	}
 
 	public void init() {
-		if(save_game_log) {
+		if(save_game_log) {		// If logs are being kept of this game
 			// Create the BufferedWriter that will write to log path
 			try {
 				File file = new File(log_path);
@@ -114,7 +113,6 @@ public class Game {
 		}
 		int winner = data.getWinner(); // get the winner from the game engine
 		sayOutput("Congratulations " + data.getPlayer(winner).getName() + ", you win " + Risk.PROJECT_NAME + "!");
-		//game_results.add(new Integer(players[winner].getId()));
 		game_results.add(new Integer(winner));
 		elapsed_time = System.nanoTime() - start_time;
 	}
@@ -124,6 +122,7 @@ public class Game {
 	 */
 	private void initializeGraphics() {
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				board = new GameBoard();
 				board.setVisible(true);
@@ -140,6 +139,7 @@ public class Game {
 		if(!watch)
 			return;
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				board.refresh();
 			}
@@ -163,6 +163,7 @@ public class Game {
 		}
 		if(watch && board != null) {
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					board.sayOutput(toSay, output_format_style);
 				}
@@ -261,9 +262,9 @@ public class Game {
 		}
 		// claiming:
 		try {
-			boolean human = data.currentPlayerHuman();
-			Player curr_player = data.getCurrentPlayer();
 			for(int i=0; i < data.NUM_COUNTRIES; i++) {
+				boolean human = data.currentPlayerHuman();
+				Player curr_player = data.getCurrentPlayer();
 				int claimed;
 				if(human) {
 					sayOutput(data.getPlayerName() + ": Enter the number of the territory you would like to claim.", OutputFormat.QUESTION);
@@ -288,6 +289,8 @@ public class Game {
 			}
 			// fortifying:
 			while(true) {
+				boolean human = data.currentPlayerHuman();
+				Player curr_player = data.getCurrentPlayer();
 				int to_fortify;
 				if(human) {
 					sayOutput(data.getPlayerName() + ": Enter the number of the territory you would like to fortify.", OutputFormat.QUESTION);
@@ -582,10 +585,10 @@ public class Game {
 				case -1:
 					if(dice.defenderArmyChange == -1)
 						sayOutput("Each player loses 1 army.", OutputFormat.TABBED);
-					else sayOutput(from.getName() + " (" + from.getName() + ") loses 1 army.", OutputFormat.TABBED);
+					else sayOutput(from.getName() + " (" + data.getPlayerName() + ") loses 1 army.", OutputFormat.TABBED);
 					break;
 				case -2:
-					sayOutput(from.getName() + " (" + from.getName() + ") loses 2 armies.", OutputFormat.TABBED);
+					sayOutput(from.getName() + " (" + data.getPlayerName() + ") loses 2 armies.", OutputFormat.TABBED);
 					break;
 				}
 
@@ -595,9 +598,9 @@ public class Game {
 						sayOutput("Congratulations " + from.getName() + ", you captured " + to.getName() + "!", OutputFormat.TABBED);
 					else
 						sayOutput(from.getName() + " has captured " + to.getName() + " (" + being_attacked.getName() + ")", OutputFormat.TABBED);
-					to.setPlayer(data.getCurrentPlayerID());	// transfer ownership to the attacker
 					refreshGraphics();
-					if(playerEliminated(to.getPlayer())) {
+					to.setPlayer(data.getCurrentPlayerID());	// transfer ownership to the attacker
+					if(playerEliminated(being_attacked.getId())) {
 						sayOutput("*** " + from.getName() + " has eliminated " + being_attacked.getName() + " ***", OutputFormat.TABBED);
 						if(data.over()) return true;	// if the game is over
 						if(being_attacked.getNumCards() > 0) { // turn_player_id gets some free cards from defender
@@ -635,7 +638,7 @@ public class Game {
 						armies_to_move = curr_player.askInt(armies_attacking, (from.getArmies()-1));
 					} else armies_to_move = armies_attacking;
 					if(!human)
-						sayOutput(from.getName() + " moves " + armies_to_move + " armies into " + to.getName() + " for occupation.");
+						sayOutput(curr_player.getName() + " moves " + armies_to_move + " armies into " + to.getName() + " for occupation.");
 					from.setArmies( from.getArmies() - armies_to_move );
 					to.setArmies( to.getArmies() + armies_to_move );
 
@@ -727,7 +730,7 @@ public class Game {
 		if(data.getCountry(country_to_fortify).getPlayer() != data.getCurrentPlayerID())
 			return false;
 		if(!data.currentPlayerHuman())
-			sayOutput(data.getPlayerName() + " has placed " + num_armies_added + " armies on " + data.getPlayer(country_to_fortify).getName() + ".");
+			sayOutput(data.getPlayerName() + " has placed " + num_armies_added + " armies on " + data.getCountry(country_to_fortify).getName() + ".");
 		data.getCountry(country_to_fortify).setArmies(data.getCountry(country_to_fortify).getArmies() + num_armies_added);
 		return true;
 	}
@@ -738,10 +741,11 @@ public class Game {
 	 */
 	private boolean playerEliminated(int player_id) {
 		for(int i=0;i<data.NUM_COUNTRIES;i++) {
-			if(data.getCountry(i).getPlayer() == player_id) return false;
+			if(data.getCountry(i).getPlayer() == player_id) {
+				return false;
+			}
 		}
 		data.getPlayer(player_id).setStillIn(false);
-		//game_results.add(new Integer(players[player_id].getId()));
 		game_results.add(new Integer(player_id));
 		return true;
 	}
@@ -754,10 +758,6 @@ public class Game {
 		sayError("The RiskBot " + data.getPlayer(player_id).getName() + " messed up big time, and the game could not go on.", true);
 		sayOutput(scope, true);
 		sayOutput(e.getMessage(), true);
-		exit();
-	}
-
-	private void exit() {
 		System.exit(0);
 	}
 
@@ -785,7 +785,7 @@ public class Game {
 		boolean continents_won[] = new boolean[data.NUM_CONTINENTS];
 		for(int i=0; i < continents_won.length; i++) continents_won[i] = true;
 		for(int country_id=0; country_id < data.NUM_COUNTRIES; country_id++) {
-			if(data.getPlayer(country_id).getId() != data.getCurrentPlayerID())
+			if(data.getCountry(country_id).getPlayer() != data.getCurrentPlayerID())
 				continents_won[data.getCountry(country_id).getCont()] = false;
 		}
 		int bonus_armies = 0;
@@ -1025,5 +1025,10 @@ public class Game {
 		// Close the game board
 		if(watch && close_board)
 			board.setVisible(false);
+	}
+	
+	// When a Game object is used for more than one game, this method can be called to "clear" old game data
+	public void clearGame() {
+		data.resetPlayers();
 	}
 }

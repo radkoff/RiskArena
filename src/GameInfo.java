@@ -41,7 +41,7 @@ public class GameInfo {
 
 	// Get world info, which contains adjacencies
 	public World getWorldInfo() {
-		return new World(game_data.world);
+		return game_data.getWorldCopy();
 	}
 
 	// Get this player's hand of cards

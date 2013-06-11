@@ -83,7 +83,7 @@ public class Risk {
 					}
 				});
 				game.close(true);		// close the game and board
-				game.resetPlayers();	// Since the same Player objects are used game to game, clear their cards and stillIn status
+				game.clearGame();	// Since the same Player objects are used game to game, clear their cards and stillIn status
 			}
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {

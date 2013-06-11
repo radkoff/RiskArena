@@ -31,7 +31,7 @@ public class BotSpeedPanel extends JPanel {
 	
 	private int label_size = 13;
 	private int plus_minus_size = 22;
-	private int speed_max = 400;		// Maximum bot playing speed allowed
+	private int speed_max = 600;		// Maximum bot playing speed allowed
 	private int speed_min = 1;
 
 	// Construct an InfoPanel object. Dimension d is the size of the panel, Color c is the background color
