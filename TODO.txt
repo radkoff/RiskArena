@@ -3,8 +3,7 @@ Make another map or two
 HOWTO for making maps
 
 "Soon":
-Un-clutter Game.java
-Perhaps separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
+Separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the GameBoard window
 Alterations of the GameBoard depending on the context of a player's turn. For example, when you select a country to attack from the foreign adjacencies should become highlighted. This will make playing as a human slightly easier.
 Play/pause buttons during bots' turns
