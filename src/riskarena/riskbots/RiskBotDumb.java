@@ -17,7 +17,7 @@ import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.Bot.RiskListener;
 
-public class RiskBotDumbPlayer implements RiskBot{
+public class RiskBotDumb implements RiskBot{
 	private Bot.RiskListener to_game;
 	private GameInfo risk_info;
 	private World world = null;
@@ -48,41 +48,6 @@ public class RiskBotDumbPlayer implements RiskBot{
 		CountryInfo[] countries = risk_info.getCountryInfo();
 		int num_conts = risk_info.getContinentBonuses().length;
 		
-		// If any continent has all but one territory claimed by the same person, defensively claim it
-		int cand[] = new int[num_conts];
-		for(int i=0;i<num_conts;i++) {
-			cand[i] = -1;
-		}
-		int owner[] = new int[num_conts];
-		for(int i=0;i<num_conts;i++) {
-			owner[i] = -1;
-		}
-		for(int i=0;i<countries.length;i++) {
-			if(cand[countries[i].getCont()] == 666)
-				continue;
-			if(!countries[i].isTaken()) {
-				if(cand[countries[i].getCont()] >= 0) {
-					cand[countries[i].getCont()] = 666;
-				} else {
-					cand[countries[i].getCont()] = i;
-				}
-			} else {
-				if(owner[countries[i].getCont()] >= 0 && owner[countries[i].getCont()] != countries[i].getPlayer()) {
-					cand[countries[i].getCont()] = 666;
-					continue;
-				}
-				if(owner[countries[i].getCont()] < 0) {
-					owner[countries[i].getCont()] = countries[i].getPlayer();
-				}
-			}
-		}
-		for(int i=0;i<cand.length;i++) {
-			if(cand[i] >= 0 && cand[i] != 666) {
-				to_game.sendInt(cand[i]);
-				return;
-			}
-		}
-		
 		// Else, calculate percentages for each continent of: taken by me, taken by someone, unclaimed
 		int counts[][] = new int[num_conts][3];
 		for(int i=0;i<num_conts;i++) {
@@ -106,6 +71,8 @@ public class RiskBotDumbPlayer implements RiskBot{
 				ratios[i][j] = ((double)counts[i][j])/(counts[i][0] + counts[i][1] + counts[i][2]);
 			}
 		}
+		
+		
 		int cont = -1;
 		double highest = 0.0;
 		for(int i=0;i<ratios.length;i++) {

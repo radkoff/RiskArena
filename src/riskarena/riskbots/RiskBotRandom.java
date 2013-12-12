@@ -23,7 +23,7 @@ import riskarena.Risk;
 import riskarena.RiskBot;
 import riskarena.World;
 
-public class RiskBotRandomPlayer implements RiskBot{
+public class RiskBotRandom implements RiskBot{
 	/*	Game related data members it's always a good idea to keep */
 	private Bot.RiskListener to_game;		// Send game time decisions using to_game.sendInt(int/Integer)
 	private GameInfo risk_info;
@@ -146,7 +146,7 @@ public class RiskBotRandomPlayer implements RiskBot{
 		}
 		int choice = gen.nextInt(mine.size());
 
-		to_game.sendInt(mine.get(choice).intValue());
+		to_game.sendInt(mine.get(choice));
 		to_game.sendInt(num_to_place);
 	}
 
@@ -156,27 +156,27 @@ public class RiskBotRandomPlayer implements RiskBot{
 	 */
 	public void launchAttack() {
 		CountryInfo[] countries = risk_info.getCountryInfo();
-		if( previousVictory != null && shouldAttackFrom(countries[previousVictory.intValue()]) )
-			attackFrom(previousVictory.intValue(), countries);
+		if( previousVictory != null && shouldAttackFrom(countries[previousVictory]) )
+			attackFrom(previousVictory, countries);
 		previousVictory = null;
 		
 		if(!attacks.isEmpty()) {
 			Pair<Integer,Integer> attack = attacks.peek();		// The attack currently being executed
 			// Check to see if you've conquered the territory
-			if(countries[attack.snd.intValue()].getPlayer() == risk_info.me()) {
+			if(countries[attack.snd].getPlayer() == risk_info.me()) {
 				attacks.remove();
 				launchAttack();
 				return;
 			}
 			// Check to see if you've run out of armies to attack with :(
-			if(countries[attack.fst.intValue()].getArmies() == 1) {
+			if(countries[attack.fst].getArmies() == 1) {
 				attacks.remove();
 				launchAttack();
 				return;
 			}
 			to_game.sendInt(attack.fst);
 			to_game.sendInt(attack.snd);
-			to_game.sendInt(Math.min(countries[attack.fst.intValue()].getArmies()-1, 3)); // Attack with all you've got!
+			to_game.sendInt(Math.min(countries[attack.fst].getArmies()-1, 3)); // Attack with all you've got!
 		} else {
 			to_game.sendInt(-1);
 		}
@@ -230,7 +230,7 @@ public class RiskBotRandomPlayer implements RiskBot{
 			int choice = gen.nextInt(possibleForts.size());
 			to_game.sendInt(possibleForts.get(choice).fst);
 			to_game.sendInt(possibleForts.get(choice).snd);
-			to_game.sendInt(countries[possibleForts.get(choice).fst.intValue()].getArmies() - 1);
+			to_game.sendInt(countries[possibleForts.get(choice).fst].getArmies() - 1);
 		}
 	}
 
