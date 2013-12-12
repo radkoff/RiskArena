@@ -105,22 +105,23 @@ public class BotSpeedPanel extends JPanel {
 	 * numbers are inverses, and can be translated by taking speed_max - x. However we
 	 * also don't want a linear relationship, ie putting the slider towards either end should
 	 * have an exagerated effect. The this end a squaring/sqrt function is used (more precisely
-	 * ^2.15 instead of 2). Also a delta multiplier was chosen via experimentation until the
+	 * ^(exponent) instead of 2). Also a delta multiplier was chosen via experimentation until the
 	 * slider value seemed appropriate. Further tweaking can be done by changing this delta
 	 * value, the exponent, and speed_max itself.
 	 * The important thing here is that the two functions, gameToSlider and sliderToGame, are
 	 * exact inverses of each other.
 	 */
-	private double delta = .6;
+	private final double delta = 2.0;
+	private final double exponent = 2.0;
 	
 	// Convert a Game.bot_playing_speed value to a slider value
 	private int gameToSlider(int input) {
-		return speed_max - (int)(Math.pow(input,2.15)/(speed_max * delta));
+		return speed_max - (int)(Math.pow(input,exponent)/(speed_max * delta));
 	}
 	
 	// Convert a value given by the speed slider to a value that the Game will understand/use
 	private int sliderToGame(int input) {
-		return (int)Math.pow((speed_max*delta) * ((double)speed_max - input), 1.0/2.15);
+		return (int)Math.pow((speed_max*delta) * ((double)speed_max - input), 1.0/exponent);
 	}
 
 }

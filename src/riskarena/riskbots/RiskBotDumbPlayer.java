@@ -17,7 +17,7 @@ import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.Bot.RiskListener;
 
-public class RiskBotBurghBot implements RiskBot{
+public class RiskBotDumbPlayer implements RiskBot{
 	private Bot.RiskListener to_game;
 	private GameInfo risk_info;
 	private World world = null;
@@ -33,6 +33,14 @@ public class RiskBotBurghBot implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		gen = new Random((new Date()).getTime());
+	}
+	
+	/*
+	 * Turn-based initialization
+	 * @see riskarena.RiskBot#initTurn()
+	 */
+	public void initTurn() {
+		
 	}
 
 	// Claim the country in the continent with the highest percentage of claimed friendly countries

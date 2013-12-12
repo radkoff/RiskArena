@@ -81,6 +81,14 @@ public class GameData {
 			players[i].reset();
 	}
 	
+	/*
+	 * When a Bot player's turn has begun, call their initTurn() method to allow optional initialization
+	 */
+	public void notifyPlayerOfTurn() {
+		if(!currentPlayerHuman())
+			((Bot)getCurrentPlayer()).initTurn();
+	}
+	
 	// Once the GameData object is constructed, it must be sent along to each Bot player
 	public void sendGameDataToBots() {
 		for(int i=0; i < NUM_PLAYERS; i++) {

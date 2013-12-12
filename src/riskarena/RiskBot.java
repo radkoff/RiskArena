@@ -13,6 +13,10 @@ public interface RiskBot {
 	// as well as a RiskListener so it can communicate answers. See HOWTO for more on these objects.
 	public void init(GameInfo gi, Bot.RiskListener rl);
 
+	/*
+	 * A method called at the start of each of the RiskBot's turns that can be used for initialization purposes
+	 */
+	public void initTurn();
 
 	/*
 	 * At the beginning of the game during the territory claiming phase, the game engine

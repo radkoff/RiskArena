@@ -2,9 +2,14 @@ Short-term:
 No longer require naming conventions for RiskBot files, consider all in riskbots directory (check dynamically if it implements RiskBot)
 Make more maps
 HOWTO for making maps
+Replace magic numbers in RiskBot response protocol with static final answers (or enums?)
 
 "Soon":
-Refactor, get rid of large methods. Separate UI and functionality of classes like WarGameReport
+Refactor -
+	Break up the largest of methods
+	Separate UI and functionality of classes like WarGameReport
+	Should Bot.RiskListener have a public constructor?
+	Maybe GameInfo's GetCountryInfo shouldn't involve a full copying of the countries array?
 Separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the GameBoard window
 Alterations of the GameBoard depending on the context of a player's turn. For example, when you select a country to attack from the foreign adjacencies should become highlighted. This will make playing as a human slightly easier.
@@ -12,6 +17,7 @@ Play/pause buttons during bots' turns
 Integrate selected maps from http://www.conquerclub.com/maps/ (write a program to translate from their XML specification scheme to mine. See http://www.conquerclub.com/forum/viewtopic.php?f=529&t=86562&start=0)
 
 Long-term:
+Unit testing
 Map Creator program
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Multiplayer via Internet using the client/server model

@@ -49,14 +49,27 @@ public class Bot extends Player {
 		data = game_data;
 		skynet.init(new GameInfo(game_data, this), risk_listener);
 	}
-
-	// Starts a new thread, calls skynet's implemented claimTerritory method
-	public void claimTerritory() {
+	
+	// Notifies skynet of turn initialization
+	public void initTurn() {
+		new Thread() {
+			public void run () {
+				skynet.initTurn();
+			}
+		}.start();
+	}
+	
+	private void sleep() {
 		try {
 			Thread.sleep(data.getBotPlayingSpeed());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	// Starts a new thread, calls skynet's implemented claimTerritory method
+	public void claimTerritory() {
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.claimTerritory();
@@ -66,11 +79,7 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented forifyTerritory method
 	public void fortifyTerritory(final int num_to_place) {
-		try {
-			Thread.sleep(data.getBotPlayingSpeed());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.fortifyTerritory(num_to_place);
@@ -80,11 +89,7 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented launchAttack method
 	public void launchAttack() {
-		try {
-			Thread.sleep(data.getBotPlayingSpeed());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.launchAttack();
@@ -94,11 +99,7 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented forifyAfterVictory method
 	public void fortifyAfterVictory(final int attacker, final int defender, final int min, final int max) {
-		try {
-			Thread.sleep(data.getBotPlayingSpeed());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.fortifyAfterVictory(attacker, defender, min, max);
@@ -108,11 +109,7 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented chooseCardSet method
 	public void chooseCardSet(final int[][] possible_sets) {
-		try {
-			Thread.sleep(data.getBotPlayingSpeed());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.chooseCardSet(possible_sets);
@@ -122,11 +119,7 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented chooseToTurnInSet method
 	public void chooseToTurnInSet() {
-		try {
-			Thread.sleep(data.getBotPlayingSpeed());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.chooseToTurnInSet();
@@ -136,11 +129,7 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented forifyPosition method
 	public void fortifyPosition() {
-		try {
-			Thread.sleep(data.getBotPlayingSpeed());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		sleep();
 		new Thread() {
 			public void run () {
 				skynet.fortifyPosition();
@@ -212,6 +201,9 @@ public class Bot extends Player {
 		public RiskListener() { }
 		public void sendInt(int to_send) {
 			from_bot.add(new Integer(to_send));
+		}
+		public void sendInt(Integer to_send) {
+			from_bot.add(to_send);
 		}
 	}
 
