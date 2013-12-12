@@ -34,7 +34,7 @@ public class BotSpeedPanel extends JPanel {
 	
 	private int label_size = 13;
 	private int plus_minus_size = 22;
-	private int speed_max = 600;		// Maximum bot playing speed allowed
+	private int speed_max = 700;		// Maximum bot playing speed allowed
 	private int speed_min = 1;
 
 	// Construct an InfoPanel object. Dimension d is the size of the panel, Color c is the background color
@@ -104,24 +104,29 @@ public class BotSpeedPanel extends JPanel {
 	 * a pause of 1 is fast and a pause of speed_max is slow. This implies that the two
 	 * numbers are inverses, and can be translated by taking speed_max - x. However we
 	 * also don't want a linear relationship, ie putting the slider towards either end should
-	 * have an exagerated effect. The this end a squaring/sqrt function is used (more precisely
-	 * ^(exponent) instead of 2). Also a delta multiplier was chosen via experimentation until the
-	 * slider value seemed appropriate. Further tweaking can be done by changing this delta
-	 * value, the exponent, and speed_max itself.
-	 * The important thing here is that the two functions, gameToSlider and sliderToGame, are
-	 * exact inverses of each other.
+	 * have an exaggerated effect. To this end an exponential function is used, where the
+	 * formula for converting from the slider value to the sleep time per bot decision is:
+	 * 			gameValue = e^( -(sliderValue + offset)^exponent + delta ) - dampener
+	 * The four parameters can be tweaked, but it's recommended that you graph it to understand
+	 * what they do. And no matter what, it's important that the two functions, gameToSlider
+	 * and sliderToGame, are exact inverses of each other.
+	 * Also ensure that sliderToGame is not negative for speed_max
 	 */
-	private final double delta = 2.0;
-	private final double exponent = 2.0;
+	private final double delta = 11.5;
+	private final double offset = 115.0;
+	private final double exponent = .31;
+	private final double dampener = 10.0;
 	
 	// Convert a Game.bot_playing_speed value to a slider value
 	private int gameToSlider(int input) {
-		return speed_max - (int)(Math.pow(input,exponent)/(speed_max * delta));
+		double val = Math.pow( delta - Math.log(input + dampener), 1.0/exponent );
+		return (int)(val - offset);
 	}
 	
 	// Convert a value given by the speed slider to a value that the Game will understand/use
 	private int sliderToGame(int input) {
-		return (int)Math.pow((speed_max*delta) * ((double)speed_max - input), 1.0/exponent);
+		double val = -1 * Math.pow(input + offset, exponent);
+		return (int)(Math.exp(val + delta)-dampener);
 	}
 
 }
