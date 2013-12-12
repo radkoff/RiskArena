@@ -113,7 +113,7 @@ public class BotSpeedPanel extends JPanel {
 	 * Also ensure that sliderToGame is not negative for speed_max
 	 */
 	private final double delta = 11.5;
-	private final double offset = 115.0;
+	private final double offset = 100.0;
 	private final double exponent = .31;
 	private final double dampener = 10.0;
 	

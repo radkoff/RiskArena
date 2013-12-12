@@ -15,6 +15,7 @@ public class OutputFormat {
 	public static final int QUESTION = 3;	// A question that requires human input
 	public static final int ANSWER = 4;		// An answer given by a human
 	public static final int TABBED_QUESTION = 5;	// A question requiring human input that is also tabbed
+	public static final int BLUE = 6;		// Blue text, used sparingly for debugging
 
 	public static String getClassName(int format) {
 		switch(format) {
@@ -24,6 +25,7 @@ public class OutputFormat {
 		case 3: return "question";
 		case 4: return "answer";
 		case 5: return "tabbedquestion";
+		case 6: return "blue";
 		default: Risk.sayError("Unidentified OutputFormat class id.");
 		}
 		return "";
@@ -40,6 +42,7 @@ public class OutputFormat {
 			ss.addRule(".question {color:#175C10}");
 			ss.addRule(".tabbedquestion {margin-left:10px; padding-left:10px; color:#175C10;}");
 			ss.addRule(".answer {color:#1C9C25;}");
+			ss.addRule(".blue {color:blue}");
 
 		} catch(Exception e) {
 			Risk.sayError(e.getMessage());
