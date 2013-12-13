@@ -25,7 +25,7 @@ public class OwnContinentsEvaluator extends AbstractEvaluator {
 	}
 	
 	private void recalculate() {
-		score = stats.getNumContinentsOwnedBy(stats.me()) / (double)stats.getNumContinents();
+		score = stats.getNumContinentsOwnedBy(game.me()) / (double)stats.getNumContinents();
 	}
 	
 }

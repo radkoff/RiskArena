@@ -24,7 +24,7 @@ public class OwnArmiesEvaluator extends AbstractEvaluator {
 	}
 	
 	private void recalculate() {
-		score = stats.getArmiesPerPlayer()[stats.me()] / (double)stats.getTotalArmies();
+		score = stats.getArmiesPerPlayer()[game.me()] / (double)stats.getTotalArmies();
 	}
 	
 }

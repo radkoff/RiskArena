@@ -34,10 +34,14 @@ public class GameStats {
 	private int occupationCounts[];
 	/*		A list of country IDs belonging to this player		*/
 	private ArrayList<Integer> myCountries;
+	/*		A list of country IDs belonging to this player that are adjacent to enemy territories	*/
+	private ArrayList<Integer> frontier;
 	
 	public GameStats(GameInfo initial) {
 		game = initial;
 		world = game.getWorldInfo();	// Only grab this once, it never changes
+		myCountries = new ArrayList<Integer>();
+		frontier = new ArrayList<Integer>();
 		refresh();
 		rateContinents();				// Only rate these once, they never change
 	}
@@ -96,18 +100,29 @@ public class GameStats {
 	}
 	
 	/*
-	 * Responsible for filling the occupationTotals array and myCountries ArrayList
+	 * Responsible for filling the occupationTotals array, and myCountries and frontier ArrayLists
 	 * occupationTotals[i] represents the number of territories occupied by the player with ID i
 	 * myCountries is a list of the country ID's belonging to this player.
+	 * frontier is a list of country ID's belonging to this player and adjacent to enemy territories.
 	 */
 	private void calculateOccupationStats() {
 		occupationCounts = new int[game.getMaxPlayerID()];
-		myCountries = new ArrayList<Integer>();
+		myCountries.clear();
+		frontier.clear();
 		for(int i=0; i<countries.length; i++) {
 			if(countries[i].isTaken()) {
 				occupationCounts[countries[i].getPlayer()]++;
-				if(countries[i].getPlayer() == game.me())
+				if(countries[i].getPlayer() == game.me()) {
 					myCountries.add(new Integer(i));
+					int adj[] = world.getAdjacencies(i);
+					// Check to see if countries[i] is on the player's frontier
+					for(int a = 0; a<adj.length; a++) {
+						if(countries[adj[a]].getPlayer() != game.me()) {
+							frontier.add(new Integer(i));
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -151,11 +166,6 @@ public class GameStats {
 		return answer;
 	}
 	
-	// Returns the player id of "this" player
-	public int me() {
-		return game.me();
-	}
-	
 	// Returns the number of continents
 	public int getNumContinents() {
 		return game.getNumContinents();
@@ -190,6 +200,14 @@ public class GameStats {
 	
 	public CountryInfo[] getCountries() {
 		return countries;
+	}
+	
+	public ArrayList<Integer> getMyCountries() {
+		return myCountries;
+	}
+	
+	public ArrayList<Integer> getFrontier() {
+		return frontier;
 	}
 	
 }

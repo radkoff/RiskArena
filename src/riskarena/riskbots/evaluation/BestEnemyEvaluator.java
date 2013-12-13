@@ -28,7 +28,7 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 	private void recalculate() {
 		double highestScore = Double.MIN_VALUE;
 		for(int i=0; i<players.length; i++) {
-			if(players[i].getId() == stats.me())
+			if(players[i].getId() == game.me())
 				continue;
 			double enemyScore = rateEnemy(players[i].getId());
 			if(enemyScore > highestScore)

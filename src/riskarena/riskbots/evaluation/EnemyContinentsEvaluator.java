@@ -27,7 +27,7 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 		int enemyOwned = 0;
 		int contOwnership[] = stats.getContinentOwnership();
 		for(int i=0; i<contOwnership.length; i++) {
-			if(contOwnership[i] != -1 && contOwnership[i] != stats.me())
+			if(contOwnership[i] != -1 && contOwnership[i] != game.me())
 				enemyOwned++;
 		}
 		score = -1 * enemyOwned / (double)stats.getNumContinents();

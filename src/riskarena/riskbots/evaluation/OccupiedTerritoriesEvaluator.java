@@ -24,7 +24,7 @@ public class OccupiedTerritoriesEvaluator extends AbstractEvaluator {
 	}
 	
 	private void recalculate() {
-		score = stats.getOccupationCounts()[stats.me()] / (double)stats.getCountries().length;
+		score = stats.getOccupationCounts()[game.me()] / (double)stats.getCountries().length;
 	}
 	
 }

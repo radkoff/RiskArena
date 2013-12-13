@@ -24,14 +24,14 @@ public class FortifiedTerritoriesEvaluator extends AbstractEvaluator {
 	}
 	
 	private void recalculate() {
-		score = numFortifiedTerritories() / (double)stats.getOccupationCounts()[stats.me()];
+		score = numFortifiedTerritories() / (double)stats.getOccupationCounts()[game.me()];
 	}
 	
 	private int numFortifiedTerritories() {
 		int count = 0;
 		CountryInfo countries[] = stats.getCountries();
 		for(int i=0; i<countries.length;i++) {
-			if(countries[i].isTaken() && countries[i].getPlayer() == stats.me() && countries[i].getArmies() > 1)
+			if(countries[i].isTaken() && countries[i].getPlayer() == game.me() && countries[i].getArmies() > 1)
 				count++;
 		}
 		return count;
