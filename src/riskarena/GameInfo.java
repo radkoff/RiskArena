@@ -29,6 +29,10 @@ public class GameInfo {
 	public int getNumCountries() {
 		return game_data.NUM_COUNTRIES;
 	}
+	
+	public int getNumContinents() {
+		return game_data.NUM_CONTINENTS;
+	}
 
 	// Returns a copy of the game engine's Country array
 	public CountryInfo[] getCountryInfo() {

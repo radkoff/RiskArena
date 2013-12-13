@@ -37,6 +37,7 @@ public class GameStats {
 	
 	public GameStats(GameInfo initial) {
 		game = initial;
+		countries = game.getCountryInfo();
 		world = game.getWorldInfo();	// Only grab this once, it never changes
 		rateContinents();				// Only rate these once, they never change
 	}
@@ -62,7 +63,7 @@ public class GameStats {
 	 * If no one does, the int will be -1;
 	 */
 	private void calculateContentOwnership() {
-		continentOwnership = new int[game.getContinentBonuses().length];
+		continentOwnership = new int[game.getNumContinents()];
 		// Initialize each content ownership to -2, which indicates the
 		// continent has yet to be examined.
 		for(int i=0; i<continentOwnership.length; i++) {
@@ -118,7 +119,28 @@ public class GameStats {
 	 * state-independent info: #territories, #borders, and the continent army bonus 
 	 */
 	private void rateContinents() {
-		// TODO
+		continentRatings = new double[game.getNumContinents()];
+		
+		// For each continent, find its size and number of borders
+		int numTerritories[] = new int[game.getNumContinents()];
+		int numBorders[] = new int[game.getNumContinents()];
+		for(int i=0; i<countries.length; i++) {
+			numTerritories[countries[i].getCont()]++;
+			int adj[] = world.getAdjacencies(i);
+			for(int a = 0; a<adj.length; a++) {
+				if(countries[i].getCont() != countries[adj[a]].getCont()) {
+					numBorders[countries[i].getCont()]++;
+					break;
+				}
+			}
+		}
+		// Use the above along with continent bonus info to calculate a score
+		// Right now this one comes from Wolf's thesis
+		int bonuses[] = game.getContinentBonuses();
+		for(int i=0; i<continentRatings.length; i++) {
+			int numerator = 15 + bonuses[i] - 4 * numBorders[i];
+			continentRatings[i] = numerator/(double)numTerritories[i];
+		}
 	}
 	
 	/*********************** GETTERS ****************************/

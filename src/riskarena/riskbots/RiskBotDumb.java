@@ -49,7 +49,7 @@ public class RiskBotDumb implements RiskBot{
 	// Claim the country in the continent with the highest percentage of claimed friendly countries
 	public void claimTerritory() {
 		CountryInfo[] countries = risk_info.getCountryInfo();
-		int num_conts = risk_info.getContinentBonuses().length;
+		int num_conts = risk_info.getNumContinents();
 		
 		// Else, calculate percentages for each continent of: taken by me, taken by someone, unclaimed
 		int counts[][] = new int[num_conts][3];
