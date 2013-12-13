@@ -85,7 +85,7 @@ public class GameStats {
 	 * as well as the totalArmies int.
 	 */
 	private void calculateArmyTotals() {
-		armies = new int[players.length];
+		armies = new int[game.getMaxPlayerID()];
 		totalArmies = 0;
 		for(int i=0; i<countries.length; i++) {
 			if(countries[i].isTaken()) {
@@ -101,7 +101,7 @@ public class GameStats {
 	 * myCountries is a list of the country ID's belonging to this player.
 	 */
 	private void calculateOccupationStats() {
-		occupationCounts = new int[players.length];
+		occupationCounts = new int[game.getMaxPlayerID()];
 		myCountries = new ArrayList<Integer>();
 		for(int i=0; i<countries.length; i++) {
 			if(countries[i].isTaken()) {
@@ -165,6 +165,14 @@ public class GameStats {
 	
 	public int[] getContinentOwnership() {
 		return continentOwnership;
+	}
+	
+	public int[] getArmiesPerPlayer() {
+		return armies;
+	}
+	
+	public int getTotalArmies() {
+		return totalArmies;
 	}
 	
 }

@@ -33,6 +33,14 @@ public class GameInfo {
 	public int getNumContinents() {
 		return game_data.NUM_CONTINENTS;
 	}
+	
+	// A bot might use player ID's an indices of an array. Since getPlayerInfo
+	// only gives the ones still in, its length can't be used to size such an array
+	// because a player's ID might be larger than it. This returns the number of players
+	// originally in the game.
+	public int getMaxPlayerID() {
+		return game_data.NUM_PLAYERS;
+	}
 
 	// Returns a copy of the game engine's Country array
 	public CountryInfo[] getCountryInfo() {

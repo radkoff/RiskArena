@@ -24,6 +24,7 @@ public class Evaluation {
 	private void registerEvaluators() {
 		evaluators.clear();
 		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 3.0, stats) );
+		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 1.0, stats) );
 	}
 	
 	/*

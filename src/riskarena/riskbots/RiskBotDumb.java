@@ -44,7 +44,7 @@ public class RiskBotDumb implements RiskBot{
 	 */
 	public void initTurn() {
 		eval.refresh();
-		//eval.debugScore();
+		eval.debugScore();
 	}
 
 	// Claim the country in the continent with the highest percentage of claimed friendly countries
