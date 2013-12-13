@@ -25,6 +25,7 @@ public class Evaluation {
 		evaluators.clear();
 		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 3.0, stats) );
 		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 1.0, stats) );
+		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats) );
 	}
 	
 	/*

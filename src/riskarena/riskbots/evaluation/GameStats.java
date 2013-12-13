@@ -161,6 +161,11 @@ public class GameStats {
 		return game.getNumContinents();
 	}
 	
+	// Gets the number of players still in the game
+	public int getNumPlayers() {
+		return players.length;
+	}
+	
 	/*********************** GETTERS ****************************/
 	
 	public int[] getContinentOwnership() {
