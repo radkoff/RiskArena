@@ -1,4 +1,6 @@
 package riskarena.riskbots.evaluation;
+
+import riskarena.GameInfo;
 /*
  * The OwnContinentsEvaluator measures how many continents are owned by the player
  * It returns this number divided by the total number of continents.
@@ -7,12 +9,10 @@ package riskarena.riskbots.evaluation;
 
 
 public class OwnContinentsEvaluator extends AbstractEvaluator {
-	private GameStats stats;
 	private double score;
 	
-	public OwnContinentsEvaluator(String name, double weight, GameStats _stats) {
-		super(name, weight);
-		stats = _stats;
+	public OwnContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
+		super(name, weight, stats, game);
 		recalculate();
 	}
 	

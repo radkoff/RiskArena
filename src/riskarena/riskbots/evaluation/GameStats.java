@@ -180,4 +180,12 @@ public class GameStats {
 		return totalArmies;
 	}
 	
+	public int[] getOccupationCounts() {
+		return occupationCounts;
+	}
+	
+	public PlayerInfo[] getPlayers() {
+		return players;
+	}
+	
 }

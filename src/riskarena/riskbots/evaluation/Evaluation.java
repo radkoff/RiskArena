@@ -23,9 +23,10 @@ public class Evaluation {
 	
 	private void registerEvaluators() {
 		evaluators.clear();
-		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 3.0, stats) );
-		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 1.0, stats) );
-		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats) );
+		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 3.0, stats, game) );
+		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 1.0, stats, game) );
+		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
+		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
 	}
 	
 	/*
@@ -36,7 +37,7 @@ public class Evaluation {
 	}
 	
 	public double debugScore() {
-		return score(true, FULL_DEBUG);
+		return score(true, "BestEnemy");
 	}
 	
 	public double debugScore(String nameOfEvalToDebug) {

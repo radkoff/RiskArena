@@ -11,6 +11,7 @@ interface PlayerInterface {
 	public String getName();
 	public int getType();
 	public int getNumCards();
+	public int getId();
 }
 
 public class PlayerInfo implements PlayerInterface {
@@ -26,5 +27,8 @@ public class PlayerInfo implements PlayerInterface {
 	}
 	public int getNumCards() {
 		return player.getNumCards();
+	}
+	public int getId() {
+		return player.getId();
 	}
 }

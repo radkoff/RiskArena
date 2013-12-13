@@ -1,4 +1,6 @@
 package riskarena.riskbots.evaluation;
+
+import riskarena.GameInfo;
 /*
  * The EnemyContinentsEvaluator measures how many continents are owned by enemies
  * It returns this number divided by the total number of continents, times -1 (because higher is worse)
@@ -6,12 +8,10 @@ package riskarena.riskbots.evaluation;
  */
 
 public class EnemyContinentsEvaluator extends AbstractEvaluator {
-	private GameStats stats;
 	private double score;
 	
-	public EnemyContinentsEvaluator(String name, double weight, GameStats _stats) {
-		super(name, weight);
-		stats = _stats;
+	public EnemyContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
+		super(name, weight, stats, game);
 		recalculate();
 	}
 	
