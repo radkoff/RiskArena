@@ -188,4 +188,8 @@ public class GameStats {
 		return players;
 	}
 	
+	public CountryInfo[] getCountries() {
+		return countries;
+	}
+	
 }

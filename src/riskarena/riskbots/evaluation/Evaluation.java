@@ -27,6 +27,7 @@ public class Evaluation {
 		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 1.0, stats, game) );
 		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
 		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
+		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.5, stats, game) );
 	}
 	
 	/*
@@ -37,7 +38,7 @@ public class Evaluation {
 	}
 	
 	public double debugScore() {
-		return score(true, "BestEnemy");
+		return score(true, "FortifiedTerritories");
 	}
 	
 	public double debugScore(String nameOfEvalToDebug) {
