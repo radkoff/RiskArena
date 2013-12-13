@@ -37,8 +37,8 @@ public class GameStats {
 	
 	public GameStats(GameInfo initial) {
 		game = initial;
-		countries = game.getCountryInfo();
 		world = game.getWorldInfo();	// Only grab this once, it never changes
+		refresh();
 		rateContinents();				// Only rate these once, they never change
 	}
 	
@@ -66,9 +66,7 @@ public class GameStats {
 		continentOwnership = new int[game.getNumContinents()];
 		// Initialize each content ownership to -2, which indicates the
 		// continent has yet to be examined.
-		for(int i=0; i<continentOwnership.length; i++) {
-			continentOwnership[i] = -2;
-		}
+		java.util.Arrays.fill(continentOwnership, -2);
 		for(int i=0; i<countries.length; i++) {
 			int cont = countries[i].getCont();
 			if(continentOwnership[cont] == -1)	// Already know no one owns it
@@ -141,6 +139,26 @@ public class GameStats {
 			int numerator = 15 + bonuses[i] - 4 * numBorders[i];
 			continentRatings[i] = numerator/(double)numTerritories[i];
 		}
+	}
+	
+	// Returns the number of continents owned by the player with ID player_id
+	public int getNumContinentsOwnedBy(int player_id) {
+		int answer = 0;
+		for(int i=0; i<continentOwnership.length; i++) {
+			if(continentOwnership[i] == player_id)
+				answer++;
+		}
+		return answer;
+	}
+	
+	// Returns the player id of "this" player
+	public int me() {
+		return game.me();
+	}
+	
+	// Returns the number of continents
+	public int getNumContinents() {
+		return game.getNumContinents();
 	}
 	
 	/*********************** GETTERS ****************************/

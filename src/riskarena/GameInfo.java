@@ -62,4 +62,8 @@ public class GameInfo {
 	public int me() {
 		return player.getId();
 	}
+	
+	public String getMyName() {
+		return player.getName();
+	}
 }

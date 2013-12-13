@@ -130,6 +130,20 @@ public class Risk {
 			return Color.gray;
 		}
 	}
+	
+	/* Called by various methods to send something to whatever
+	 * output is being used.
+	 * toSay is the string wishing to be outputted
+	 * tabbed is whether or not it should be prepended with a \t
+	 */
+	public static void sayOutput(final String toSay, final int output_format_style, boolean forced) {
+		if(game == null && output_format_style == OutputFormat.ERROR) {
+			System.err.println(toSay);
+		} else if (game == null) {
+			System.out.println(toSay);
+		} else
+			game.sayOutput(toSay, output_format_style, forced);
+	}
 
 	/* Called by various methods to send something to whatever
 	 * output is being used.
@@ -137,12 +151,7 @@ public class Risk {
 	 * tabbed is whether or not it should be prepended with a \t
 	 */
 	public static void sayOutput(final String toSay, final int output_format_style) {
-		if(game == null && output_format_style == OutputFormat.ERROR) {
-			System.err.println(toSay);
-		} else if (game == null) {
-			System.out.println(toSay);
-		} else
-			game.sayOutput(toSay, output_format_style);
+			game.sayOutput(toSay, output_format_style, false);
 	}
 
 	/*
@@ -152,6 +161,15 @@ public class Risk {
 	 */
 	public static void sayOutput(final String toSay) {
 		sayOutput(toSay, OutputFormat.NORMAL);
+	}
+	
+	/*
+	 * Called by various methods to send something to whatever
+	 * output is being used.
+	 * toSay is the string wishing to be outputted
+	 */
+	public static void sayOutput(final String toSay, boolean forced) {
+		sayOutput(toSay, OutputFormat.NORMAL, forced);
 	}
 
 	/* Called by various methods to send something to whatever

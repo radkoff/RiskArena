@@ -16,14 +16,14 @@ import riskarena.PlayerInfo;
 import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.Bot.RiskListener;
-import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.Evaluation;
 
 public class RiskBotDumb implements RiskBot{
 	private Bot.RiskListener to_game;
 	private GameInfo risk_info;
 	private World world = null;
 	private PlayerInfo[] players = null;
-	private GameStats gs;	//TODO remove, this is for testing. In reality it'll be used by the Evaluation class
+	private Evaluation eval;	//TODO remove, this is for testing.
 
 	Random gen;
 
@@ -35,7 +35,7 @@ public class RiskBotDumb implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		gen = new Random((new Date()).getTime());
-		gs = new GameStats(risk_info);
+		eval = new Evaluation(risk_info);
 	}
 	
 	/*
@@ -43,7 +43,8 @@ public class RiskBotDumb implements RiskBot{
 	 * @see riskarena.RiskBot#initTurn()
 	 */
 	public void initTurn() {
-		gs.refresh();
+		eval.refresh();
+		//eval.debugScore();
 	}
 
 	// Claim the country in the continent with the highest percentage of claimed friendly countries
