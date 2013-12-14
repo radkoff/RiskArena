@@ -48,7 +48,7 @@ public class RiskBotDumb implements RiskBot{
 	public void initTurn() {
 		card.setVictory(false);
 		eval.refresh();
-		eval.debugScore();
+		eval.debugScore("AvgArmySize");
 	}
 
 	// Claim the country in the continent with the highest percentage of claimed friendly countries
@@ -155,8 +155,6 @@ public class RiskBotDumb implements RiskBot{
 
 	public void fortifyAfterVictory(int attacker, int defender, int min, int max) {
 		card.setVictory(true);
-		eval.refresh();
-		eval.debugScore();
 		to_game.sendInt(max);
 	}
 
