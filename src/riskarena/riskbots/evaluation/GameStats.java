@@ -202,6 +202,10 @@ public class GameStats {
 		return countries;
 	}
 	
+	public World getWorld() {
+		return world;
+	}
+	
 	public ArrayList<Integer> getMyCountries() {
 		return myCountries;
 	}

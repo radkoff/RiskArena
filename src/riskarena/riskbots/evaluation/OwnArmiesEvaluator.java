@@ -6,7 +6,6 @@ import riskarena.GameInfo;
  * It returns this number divided by the total number of armies on the board.
  */
 
-
 public class OwnArmiesEvaluator extends AbstractEvaluator {
 	private double score;
 	
