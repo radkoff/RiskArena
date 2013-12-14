@@ -107,6 +107,8 @@ public class Game {
 		while(!data.over()) {	// over returns true when the game is done
 			sayOutput("=======================================");
 			sayOutput("Beginning " + data.getPlayerName() + "'s turn.");
+			data.incrementTurn();
+			Risk.sayOutput(""+data.getTurnNumber());
 			data.notifyPlayerOfTurn();	// Informs bot players that their turn has started, allowing for optional initialization
 			fortifyArmies();  		// Step 1 of a player's turn
 			attackCountries();		// Step 2 of a player's turn

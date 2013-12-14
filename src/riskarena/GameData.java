@@ -30,11 +30,12 @@ public class GameData {
 	private int[] continent_bonuses; // Array of the continent army bonuses
 	private Color[] continent_colors;
 
-	/***** Game number to keep track of *****/
+	/***** Game numbers to keep track of *****/
 	private int armies_from_next_set = 4; // number of armies the next player to turn in cards will get. 4->6->8->10->12->15->+5..
 	private long bot_playing_speed = 120; // milliseconds bots wait before sending game decisions
 	private int winner = 0;	// player id of the winner
 	private int turn_player_id; // Index of PLAYER_NAMES whose turn it is
+	private int turn_number = 0;	// Incremented each time all players make their turn
 
 	// A GameData object is created by the game engine (Game.java) using an array of Players and
 	// the string path to a valid map file.
@@ -277,6 +278,14 @@ public class GameData {
 	// Returns the winner of the game
 	public int getWinner() {
 		return winner;
+	}
+	
+	public void incrementTurn() {
+		turn_number++;
+	}
+	
+	public int getTurnNumber() {
+		return turn_number;
 	}
 
 	// Returns true if game is over (still_in only has one true value)

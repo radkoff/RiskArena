@@ -9,13 +9,15 @@ import riskarena.Risk;
 public class Evaluation {
 	private GameInfo game;
 	private GameStats stats;
+	private CardIndicator card;
 	
 	// Internal list of evaluators. A game stat's score is a weighted combination of these.
 	private ArrayList<AbstractEvaluator> evaluators;
 	private final String FULL_DEBUG = "ALL";
 	
-	public Evaluation(GameInfo gi) {
+	public Evaluation(GameInfo gi, CardIndicator ci) {
 		game = gi;
+		card = ci;
 		stats = new GameStats(game);
 		evaluators = new ArrayList<AbstractEvaluator>();
 		registerEvaluators();
@@ -23,13 +25,14 @@ public class Evaluation {
 	
 	private void registerEvaluators() {
 		evaluators.clear();
-		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 3.0, stats, game) );
-		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 1.0, stats, game) );
+		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 4.0, stats, game) );
+		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 3.0, stats, game) );
 		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
 		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
 		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.5, stats, game) );
 		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", 1.0, stats, game) );
 		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 1.0, stats, game) );
+		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
 	}
 	
 	/*
@@ -40,7 +43,7 @@ public class Evaluation {
 	}
 	
 	public double debugScore() {
-		return score(true, "FrontierDistance");
+		return score(true, FULL_DEBUG);
 	}
 	
 	public double debugScore(String nameOfEvalToDebug) {

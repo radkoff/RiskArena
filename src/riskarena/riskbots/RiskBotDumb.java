@@ -16,6 +16,7 @@ import riskarena.PlayerInfo;
 import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.Bot.RiskListener;
+import riskarena.riskbots.evaluation.CardIndicator;
 import riskarena.riskbots.evaluation.Evaluation;
 
 public class RiskBotDumb implements RiskBot{
@@ -24,6 +25,7 @@ public class RiskBotDumb implements RiskBot{
 	private World world = null;
 	private PlayerInfo[] players = null;
 	private Evaluation eval;	//TODO remove, this is for testing.
+	private CardIndicator card;
 
 	Random gen;
 
@@ -35,7 +37,8 @@ public class RiskBotDumb implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		gen = new Random((new Date()).getTime());
-		eval = new Evaluation(risk_info);
+		card = new CardIndicator();
+		eval = new Evaluation(risk_info, card);
 	}
 	
 	/*
@@ -43,6 +46,7 @@ public class RiskBotDumb implements RiskBot{
 	 * @see riskarena.RiskBot#initTurn()
 	 */
 	public void initTurn() {
+		card.setVictory(false);
 		eval.refresh();
 		eval.debugScore();
 	}
@@ -150,6 +154,9 @@ public class RiskBotDumb implements RiskBot{
 	}
 
 	public void fortifyAfterVictory(int attacker, int defender, int min, int max) {
+		card.setVictory(true);
+		eval.refresh();
+		eval.debugScore();
 		to_game.sendInt(max);
 	}
 

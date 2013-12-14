@@ -66,6 +66,10 @@ public class GameInfo {
 	public int getArmiesFromNextSet(){
 		return game_data.getArmiesFromNextSet();
 	}
+	
+	public int getTurnNumber() {
+		return game_data.getTurnNumber();
+	}
 
 	public int me() {
 		return player.getId();
