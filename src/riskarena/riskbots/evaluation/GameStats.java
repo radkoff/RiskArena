@@ -16,7 +16,7 @@ public class GameStats {
 										// this never changes (mere adjacency info)
 	
 	/*
-	 * Ratings that represent a score for each continent, using only
+	 * Static continent ratings that represent a score for each continent, using only
 	 * state-independent info like #territories, #borders, and the continent army bonus 
 	 */
 	private double continentRatings[];

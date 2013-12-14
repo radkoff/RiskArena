@@ -33,7 +33,7 @@ public class Evaluation {
 		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", 1.0, stats, game) );
 		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 1.0, stats, game) );
 		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
-		evaluators.add( new AvgArmySizeEvaluator("AvgArmySize", 1.0, stats, game) );
+		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
 	}
 	
 	/*
