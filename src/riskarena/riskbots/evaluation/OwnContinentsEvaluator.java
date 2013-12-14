@@ -2,14 +2,13 @@ package riskarena.riskbots.evaluation;
 
 import riskarena.GameInfo;
 /*
- * The OwnContinentsEvaluator measures how many continents are owned by the player
- * It returns this number divided by the total number of continents.
- * To save computation time, it uses a GameStats instance instead of GameInfo. 
+ * The OwnContinentsEvaluator measures how many continent bonus armies the player recieves
+ * It returns this number divided by the total number of army continent bonuses.
  */
 
 
 public class OwnContinentsEvaluator extends AbstractEvaluator {
-	private double score;
+	private int bonusMe = 0, bonusAll = 0;
 	
 	public OwnContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
@@ -17,7 +16,7 @@ public class OwnContinentsEvaluator extends AbstractEvaluator {
 	}
 	
 	public double getScore() {
-		return score;
+		return bonusMe / (double)bonusAll;
 	}
 	
 	public void refresh() {
@@ -25,7 +24,15 @@ public class OwnContinentsEvaluator extends AbstractEvaluator {
 	}
 	
 	private void recalculate() {
-		score = stats.getNumContinentsOwnedBy(game.me()) / (double)stats.getNumContinents();
+		int contBonuses[] = game.getContinentBonuses();
+		int contOwnership[] = stats.getContinentOwnership();
+		bonusMe = 0;
+		bonusAll = 0;
+		for(int i=0; i<contBonuses.length; i++) {
+			bonusAll += contBonuses[i];
+			if(contOwnership[i] == game.me())
+				bonusMe += contBonuses[i];
+		}
 	}
 	
 }

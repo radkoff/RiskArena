@@ -156,16 +156,6 @@ public class GameStats {
 		}
 	}
 	
-	// Returns the number of continents owned by the player with ID player_id
-	public int getNumContinentsOwnedBy(int player_id) {
-		int answer = 0;
-		for(int i=0; i<continentOwnership.length; i++) {
-			if(continentOwnership[i] == player_id)
-				answer++;
-		}
-		return answer;
-	}
-	
 	// Returns the number of continents
 	public int getNumContinents() {
 		return game.getNumContinents();
@@ -180,6 +170,10 @@ public class GameStats {
 	
 	public int[] getContinentOwnership() {
 		return continentOwnership;
+	}
+	
+	public double[] getContinentRatings() {
+		return continentRatings;
 	}
 	
 	public int[] getArmiesPerPlayer() {

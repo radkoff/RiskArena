@@ -2,13 +2,13 @@ package riskarena.riskbots.evaluation;
 
 import riskarena.GameInfo;
 /*
- * The EnemyContinentsEvaluator measures how many continents are owned by enemies
- * It returns this number divided by the total number of continents, times -1 (because higher is worse)
- * To save computation time, it uses a GameStats instance instead of GameInfo. 
+ * The EnemyContinentsEvaluator measures how many continent bonus armies enemy players receive (together)
+ * It returns this number divided by the total number of army continent bonuses.
+ * Negative because it's bad.
  */
 
 public class EnemyContinentsEvaluator extends AbstractEvaluator {
-	private double score;
+	private int bonusThem = 0, bonusAll = 0;
 	
 	public EnemyContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
@@ -16,7 +16,7 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 	}
 	
 	public double getScore() {
-		return score;
+		return -1 * bonusThem / (double)bonusAll;
 	}
 	
 	public void refresh() {
@@ -24,13 +24,15 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 	}
 	
 	private void recalculate() {
-		int enemyOwned = 0;
+		int contBonuses[] = game.getContinentBonuses();
 		int contOwnership[] = stats.getContinentOwnership();
-		for(int i=0; i<contOwnership.length; i++) {
-			if(contOwnership[i] != -1 && contOwnership[i] != game.me())
-				enemyOwned++;
+		bonusThem = 0;
+		bonusAll = 0;
+		for(int i=0; i<contBonuses.length; i++) {
+			bonusAll += contBonuses[i];
+			if(contOwnership[i] != game.me() && contOwnership[i] != -1)
+				bonusThem += contBonuses[i];
 		}
-		score = -1 * enemyOwned / (double)stats.getNumContinents();
 	}
 	
 }
