@@ -1,6 +1,7 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 
 import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.GameStats;
 
 public abstract class AbstractEvaluator {
 	private double weight;
@@ -16,6 +17,8 @@ public abstract class AbstractEvaluator {
 	}
 	
 	abstract public double getScore();
+	
+	abstract public double getScore(ArrayList<ArmyChange> changes);
 	
 	abstract public void refresh();
 	

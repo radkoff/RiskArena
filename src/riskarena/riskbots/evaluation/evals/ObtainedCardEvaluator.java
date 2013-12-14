@@ -1,10 +1,12 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 
 import riskarena.GameInfo;
 /*
  * Evaluates whether or not the player will pick up a card at the end of their turn.
  * Formula:		0 if no, CARD_REWARD*sqrt(game turn #)
  */
+import riskarena.riskbots.evaluation.CardIndicator;
+import riskarena.riskbots.evaluation.GameStats;
 
 public class ObtainedCardEvaluator extends AbstractEvaluator {
 	private CardIndicator card;

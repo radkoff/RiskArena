@@ -1,4 +1,4 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 /*
  *	An evaluator that return the fraction of this player's territories that
  *	have more than 1 army on them (are "fortified") 
@@ -6,6 +6,7 @@ package riskarena.riskbots.evaluation;
 
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.GameStats;
 
 public class FortifiedTerritoriesEvaluator extends AbstractEvaluator {
 	private double score;

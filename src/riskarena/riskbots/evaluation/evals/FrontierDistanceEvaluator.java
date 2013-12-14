@@ -1,4 +1,4 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 /*
  * The FrontierDistanceEvaluator uses the distance from each friendly territory
  * to the frontier (the set of friendly territories neighboring enemies)
@@ -17,6 +17,7 @@ import riskarena.CountryInfo;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
+import riskarena.riskbots.evaluation.GameStats;
 
 public class FrontierDistanceEvaluator extends AbstractEvaluator {
 	private double score;

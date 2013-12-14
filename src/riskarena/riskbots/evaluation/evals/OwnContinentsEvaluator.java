@@ -1,10 +1,11 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 
 import riskarena.GameInfo;
 /*
  * The OwnContinentsEvaluator measures how many continent bonus armies the player recieves
  * It returns this number divided by the total number of army continent bonuses.
  */
+import riskarena.riskbots.evaluation.GameStats;
 
 
 public class OwnContinentsEvaluator extends AbstractEvaluator {

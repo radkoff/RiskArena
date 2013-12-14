@@ -1,4 +1,4 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 /*
  * Calculates the inverse of the number of fortified friendly territories (>1 armies).
  * This encourages the consolidation of armies into larger ones. The best case of everything in
@@ -6,6 +6,7 @@ package riskarena.riskbots.evaluation;
  */
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.GameStats;
 
 public class ArmyConsolidationEvaluator extends AbstractEvaluator {
 	private double score;

@@ -1,4 +1,4 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 /*
  * Uses a heuristic function to score each enemy player, and returns the largest such score
  * Makes it negative, since a higher enemy score is bad
@@ -6,6 +6,7 @@ package riskarena.riskbots.evaluation;
 
 import riskarena.GameInfo;
 import riskarena.PlayerInfo;
+import riskarena.riskbots.evaluation.GameStats;
 
 public class BestEnemyEvaluator extends AbstractEvaluator {
 	private double score;

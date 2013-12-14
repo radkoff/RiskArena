@@ -1,4 +1,4 @@
-package riskarena.riskbots.evaluation;
+package riskarena.riskbots.evaluation.evals;
 
 import riskarena.GameInfo;
 /*
@@ -6,6 +6,7 @@ import riskarena.GameInfo;
  * It returns this number divided by the total number of army continent bonuses.
  * Negative because it's bad.
  */
+import riskarena.riskbots.evaluation.GameStats;
 
 public class EnemyContinentsEvaluator extends AbstractEvaluator {
 	private int bonusThem = 0, bonusAll = 0;

@@ -5,6 +5,16 @@ import java.util.ArrayList;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
+import riskarena.riskbots.evaluation.evals.AbstractEvaluator;
+import riskarena.riskbots.evaluation.evals.ArmyConsolidationEvaluator;
+import riskarena.riskbots.evaluation.evals.BestEnemyEvaluator;
+import riskarena.riskbots.evaluation.evals.EnemyContinentsEvaluator;
+import riskarena.riskbots.evaluation.evals.FortifiedTerritoriesEvaluator;
+import riskarena.riskbots.evaluation.evals.FrontierDistanceEvaluator;
+import riskarena.riskbots.evaluation.evals.ObtainedCardEvaluator;
+import riskarena.riskbots.evaluation.evals.OccupiedTerritoriesEvaluator;
+import riskarena.riskbots.evaluation.evals.OwnArmiesEvaluator;
+import riskarena.riskbots.evaluation.evals.OwnContinentsEvaluator;
 
 public class Evaluation {
 	private GameInfo game;
@@ -33,15 +43,30 @@ public class Evaluation {
 		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", 1.0, stats, game) );
 		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 1.0, stats, game) );
 		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
-		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
+		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 0.5, stats, game) );
 		evaluators.add( new ArmyConsolidationEvaluator("TargetCont", 1.0, stats, game) );
 	}
 	
 	/*
-	 * Returns the score of a board state
+	 * Returns the score of the board state inherent in GameInfo
 	 */
 	public double score() {
 		return score(false, null);
+	}
+	
+	/*
+	 * Returns the score of the board state that would result from applying
+	 * the ArrayList of army changes.
+	 */
+	public double score(ArrayList<ArmyChange> changes) {
+		if(changes.isEmpty())
+			return score();
+		stats.apply(changes);
+		double result = 0.0;
+		for(AbstractEvaluator e : evaluators) {
+			result += e.getWeight() * e.getScore(changes);
+		}
+		stats.unapply(changes);
 	}
 	
 	public double debugScore() {
