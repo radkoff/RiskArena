@@ -10,6 +10,7 @@ Refactor -
 	Separate UI and functionality of classes like WarGameReport
 	Should Bot.RiskListener have a public constructor?
 	Maybe GameInfo's GetCountryInfo shouldn't involve a full copying of the countries array?
+	Split the MapReader constructor into smaller chunks
 Separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the GameBoard window
 Alterations of the GameBoard depending on the context of a player's turn. For example, when you select a country to attack from the foreign adjacencies should become highlighted. This will make playing as a human slightly easier.

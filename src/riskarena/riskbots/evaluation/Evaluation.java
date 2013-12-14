@@ -34,6 +34,7 @@ public class Evaluation {
 		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 1.0, stats, game) );
 		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
 		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
+		evaluators.add( new ArmyConsolidationEvaluator("TargetCont", 1.0, stats, game) );
 	}
 	
 	/*
