@@ -113,6 +113,10 @@ public class Evaluation {
 	 * evaluators and GameStats.
 	 */
 	public void refresh() {
+		/*System.out.println(Thread.currentThread().getName() + " refreshing");
+		StackTraceElement z[] = Thread.currentThread().getStackTrace();
+		for(int i=0; i<z.length; i++)
+			System.out.println("\t"+z[i].toString());*/
 		stats.refresh();
 		for(AbstractEvaluator e : evaluators) {
 			e.refresh();

@@ -68,6 +68,7 @@ public class RiskBotAwesome implements RiskBot{
 	 * @see riskarena.RiskBot#initTurn()
 	 */
 	public void initTurn() {
+		System.out.println("Init turn #" + risk_info.getTurnNumber() + " for player " + risk_info.getMyName() + " in thread " + Thread.currentThread().getName());
 		card.setVictory(false);
 		eval.refresh();
 		// At the start of each turn, this bot probabilistically forms decisions to attack
@@ -79,6 +80,7 @@ public class RiskBotAwesome implements RiskBot{
 			if(shouldAttackFrom(countries[i]))	// Consider attacking from country i
 				attackFrom(i, countries);
 		}
+		System.out.println("DONE initting turn #" + risk_info.getTurnNumber() + " for player " + risk_info.getMyName() + " in thread " + Thread.currentThread().getName());
 	}
 	
 	/*

@@ -83,7 +83,7 @@ public class FrontierDistanceEvaluator extends AbstractEvaluator {
 		java.util.Arrays.fill(distances, Integer.MAX_VALUE);
 		ArrayDeque< Pair<Integer, Integer> > Q = new ArrayDeque< Pair<Integer, Integer> >();
 		for(Integer frontier : stats.getFrontier()) {
-			Q.push( new Pair<Integer, Integer>(frontier, 0) );
+			Q.push( new Pair<Integer, Integer>(new Integer(frontier), 0) );
 		}
 		while(!Q.isEmpty()) {
 			Pair<Integer, Integer> current = Q.pop();

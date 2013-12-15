@@ -52,11 +52,7 @@ public class Bot extends Player {
 	
 	// Notifies skynet of turn initialization
 	public void initTurn() {
-		new Thread() {
-			public void run () {
-				skynet.initTurn();
-			}
-		}.start();
+		skynet.initTurn();
 	}
 	
 	private void sleep() {
