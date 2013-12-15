@@ -12,6 +12,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -114,5 +116,6 @@ public class GameBoard extends JFrame {
 		pretty.repaint();
 		lower_left.refresh();
 	}
+	
 
 }

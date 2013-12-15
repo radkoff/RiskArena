@@ -105,6 +105,7 @@ public class Game {
 		placeInitialArmies();	// Game setup, involving players placing initial armies
 
 		while(!data.over()) {	// over returns true when the game is done
+			pause();
 			sayOutput("=======================================");
 			sayOutput("Beginning " + data.getPlayerName() + "'s turn.");
 			data.incrementTurn();
@@ -120,6 +121,12 @@ public class Game {
 		sayOutput("Congratulations " + data.getPlayer(winner).getName() + ", you win " + Risk.PROJECT_NAME + "!");
 		game_results.add(new Integer(winner));
 		elapsed_time = System.nanoTime() - start_time;
+	}
+	
+	private void pause() {
+		while(data.getPause()) {
+		
+		}
 	}
 
 	/*

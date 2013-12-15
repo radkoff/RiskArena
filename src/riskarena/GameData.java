@@ -36,6 +36,7 @@ public class GameData {
 	private int winner = 0;	// player id of the winner
 	private int turn_player_id; // Index of PLAYER_NAMES whose turn it is
 	private int turn_number = 0;	// Incremented each time all players make their turn
+	private volatile boolean pause = false;
 
 	// A GameData object is created by the game engine (Game.java) using an array of Players and
 	// the string path to a valid map file.
@@ -264,6 +265,14 @@ public class GameData {
 			return;
 		}
 		bot_playing_speed = bps;
+	}
+	
+	public void pause() {
+		pause = !pause;
+	}
+	
+	public boolean getPause() {
+		return pause;
 	}
 
 	public long getBotPlayingSpeed() {

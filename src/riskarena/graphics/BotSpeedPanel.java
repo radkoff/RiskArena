@@ -9,6 +9,8 @@ package riskarena.graphics;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -69,6 +71,18 @@ public class BotSpeedPanel extends JPanel {
 			public void stateChanged(ChangeEvent arg0) {	// Signaled when the slider value is changed
 				data.setBotPlayingSpeed(sliderToGame(speed_slider.getValue()));	// See sliderToGame() documentation
 			}
+		});
+		speed_slider.addKeyListener(new KeyListener(){
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if(arg0.getKeyChar() == 'p') {
+					data.pause();
+				}
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) { }
+			@Override
+			public void keyTyped(KeyEvent arg0) { }
 		});
 		
 		minus = new JLabel("-");
