@@ -188,7 +188,7 @@ public class GameStats {
 	 *  Obviously doesn't choose continents with 100% ownership
 	 */
 	private void setTargetCont() {
-		final double alpha = 3.0, beta = 1.0, gamma = 2.0;
+		final double alpha = 4.0, beta = 1.0, gamma = 2.0;
 		
 		int contBonuses[] = game.getContinentBonuses();
 		double contBonusRatios[] = new double[game.getNumContinents()];	// Normalized continent bonuses
@@ -203,7 +203,7 @@ public class GameStats {
 		int friendliesPerCont[] = new int[game.getNumContinents()];
 		int enemiesPerCont[] = new int[game.getNumContinents()];
 		int friendlyArmiesPerCont[] = new int[game.getNumContinents()];	// Only counts "extra" armies, includes neighbors
-		int enemyArmiesPerCont[] = new int[game.getNumContinents()];	// Only counts "extra" armies, includes neighbors
+		int enemyArmiesPerCont[] = new int[game.getNumContinents()];	// Only counts "extra" armies
 		for(int i=0; i<countries.length; i++) {
 			int cont = countries[i].getCont();
 			if(!countries[i].isTaken()) {		// Target is irrelevant in the beginning claiming phase
@@ -213,10 +213,17 @@ public class GameStats {
 			if(countries[i].getPlayer() == game.me()) {
 				friendliesPerCont[cont] += 1;
 				friendlyArmiesPerCont[cont] += countries[i].getArmies() - 1;
+				
+				// Also include these armies in other continent counts
 				int adj[] = world.getAdjacencies(i);
-				for(int a=0; a<adj.length; a++) {	// Also include armies you have close by
-					if(countries[adj[a]].getPlayer() == game.me() && countries[adj[a]].getCont() != cont)
-						friendlyArmiesPerCont[cont] += countries[adj[a]].getArmies() - 1;
+				boolean counts[] = new boolean[game.getNumContinents()];
+				for(int a=0; a<adj.length; a++) {
+					if(countries[adj[a]].getCont() != cont)
+						counts[countries[adj[a]].getCont()] = true;
+				}
+				for(int a=0; a<counts.length; a++) {
+					if(counts[a])
+						friendlyArmiesPerCont[a] += countries[i].getArmies() - 1;
 				}
 			} else {
 				enemiesPerCont[cont] += 1;
@@ -225,14 +232,14 @@ public class GameStats {
 		}
 		double occupationRatios[] = new double[game.getNumContinents()], armyRatios[] = new double[game.getNumContinents()];
 		for(int i=0; i<game.getNumContinents(); i++) {
-			occupationRatios[i] = friendliesPerCont[i] / (friendliesPerCont[i] + enemiesPerCont[i]);
+			occupationRatios[i] = friendliesPerCont[i] / ((double)friendliesPerCont[i] + enemiesPerCont[i]);
 			if(friendlyArmiesPerCont[i] + enemyArmiesPerCont[i] == 0)
-				armyRatios[i] = 0;
+				armyRatios[i] = 0.0;
 			else
-				armyRatios[i] = friendlyArmiesPerCont[i] / (friendlyArmiesPerCont[i] + enemyArmiesPerCont[i]);
+				armyRatios[i] = friendlyArmiesPerCont[i] / ((double)friendlyArmiesPerCont[i] + enemyArmiesPerCont[i]);
 		}
 		
-		double highestScore = Double.MIN_VALUE;
+		double highestScore = -1 * Double.MAX_VALUE;
 		int winner = -1;
 		for(int i=0; i<game.getNumContinents(); i++) {
 			if(Math.abs(occupationRatios[i] - 1.0) < 0.0000001)		// Fully occupies, don't choose
@@ -244,6 +251,7 @@ public class GameStats {
 			}
 		}
 		target = winner;
+		//Risk.sayOutput("Target: " + target, OutputFormat.BLUE);
 	}
 	
 	// Returns the number of continents

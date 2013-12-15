@@ -34,7 +34,7 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 	}
 	
 	private double recalculate() {
-		double highestScore = Double.MIN_VALUE;
+		double highestScore = -1*Double.MAX_VALUE;
 		for(int i=0; i<players.length; i++) {
 			if(players[i].getId() == game.me())
 				continue;

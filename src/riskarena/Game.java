@@ -769,7 +769,10 @@ public class Game {
 		sayError("The RiskBot " + data.getPlayer(player_id).getName() + " messed up big time, and the game could not go on.", true);
 		sayOutput(scope, true);
 		sayOutput(e.getMessage(), true);
-		System.exit(0);
+		while(true) {
+			
+		}
+		//System.exit(0);
 	}
 
 	/*

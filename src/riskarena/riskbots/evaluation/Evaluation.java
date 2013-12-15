@@ -15,6 +15,7 @@ import riskarena.riskbots.evaluation.evals.ObtainedCardEvaluator;
 import riskarena.riskbots.evaluation.evals.OccupiedTerritoriesEvaluator;
 import riskarena.riskbots.evaluation.evals.OwnArmiesEvaluator;
 import riskarena.riskbots.evaluation.evals.OwnContinentsEvaluator;
+import riskarena.riskbots.evaluation.evals.TargetContEvaluator;
 
 public class Evaluation {
 	private GameInfo game;
@@ -44,7 +45,7 @@ public class Evaluation {
 		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 1.0, stats, game) );
 		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
 		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 0.5, stats, game) );
-		evaluators.add( new ArmyConsolidationEvaluator("TargetCont", 1.0, stats, game) );
+		evaluators.add( new TargetContEvaluator("TargetCont", 3.0, stats, game) );
 	}
 	
 	/*
@@ -61,11 +62,15 @@ public class Evaluation {
 	public double score(ArrayList<ArmyChange> changes) {
 		if(changes.isEmpty())
 			return score();
+		//System.out.println(game.getMyName() + " " + stats.getCountries()[changes.get(0).ID()].getName());
 		stats.apply(changes);
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
-			result += e.getWeight() * e.getScore(changes);
+			double score = e.getScore(changes);
+			result += e.getWeight() * score;
+			//System.out.println(e.getName() + " " + score);
 		}
+		//System.out.println();
 		stats.unapply(changes);
 		return result;
 	}

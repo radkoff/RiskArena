@@ -10,6 +10,10 @@ public class ArmyChange {
 		ID = _ID;
 		amount = _amount;
 	}
+	public ArmyChange(ArmyChange other) {
+		ID = other.ID();
+		amount = other.amount();
+	}
 	
 	public int ID() { return ID; }
 	public int amount() { return amount; }

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
+import riskarena.OutputFormat;
+import riskarena.Risk;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
 
@@ -28,12 +30,21 @@ public class TargetContEvaluator extends AbstractEvaluator {
 	 * @see riskarena.riskbots.evaluation.evals.AbstractEvaluator#getScore(java.util.ArrayList)
 	 */
 	public double getScore(ArrayList<ArmyChange> changes) {
-		int net = 0;
+		double net = 0;
 		CountryInfo countries[] = stats.getCountries();
 		for(ArmyChange change : changes) {
 			if(countries[change.ID()].getCont() == stats.getTarget()) {
 				if(countries[change.ID()].getPlayer() == game.me()) {
-					net += change.amount();
+					double bonusMultiplier = 1.0;
+					if(change.amount() > 0) {
+						// Give bonus if there's an enemy next door in the target continent (for attack planning)
+						int adj[] = stats.getWorld().getAdjacencies(change.ID());
+						for(int a = 0; a<adj.length; a++) {
+							if(countries[adj[a]].getCont() == stats.getTarget() && countries[adj[a]].getPlayer() != game.me())
+								bonusMultiplier = 1.5;
+						}
+					}
+					net += bonusMultiplier * change.amount();
 				} else {
 					net -= change.amount();
 				}

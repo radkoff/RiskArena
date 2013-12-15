@@ -3,6 +3,8 @@ package riskarena.riskbots.evaluation.evals;
 import java.util.ArrayList;
 
 import riskarena.GameInfo;
+import riskarena.OutputFormat;
+import riskarena.Risk;
 import riskarena.riskbots.evaluation.ArmyChange;
 /*
  * The OwnArmiesEvaluator measures how many armies the player has on the board.
