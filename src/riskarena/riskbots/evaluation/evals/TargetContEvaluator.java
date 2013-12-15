@@ -50,7 +50,8 @@ public class TargetContEvaluator extends AbstractEvaluator {
 				}
 			}
 		}
-		return net / (double)armiesInTarget;
+		double result = net / (double)armiesInTarget;
+		return result;
 	}
 	
 	public void refresh() {

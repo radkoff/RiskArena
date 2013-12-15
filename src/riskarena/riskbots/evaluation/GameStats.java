@@ -206,10 +206,10 @@ public class GameStats {
 		int enemyArmiesPerCont[] = new int[game.getNumContinents()];	// Only counts "extra" armies
 		for(int i=0; i<countries.length; i++) {
 			int cont = countries[i].getCont();
-			if(!countries[i].isTaken()) {		// Target is irrelevant in the beginning claiming phase
+			/*if(!countries[i].isTaken()) {		// Target is irrelevant in the beginning claiming phase
 				target = -1;
 				return;
-			}
+			}*/
 			if(countries[i].getPlayer() == game.me()) {
 				friendliesPerCont[cont] += 1;
 				friendlyArmiesPerCont[cont] += countries[i].getArmies() - 1;
