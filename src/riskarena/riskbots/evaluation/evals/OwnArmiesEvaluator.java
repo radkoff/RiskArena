@@ -1,6 +1,9 @@
 package riskarena.riskbots.evaluation.evals;
 
+import java.util.ArrayList;
+
 import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.ArmyChange;
 /*
  * The OwnArmiesEvaluator measures how many armies the player has on the board.
  * It returns this number divided by the total number of armies on the board.
@@ -12,19 +15,23 @@ public class OwnArmiesEvaluator extends AbstractEvaluator {
 	
 	public OwnArmiesEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
-		recalculate();
+		refresh();
 	}
 	
 	public double getScore() {
 		return score;
 	}
 	
-	public void refresh() {
-		recalculate();
+	public double getScore(ArrayList<ArmyChange> changes) {
+		return calculate();
 	}
 	
-	private void recalculate() {
-		score = stats.getArmiesPerPlayer()[game.me()] / (double)stats.getTotalArmies();
+	public void refresh() {
+		score = calculate();
+	}
+	
+	private double calculate() {
+		return stats.getArmiesPerPlayer()[game.me()] / (double)stats.getTotalArmies();
 	}
 	
 }

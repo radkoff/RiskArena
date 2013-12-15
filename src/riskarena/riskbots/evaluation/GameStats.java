@@ -59,6 +59,20 @@ public class GameStats {
 		setTargetCont();	// Select a target continent (there's an Evaluator that gives a score bump for going after this)
 	}
 	
+	public void apply(ArrayList<ArmyChange> changes) {
+		for(ArmyChange change : changes) {
+			armies[countries[change.ID()].getPlayer()] += change.amount();
+			totalArmies += change.amount();
+		}
+	}
+	
+	public void unapply(ArrayList<ArmyChange> changes) {
+		for(ArmyChange change : changes) {
+			armies[countries[change.ID()].getPlayer()] -= change.amount();
+			totalArmies -= change.amount();
+		}
+	}
+	
 	// Called to re-calculate all stat variables.
 	// Assumes all state variables like "countries" are up-to-date
 	private void calculate() {
@@ -262,6 +276,10 @@ public class GameStats {
 	
 	public int[] getOccupationCounts() {
 		return occupationCounts;
+	}
+	
+	public int getTarget() {
+		return target;
 	}
 	
 	public PlayerInfo[] getPlayers() {

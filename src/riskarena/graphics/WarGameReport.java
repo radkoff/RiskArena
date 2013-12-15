@@ -274,7 +274,9 @@ public class WarGameReport extends JDialog {
 		
 		public CenterPanel() {
 			// When all sims are finished, display a green message saying so
-			complete = new JLabel("Finished " + num_games + " Simulations");
+			String message = "Finished " + num_games + " Simulation";
+			if(num_games != 1) message += "s";
+			complete = new JLabel(message);
 			complete.setForeground(Color.green);
 			complete.setFont(FontMaker.makeCustomFont(simulating_label_size));
 			

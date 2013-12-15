@@ -67,6 +67,7 @@ public class Evaluation {
 			result += e.getWeight() * e.getScore(changes);
 		}
 		stats.unapply(changes);
+		return result;
 	}
 	
 	public double debugScore() {

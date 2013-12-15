@@ -1,12 +1,14 @@
 package riskarena.riskbots.evaluation.evals;
-
-import riskarena.GameInfo;
 /*
  * The OwnContinentsEvaluator measures how many continent bonus armies the player recieves
  * It returns this number divided by the total number of army continent bonuses.
  */
-import riskarena.riskbots.evaluation.GameStats;
 
+import java.util.ArrayList;
+
+import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.ArmyChange;
+import riskarena.riskbots.evaluation.GameStats;
 
 public class OwnContinentsEvaluator extends AbstractEvaluator {
 	private int bonusMe = 0, bonusAll = 0;
@@ -18,6 +20,10 @@ public class OwnContinentsEvaluator extends AbstractEvaluator {
 	
 	public double getScore() {
 		return bonusMe / (double)bonusAll;
+	}
+	
+	public double getScore(ArrayList<ArmyChange> changes) {
+		return getScore();
 	}
 	
 	public void refresh() {

@@ -4,8 +4,11 @@ package riskarena.riskbots.evaluation.evals;
  * Makes it negative, since a higher enemy score is bad
  */
 
+import java.util.ArrayList;
+
 import riskarena.GameInfo;
 import riskarena.PlayerInfo;
+import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
 
 public class BestEnemyEvaluator extends AbstractEvaluator {
@@ -21,12 +24,16 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 		return score;
 	}
 	
-	public void refresh() {
-		players = stats.getPlayers();
-		recalculate();
+	public double getScore(ArrayList<ArmyChange> changes) {
+		return recalculate();
 	}
 	
-	private void recalculate() {
+	public void refresh() {
+		players = stats.getPlayers();
+		score = recalculate();
+	}
+	
+	private double recalculate() {
 		double highestScore = Double.MIN_VALUE;
 		for(int i=0; i<players.length; i++) {
 			if(players[i].getId() == game.me())
@@ -35,7 +42,7 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 			if(enemyScore > highestScore)
 				highestScore = enemyScore;
 		}
-		score = -1 * highestScore;
+		return -1 * highestScore;
 	}
 	
 	private double rateEnemy(int player_id) {
@@ -47,4 +54,5 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 		double enemyScore = (armyRatio + territoryRatio) / 2.0;
 		return enemyScore;
 	}
+
 }

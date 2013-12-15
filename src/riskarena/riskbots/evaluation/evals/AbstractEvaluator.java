@@ -1,6 +1,9 @@
 package riskarena.riskbots.evaluation.evals;
 
+import java.util.ArrayList;
+
 import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
 
 public abstract class AbstractEvaluator {

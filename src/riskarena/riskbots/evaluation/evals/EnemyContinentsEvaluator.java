@@ -1,6 +1,12 @@
 package riskarena.riskbots.evaluation.evals;
+/*
+ * Scores the negative percentage of continent army bonuses being obtained by enemy players
+ */
+
+import java.util.ArrayList;
 
 import riskarena.GameInfo;
+import riskarena.riskbots.evaluation.ArmyChange;
 /*
  * The EnemyContinentsEvaluator measures how many continent bonus armies enemy players receive (together)
  * It returns this number divided by the total number of army continent bonuses.
@@ -18,6 +24,10 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 	
 	public double getScore() {
 		return -1 * bonusThem / (double)bonusAll;
+	}
+
+	public double getScore(ArrayList<ArmyChange> changes) {
+		return getScore();
 	}
 	
 	public void refresh() {
