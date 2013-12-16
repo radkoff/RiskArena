@@ -10,6 +10,7 @@ import riskarena.riskbots.evaluation.ArmyChange;
  */
 import riskarena.riskbots.evaluation.CardIndicator;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class ObtainedCardEvaluator extends AbstractEvaluator {
 	private CardIndicator card;
@@ -24,6 +25,13 @@ public class ObtainedCardEvaluator extends AbstractEvaluator {
 	
 	public double getScore() {
 		return score;
+	}
+	
+	public double getScore(OccupationChange change) {
+		if(!card.getVictory()) {
+			return CARD_REWARD * Math.sqrt(game.getTurnNumber());
+		} else
+			return score;
 	}
 	
 	public double getScore(ArrayList<ArmyChange> changes) {

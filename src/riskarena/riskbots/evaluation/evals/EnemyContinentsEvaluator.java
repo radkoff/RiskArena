@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import riskarena.GameInfo;
 import riskarena.riskbots.evaluation.ArmyChange;
+import riskarena.riskbots.evaluation.OccupationChange;
 /*
  * The EnemyContinentsEvaluator measures how many continent bonus armies enemy players receive (together)
  * It returns this number divided by the total number of army continent bonuses.
@@ -19,6 +20,10 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 	
 	public EnemyContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
+		int contBonuses[] = game.getContinentBonuses();
+		for(int i=0; i<contBonuses.length; i++) {
+			bonusAll += contBonuses[i];
+		}
 		recalculate();
 	}
 	
@@ -30,6 +35,14 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 		return getScore();
 	}
 	
+	public double getScore(OccupationChange change) {
+		int priorThem = bonusThem;
+		recalculate();
+		double score = getScore();
+		bonusThem = priorThem;
+		return score;
+	}
+	
 	public void refresh() {
 		recalculate();
 	}
@@ -38,9 +51,7 @@ public class EnemyContinentsEvaluator extends AbstractEvaluator {
 		int contBonuses[] = game.getContinentBonuses();
 		int contOwnership[] = stats.getContinentOwnership();
 		bonusThem = 0;
-		bonusAll = 0;
 		for(int i=0; i<contBonuses.length; i++) {
-			bonusAll += contBonuses[i];
 			if(contOwnership[i] != game.me() && contOwnership[i] != -1)
 				bonusThem += contBonuses[i];
 		}

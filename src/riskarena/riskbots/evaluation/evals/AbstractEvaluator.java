@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import riskarena.GameInfo;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public abstract class AbstractEvaluator {
 	private double weight;
@@ -22,6 +23,8 @@ public abstract class AbstractEvaluator {
 	abstract public double getScore();
 	
 	abstract public double getScore(ArrayList<ArmyChange> changes);
+	
+	abstract public double getScore(OccupationChange change);
 	
 	abstract public void refresh();
 	

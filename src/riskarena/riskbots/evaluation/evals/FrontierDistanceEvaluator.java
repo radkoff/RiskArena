@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import com.sun.tools.javac.util.Pair;
 
 import riskarena.CountryInfo;
+import riskarena.CountryInterface;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class FrontierDistanceEvaluator extends AbstractEvaluator {
 	private double score;
@@ -33,6 +35,10 @@ public class FrontierDistanceEvaluator extends AbstractEvaluator {
 	}
 	
 	public double getScore() {
+		return score;
+	}
+	
+	public double getScore(OccupationChange change) {
 		return score;
 	}
 	
@@ -51,7 +57,7 @@ public class FrontierDistanceEvaluator extends AbstractEvaluator {
 	
 	public void refresh() {
 		calculateFrontierDistances();
-		CountryInfo countries[] = stats.getCountries();
+		CountryInterface countries[] = stats.getCountries();
 		armies = new int[countries.length];
 		for(int i=0; i<countries.length; i++)
 			armies[i] = countries[i].getArmies();
@@ -79,7 +85,7 @@ public class FrontierDistanceEvaluator extends AbstractEvaluator {
 		distances = new int[game.getNumCountries()];
 		maxDist = Integer.MIN_VALUE;
 		
-		CountryInfo countries[] = stats.getCountries();
+		CountryInterface countries[] = stats.getCountries();
 		java.util.Arrays.fill(distances, Integer.MAX_VALUE);
 		ArrayDeque< Pair<Integer, Integer> > Q = new ArrayDeque< Pair<Integer, Integer> >();
 		for(Integer frontier : stats.getFrontier()) {

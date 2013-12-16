@@ -9,17 +9,30 @@ import java.util.ArrayList;
 import riskarena.GameInfo;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class OwnContinentsEvaluator extends AbstractEvaluator {
 	private int bonusMe = 0, bonusAll = 0;
 	
 	public OwnContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
+		int contBonuses[] = game.getContinentBonuses();
+		for(int i=0; i<contBonuses.length; i++) {
+			bonusAll += contBonuses[i];
+		}
 		recalculate();
 	}
 	
 	public double getScore() {
 		return bonusMe / (double)bonusAll;
+	}
+	
+	public double getScore(OccupationChange change) {
+		int priorMe = bonusMe;
+		recalculate();
+		double score = getScore();
+		bonusMe = priorMe;
+		return score;
 	}
 	
 	public double getScore(ArrayList<ArmyChange> changes) {
@@ -34,9 +47,7 @@ public class OwnContinentsEvaluator extends AbstractEvaluator {
 		int contBonuses[] = game.getContinentBonuses();
 		int contOwnership[] = stats.getContinentOwnership();
 		bonusMe = 0;
-		bonusAll = 0;
 		for(int i=0; i<contBonuses.length; i++) {
-			bonusAll += contBonuses[i];
 			if(contOwnership[i] == game.me())
 				bonusMe += contBonuses[i];
 		}

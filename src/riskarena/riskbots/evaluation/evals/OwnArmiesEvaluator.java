@@ -6,6 +6,7 @@ import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
 import riskarena.riskbots.evaluation.ArmyChange;
+import riskarena.riskbots.evaluation.OccupationChange;
 /*
  * The OwnArmiesEvaluator measures how many armies the player has on the board.
  * It returns this number divided by the total number of armies on the board.
@@ -22,6 +23,10 @@ public class OwnArmiesEvaluator extends AbstractEvaluator {
 	
 	public double getScore() {
 		return score;
+	}
+	
+	public double getScore(OccupationChange change) {
+		return calculate();
 	}
 	
 	public double getScore(ArrayList<ArmyChange> changes) {

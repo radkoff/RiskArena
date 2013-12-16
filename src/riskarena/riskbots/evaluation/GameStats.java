@@ -59,6 +59,32 @@ public class GameStats {
 		setTargetCont();	// Select a target continent (there's an Evaluator that gives a score bump for going after this)
 	}
 	
+	int old_player;
+	public void apply(OccupationChange change) {
+		ArrayList<ArmyChange> changes = new ArrayList<ArmyChange>();
+		changes.add( new ArmyChange(change.from(), -1 * change.casualties()) );
+		changes.add( new ArmyChange(change.to(), -1 * change.enemiesKilled()) );
+		apply(changes);
+		old_player = countries[change.to()].getPlayer();
+		countries[change.to()].setPlayer(game.me());
+		calculateContentOwnership();
+		occupationCounts[game.me()]++;
+		occupationCounts[old_player]--;
+		myCountries.add(new Integer(change.to()));
+	}
+	
+	public void unapply(OccupationChange change) {
+		ArrayList<ArmyChange> changes = new ArrayList<ArmyChange>();
+		changes.add( new ArmyChange(change.from(), -1 * change.casualties()) );
+		changes.add( new ArmyChange(change.to(), -1 * change.enemiesKilled()) );
+		unapply(changes);
+		countries[change.to()].setPlayer(old_player);
+		calculateContentOwnership();
+		occupationCounts[game.me()]--;
+		occupationCounts[old_player]++;
+		myCountries.remove(new Integer(change.to()));
+	}
+	
 	public void apply(ArrayList<ArmyChange> changes) {
 		for(ArmyChange change : changes) {
 			armies[countries[change.ID()].getPlayer()] += change.amount();

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import riskarena.GameInfo;
 import riskarena.riskbots.evaluation.ArmyChange;
+import riskarena.riskbots.evaluation.OccupationChange;
 /*
  * The OccurpiedTerritories measures how many territories the player owns.
  * It returns this number divided by the total number of territories on the board.
@@ -21,6 +22,10 @@ public class OccupiedTerritoriesEvaluator extends AbstractEvaluator {
 	
 	public double getScore() {
 		return score;
+	}
+	
+	public double getScore(OccupationChange change) {
+		return calculate();
 	}
 	
 	public double getScore(ArrayList<ArmyChange> changes) {

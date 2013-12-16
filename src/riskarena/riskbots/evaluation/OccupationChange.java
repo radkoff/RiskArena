@@ -3,15 +3,13 @@ package riskarena.riskbots.evaluation;
 public class OccupationChange {
 	private int from;
 	private int to;
-	private int fromArmies;
-	private int toArmies;
+	private int casualties;
 	private int enemiesKilled;
 	
-	public OccupationChange(int from, int to, int fromArmies, int toArmies, int enemiesKilled) {
+	public OccupationChange(int from, int to, int casualties, int enemiesKilled) {
 		this.from = from;
 		this.to = to;
-		this.fromArmies = fromArmies;
-		this.toArmies = toArmies;
+		this.casualties = casualties;
 		this.enemiesKilled = enemiesKilled;
 	}
 	
@@ -21,11 +19,8 @@ public class OccupationChange {
 	public int to() {
 		return to;
 	}
-	public int fromArmies() {
-		return fromArmies;
-	}
-	public int toArmies() {
-		return toArmies;
+	public int casualties() {
+		return casualties;
 	}
 	public int enemiesKilled() {
 		return enemiesKilled;

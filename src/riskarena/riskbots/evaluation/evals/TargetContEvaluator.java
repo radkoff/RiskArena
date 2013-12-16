@@ -7,14 +7,17 @@ package riskarena.riskbots.evaluation.evals;
 import java.util.ArrayList;
 
 import riskarena.CountryInfo;
+import riskarena.CountryInterface;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class TargetContEvaluator extends AbstractEvaluator {
 	int armiesInTarget;
+	double reward = 1.0;	// Reward for conquoring a territory in the target continent
 	public TargetContEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
 		//recalculate();
@@ -31,7 +34,7 @@ public class TargetContEvaluator extends AbstractEvaluator {
 	 */
 	public double getScore(ArrayList<ArmyChange> changes) {
 		double net = 0;
-		CountryInfo countries[] = stats.getCountries();
+		CountryInterface countries[] = stats.getCountries();
 		for(ArmyChange change : changes) {
 			if(countries[change.ID()].getCont() == stats.getTarget()) {
 				if(countries[change.ID()].getPlayer() == game.me()) {
@@ -54,9 +57,16 @@ public class TargetContEvaluator extends AbstractEvaluator {
 		return result;
 	}
 	
+	public double getScore(OccupationChange change) {
+		if(stats.getCountries()[change.to()].getCont() == stats.getTarget()) {
+			return reward;
+		} else
+			return 0.0;
+	}
+	
 	public void refresh() {
 		armiesInTarget = 0;
-		CountryInfo countries[] = stats.getCountries();
+		CountryInterface countries[] = stats.getCountries();
 		for(int i=0; i<game.getNumCountries(); i++) {
 			if(countries[i].getCont() == stats.getTarget())
 				armiesInTarget += countries[i].getArmies();

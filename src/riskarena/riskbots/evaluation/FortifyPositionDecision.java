@@ -28,7 +28,7 @@ public class FortifyPositionDecision {
 		
 		CountryInfo countries[] = game.getCountryInfo();
 		for(int i=0; i<countries.length; i++) {
-			if(countries[i].getPlayer() != game.me())
+			if(countries[i].getPlayer() != game.me() || countries[i].getArmies() <= 1)
 				continue;
 			int adj[] = world.getAdjacencies(i);
 			for(int a = 0; a<adj.length; a++) {

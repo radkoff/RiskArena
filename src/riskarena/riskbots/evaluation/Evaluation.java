@@ -30,8 +30,8 @@ public class Evaluation {
 	
 	private void registerEvaluators() {
 		evaluators.clear();
-		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 4.0, stats, game) );
-		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 3.0, stats, game) );
+		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 7.0, stats, game) );
+		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 6.0, stats, game) );
 		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
 		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
 		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.4, stats, game) );
@@ -39,7 +39,7 @@ public class Evaluation {
 		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 2.0, stats, game) );
 		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
 		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
-		evaluators.add( new TargetContEvaluator("TargetCont", 3.0, stats, game) );
+		evaluators.add( new TargetContEvaluator("TargetCont", 2.0, stats, game) );
 	}
 	
 	/*
@@ -61,10 +61,12 @@ public class Evaluation {
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(change);
 			result += e.getWeight() * score;
-			if(debug)
-				Risk.sayOutput(e.getName() + " " + score, OutputFormat.BLUE);
+			//if(debug)
+				//Risk.sayOutput(e.getName() + " " + score, OutputFormat.BLUE);
 		}
 		stats.unapply(change);
+		if(debug)
+			Risk.sayOutput("\tScore: " + result, OutputFormat.BLUE);
 		return result;
 	}
 	

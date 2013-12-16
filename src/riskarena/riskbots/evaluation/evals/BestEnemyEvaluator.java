@@ -10,6 +10,7 @@ import riskarena.GameInfo;
 import riskarena.PlayerInfo;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class BestEnemyEvaluator extends AbstractEvaluator {
 	private double score;
@@ -22,6 +23,10 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 	
 	public double getScore() {
 		return score;
+	}
+	
+	public double getScore(OccupationChange change) {
+		return recalculate();
 	}
 	
 	public double getScore(ArrayList<ArmyChange> changes) {

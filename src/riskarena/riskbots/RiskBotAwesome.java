@@ -28,6 +28,7 @@ import riskarena.riskbots.evaluation.Evaluation;
 import riskarena.riskbots.evaluation.FortifyAfterVictoryDecision;
 import riskarena.riskbots.evaluation.FortifyArmiesDecision;
 import riskarena.riskbots.evaluation.FortifyPositionDecision;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class RiskBotAwesome implements RiskBot{
 	/*	Game related data members it's always a good idea to keep */
@@ -222,6 +223,20 @@ public class RiskBotAwesome implements RiskBot{
 	 */
 	public void launchAttack() {
 		CountryInfo[] countries = risk_info.getCountryInfo();
+		
+		// TODO remove this, it's for testing
+		for(int i=0; i<countries.length; i++) {
+			if(countries[i].getPlayer() != risk_info.me() || countries[i].getArmies() <= 1)
+				continue;
+			int adj[] = world.getAdjacencies(i);
+			for(int a=0; a<adj.length; a++) {
+				if(countries[adj[a]].getPlayer() != risk_info.me()) {
+					OccupationChange oc = new OccupationChange(i, adj[a], countries[i].getArmies() - 1, countries[adj[a]].getArmies());
+					eval.score(oc, true);
+				}
+			}
+		}
+		
 		if( previousTo != null && shouldAttackFrom(countries[previousTo]) )
 			attackFrom(previousTo, countries);
 		if( previousFrom != null && shouldAttackFrom(countries[previousFrom]) )

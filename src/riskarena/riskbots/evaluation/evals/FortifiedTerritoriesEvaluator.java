@@ -7,9 +7,11 @@ package riskarena.riskbots.evaluation.evals;
 import java.util.ArrayList;
 
 import riskarena.CountryInfo;
+import riskarena.CountryInterface;
 import riskarena.GameInfo;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.GameStats;
+import riskarena.riskbots.evaluation.OccupationChange;
 
 public class FortifiedTerritoriesEvaluator extends AbstractEvaluator {
 	private int fortifiedTerritories;
@@ -23,8 +25,15 @@ public class FortifiedTerritoriesEvaluator extends AbstractEvaluator {
 		return calculate(fortifiedTerritories);
 	}
 	
+	public double getScore(OccupationChange change) {
+		if(change.casualties() == stats.getCountries()[change.from()].getArmies() - 2)
+			return calculate(fortifiedTerritories - 1);
+		else
+			return getScore();
+	}
+	
 	public double getScore(ArrayList<ArmyChange> changes) {
-		CountryInfo countries[] = stats.getCountries();
+		CountryInterface countries[] = stats.getCountries();
 		int newFortifiedTerritories = fortifiedTerritories;
 		for(ArmyChange change : changes) {
 			if(countries[change.ID()].getPlayer() == game.me()) {
@@ -43,7 +52,7 @@ public class FortifiedTerritoriesEvaluator extends AbstractEvaluator {
 	
 	public void refresh() {
 		fortifiedTerritories = 0;
-		CountryInfo countries[] = stats.getCountries();
+		CountryInterface countries[] = stats.getCountries();
 		for(int i=0; i<countries.length;i++) {
 			if(countries[i].isTaken() && countries[i].getPlayer() == game.me() && countries[i].getArmies() > 1)
 				fortifiedTerritories++;
