@@ -6,15 +6,7 @@ package riskarena;
  * Evan Radkoff
  */
 
-interface CountryInterface {
-	public String getName();
-	public int getCont();
-	public int getPlayer();
-	public int getArmies();
-	public boolean isTaken();
-}
-
-public class CountryInfo {
+public class CountryInfo implements CountryInterface {
 	private final CountryInterface country;
 	public CountryInfo(CountryInterface wrapped) {
 		country = wrapped;

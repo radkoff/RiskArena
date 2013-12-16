@@ -2,6 +2,7 @@ package riskarena.riskbots.evaluation;
 
 import java.util.ArrayList;
 
+import riskarena.CountryInterface;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
@@ -16,11 +17,14 @@ public class Evaluation {
 	private ArrayList<AbstractEvaluator> evaluators;
 	private final String FULL_DEBUG = "ALL";
 	
+	private CountryInterface countries[];
+	
 	public Evaluation(GameInfo gi, CardIndicator ci) {
 		game = gi;
 		card = ci;
 		stats = new GameStats(game);
 		evaluators = new ArrayList<AbstractEvaluator>();
+		countries = game.getCountryInfo();
 		registerEvaluators();
 	}
 	
@@ -43,6 +47,25 @@ public class Evaluation {
 	 */
 	public double score() {
 		return score(false, null);
+	}
+	
+	public double score(OccupationChange change) {
+		return score(change, false);
+	}
+
+	public double score(OccupationChange change, boolean debug) {
+		if(debug)
+			Risk.sayOutput("Considering " + countries[change.from()].getName() + " to " + countries[change.to()].getName(), OutputFormat.BLUE);
+		stats.apply(change);
+		double result = 0.0;
+		for(AbstractEvaluator e : evaluators) {
+			double score = e.getScore(change);
+			result += e.getWeight() * score;
+			if(debug)
+				Risk.sayOutput(e.getName() + " " + score, OutputFormat.BLUE);
+		}
+		stats.unapply(change);
+		return result;
 	}
 	
 	public double score(ArrayList<ArmyChange> changes) {

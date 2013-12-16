@@ -11,7 +11,7 @@ import riskarena.World;
 
 public class GameStats {
 	private GameInfo game;
-	private CountryInfo countries[];	// Stored at the class level so individual calculation
+	private MutableCountryInfo countries[];	// Stored at the class level so individual calculation
 										// methods don't need to have fresh copies made.
 	private PlayerInfo players[];
 	private World world;				// Stored at the class level and only set once because
@@ -46,14 +46,14 @@ public class GameStats {
 		world = game.getWorldInfo();	// Only grab this once, it never changes
 		myCountries = new ArrayList<Integer>();
 		frontier = new ArrayList<Integer>();
-		countries = game.getCountryInfo();
+		setCountries();
 		rateContinents();				// Only rate these once, they never change
 		refresh();
 	}
 	
 	//	Alerts GameStats that the world has changed, so reload and recalculate!
 	public void refresh() {
-		countries = game.getCountryInfo();
+		setCountries();
 		players = game.getPlayerInfo();
 		calculate();
 		setTargetCont();	// Select a target continent (there's an Evaluator that gives a score bump for going after this)
@@ -254,6 +254,14 @@ public class GameStats {
 		//Risk.sayOutput("Target: " + target, OutputFormat.BLUE);
 	}
 	
+	private void setCountries() {
+		countries = new MutableCountryInfo[game.getNumCountries()];
+		CountryInfo realCountries[] = game.getCountryInfo();
+		for(int i=0; i<game.getNumCountries(); i++) {
+			countries[i] = new MutableCountryInfo(realCountries[i]);
+		}
+	}
+	
 	// Returns the number of continents
 	public int getNumContinents() {
 		return game.getNumContinents();
@@ -294,7 +302,7 @@ public class GameStats {
 		return players;
 	}
 	
-	public CountryInfo[] getCountries() {
+	public MutableCountryInfo[] getCountries() {
 		return countries;
 	}
 	
