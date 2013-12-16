@@ -25,6 +25,7 @@ import riskarena.World;
 import riskarena.riskbots.evaluation.ArmyChange;
 import riskarena.riskbots.evaluation.CardIndicator;
 import riskarena.riskbots.evaluation.Evaluation;
+import riskarena.riskbots.evaluation.FortifyAfterVictoryDecision;
 import riskarena.riskbots.evaluation.FortifyArmiesDecision;
 
 public class RiskBotAwesome implements RiskBot{
@@ -45,6 +46,7 @@ public class RiskBotAwesome implements RiskBot{
 	
 	/*	Decision-makers	*/
 	private FortifyArmiesDecision fortifier;
+	private FortifyAfterVictoryDecision afterVictory;
 
 	/*
 	 * Initialize the bot, locally store the given instance of GameInfo so that we can
@@ -61,6 +63,7 @@ public class RiskBotAwesome implements RiskBot{
 		card = new CardIndicator();
 		eval = new Evaluation(risk_info, card);
 		fortifier = new FortifyArmiesDecision(risk_info, eval);
+		afterVictory = new FortifyAfterVictoryDecision(eval);
 	}
 	
 	/*
@@ -133,15 +136,68 @@ public class RiskBotAwesome implements RiskBot{
 	 */
 	public void claimTerritory() {
 		CountryInfo[] countries = risk_info.getCountryInfo();
-		ArrayList<Integer> unclaimed = new ArrayList<Integer>();
+		int num_conts = risk_info.getNumContinents();
 		
-		for(int i=0;i<countries.length;i++) {
-			if(!countries[i].isTaken()) {
-				unclaimed.add(new Integer(i));
+		// Else, calculate percentages for each continent of: taken by me, taken by someone, unclaimed
+		int counts[][] = new int[num_conts][3];
+		for(int i=0;i<num_conts;i++) {
+			for(int j=0;j<3;j++) {
+				counts[i][j] = 0;
 			}
 		}
-		int choice = gen.nextInt(unclaimed.size());
-		to_game.sendInt(unclaimed.get(choice));
+		for(int i=0;i<countries.length;i++) {
+			if(!countries[i].isTaken()) {
+				counts[countries[i].getCont()][2] += 1;
+			} else {
+				if(countries[i].getPlayer() == risk_info.me())
+					counts[countries[i].getCont()][0] += 1;
+				else
+					counts[countries[i].getCont()][1] += 1;
+			}
+		}
+		double ratios[][] = new double[num_conts][3];
+		for(int i=0;i<num_conts;i++) {
+			for(int j=0;j<3;j++) {
+				ratios[i][j] = ((double)counts[i][j])/(counts[i][0] + counts[i][1] + counts[i][2]);
+			}
+		}
+		
+		
+		int cont = -1;
+		double highest = 0.0;
+		for(int i=0;i<ratios.length;i++) {
+			if(ratios[i][2] < .00001)
+				continue;
+			if(ratios[i][1] > .2)
+				continue;
+			if(ratios[i][0] > highest) {
+				highest = ratios[i][0];
+				cont = i;
+			}
+		}
+		if(cont != -1) {
+			for(int i=0;i<countries.length;i++) {
+				if(!countries[i].isTaken() && countries[i].getCont() == cont) {
+					to_game.sendInt(i);
+					return;
+				}
+			}
+		}
+		double lowest = 1.0;
+		for(int i=0;i<ratios.length;i++) {
+			if(ratios[i][2] < .00001)
+				continue;
+			if(ratios[i][1] < lowest) {
+				lowest = ratios[i][1];
+				cont = i;
+			}
+		}
+		for(int i=0;i<countries.length;i++) {
+			if(!countries[i].isTaken() && countries[i].getCont() == cont) {
+				to_game.sendInt(i);
+				return;
+			}
+		}
 	}
 
 	/*
@@ -149,7 +205,7 @@ public class RiskBotAwesome implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyTerritory(int)
 	 */
 	public void fortifyTerritory(int num_to_place) {
-		ArrayList< ArmyChange > choices = fortifier.decide(num_to_place);
+		ArrayList< ArmyChange > choices = fortifier.decideAll(num_to_place);
 		for(ArmyChange choice : choices) {
 			to_game.sendInt(choice.ID());
 			to_game.sendInt(choice.amount());
@@ -196,7 +252,7 @@ public class RiskBotAwesome implements RiskBot{
 		// Consider attacking again with the victorious army
 		previousVictory = new Integer(defender);
 		card.setVictory(true);
-		to_game.sendInt(max);
+		to_game.sendInt( afterVictory.decide(attacker, defender, min, max) );
 	}
 
 	/*

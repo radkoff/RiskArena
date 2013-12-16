@@ -16,7 +16,7 @@ public class FortifyArmiesDecision {
 		eval = _eval;
 	}
 	
-	public ArrayList<ArmyChange> decide(int numToPlace) {
+	public ArrayList<ArmyChange> decideAll(int numToPlace) {
 		eval.refresh();
 		ArrayList<ArmyChange> winner = null;
 		double highest = -1*Double.MAX_VALUE;
@@ -36,5 +36,9 @@ public class FortifyArmiesDecision {
 			}
 		}
 		return winner;
+	}
+	
+	public ArrayList<ArmyChange> decideHalf(int numToPlace) {
+		return decideAll(Math.max(numToPlace/2, 1));
 	}
 }
