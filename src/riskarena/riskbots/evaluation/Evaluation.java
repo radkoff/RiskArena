@@ -5,17 +5,7 @@ import java.util.ArrayList;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
-import riskarena.riskbots.evaluation.evals.AbstractEvaluator;
-import riskarena.riskbots.evaluation.evals.ArmyConsolidationEvaluator;
-import riskarena.riskbots.evaluation.evals.BestEnemyEvaluator;
-import riskarena.riskbots.evaluation.evals.EnemyContinentsEvaluator;
-import riskarena.riskbots.evaluation.evals.FortifiedTerritoriesEvaluator;
-import riskarena.riskbots.evaluation.evals.FrontierDistanceEvaluator;
-import riskarena.riskbots.evaluation.evals.ObtainedCardEvaluator;
-import riskarena.riskbots.evaluation.evals.OccupiedTerritoriesEvaluator;
-import riskarena.riskbots.evaluation.evals.OwnArmiesEvaluator;
-import riskarena.riskbots.evaluation.evals.OwnContinentsEvaluator;
-import riskarena.riskbots.evaluation.evals.TargetContEvaluator;
+import riskarena.riskbots.evaluation.evals.*;
 
 public class Evaluation {
 	private GameInfo game;
@@ -40,11 +30,11 @@ public class Evaluation {
 		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 3.0, stats, game) );
 		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
 		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
-		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.5, stats, game) );
+		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.4, stats, game) );
 		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", 1.0, stats, game) );
-		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 1.0, stats, game) );
+		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 2.0, stats, game) );
 		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
-		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 0.5, stats, game) );
+		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
 		evaluators.add( new TargetContEvaluator("TargetCont", 3.0, stats, game) );
 	}
 	
@@ -55,22 +45,29 @@ public class Evaluation {
 		return score(false, null);
 	}
 	
+	public double score(ArrayList<ArmyChange> changes) {
+		return score(changes, false);
+	}
+	
 	/*
 	 * Returns the score of the board state that would result from applying
 	 * the ArrayList of army changes.
 	 */
-	public double score(ArrayList<ArmyChange> changes) {
+	public double score(ArrayList<ArmyChange> changes, boolean debug) {
 		if(changes.isEmpty())
 			return score();
-		//System.out.println(game.getMyName() + " " + stats.getCountries()[changes.get(0).ID()].getName());
+		if(debug)
+			Risk.sayOutput(game.getMyName() + " " + changes.get(1).amount(), OutputFormat.BLUE);
 		stats.apply(changes);
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(changes);
 			result += e.getWeight() * score;
-			//System.out.println(e.getName() + " " + score);
+			if(debug)
+				Risk.sayOutput(e.getName() + " " + score, OutputFormat.BLUE);
 		}
-		//System.out.println();
+		if(debug)
+			Risk.sayOutput("");
 		stats.unapply(changes);
 		return result;
 	}

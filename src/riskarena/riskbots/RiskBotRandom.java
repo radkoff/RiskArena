@@ -33,7 +33,8 @@ public class RiskBotRandom implements RiskBot{
 	/* Data members specific to this particular RiskBot */
 	private Random gen; 										// Random number generator used for some decisions
 	private Queue< Pair<Integer, Integer> > attacks;			// A queue of intended attacks, reset each turn
-	private Integer previousVictory;		// Necessary in order to consider attacking from a newly conquored territory
+	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
+	private Integer previousFrom;
 	private final int minAttackThreshold = 3;					// If a territory has under this # of armies, don't attack from it
 	private final int maxAttackThreshold = 20;					// If a territory has this many armies, always attack from it
 	
@@ -156,9 +157,12 @@ public class RiskBotRandom implements RiskBot{
 	 */
 	public void launchAttack() {
 		CountryInfo[] countries = risk_info.getCountryInfo();
-		if( previousVictory != null && shouldAttackFrom(countries[previousVictory]) )
-			attackFrom(previousVictory, countries);
-		previousVictory = null;
+		if( previousTo != null && shouldAttackFrom(countries[previousTo]) )
+			attackFrom(previousTo, countries);
+		if( previousFrom != null && shouldAttackFrom(countries[previousFrom]) )
+			attackFrom(previousFrom, countries);
+		previousTo = null;
+		previousFrom = null;
 		
 		if(!attacks.isEmpty()) {
 			Pair<Integer,Integer> attack = attacks.peek();		// The attack currently being executed
@@ -188,7 +192,8 @@ public class RiskBotRandom implements RiskBot{
 	 */
 	public void fortifyAfterVictory(int attacker, int defender, int min, int max) {
 		// Consider attacking again with the victorious army
-		previousVictory = new Integer(defender);
+		previousTo = new Integer(defender);
+		previousFrom = new Integer(defender);
 		to_game.sendInt(max);
 	}
 

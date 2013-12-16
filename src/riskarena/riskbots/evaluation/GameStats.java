@@ -188,7 +188,7 @@ public class GameStats {
 	 *  Obviously doesn't choose continents with 100% ownership
 	 */
 	private void setTargetCont() {
-		final double alpha = 4.0, beta = 1.0, gamma = 2.0;
+		final double alpha = 8.0, beta = 1.0, gamma = 2.0;
 		
 		int contBonuses[] = game.getContinentBonuses();
 		double contBonusRatios[] = new double[game.getNumContinents()];	// Normalized continent bonuses

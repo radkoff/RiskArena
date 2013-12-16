@@ -27,6 +27,7 @@ import riskarena.riskbots.evaluation.CardIndicator;
 import riskarena.riskbots.evaluation.Evaluation;
 import riskarena.riskbots.evaluation.FortifyAfterVictoryDecision;
 import riskarena.riskbots.evaluation.FortifyArmiesDecision;
+import riskarena.riskbots.evaluation.FortifyPositionDecision;
 
 public class RiskBotAwesome implements RiskBot{
 	/*	Game related data members it's always a good idea to keep */
@@ -38,7 +39,8 @@ public class RiskBotAwesome implements RiskBot{
 	/* Data members specific to this particular RiskBot */
 	private Random gen; 										// Random number generator used for some decisions
 	private Queue< Pair<Integer, Integer> > attacks;			// A queue of intended attacks, reset each turn
-	private Integer previousVictory;		// Necessary in order to consider attacking from a newly conquered territory
+	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
+	private Integer previousFrom;
 	private final int minAttackThreshold = 3;					// If a territory has under this # of armies, don't attack from it
 	private final int maxAttackThreshold = 16;					// If a territory has this many armies, always attack from it
 	private Evaluation eval;	//TODO remove, this is for testing.
@@ -47,6 +49,7 @@ public class RiskBotAwesome implements RiskBot{
 	/*	Decision-makers	*/
 	private FortifyArmiesDecision fortifier;
 	private FortifyAfterVictoryDecision afterVictory;
+	private FortifyPositionDecision posFortifier;
 
 	/*
 	 * Initialize the bot, locally store the given instance of GameInfo so that we can
@@ -64,6 +67,7 @@ public class RiskBotAwesome implements RiskBot{
 		eval = new Evaluation(risk_info, card);
 		fortifier = new FortifyArmiesDecision(risk_info, eval);
 		afterVictory = new FortifyAfterVictoryDecision(eval);
+		posFortifier = new FortifyPositionDecision(risk_info, eval);
 	}
 	
 	/*
@@ -218,9 +222,12 @@ public class RiskBotAwesome implements RiskBot{
 	 */
 	public void launchAttack() {
 		CountryInfo[] countries = risk_info.getCountryInfo();
-		if( previousVictory != null && shouldAttackFrom(countries[previousVictory]) )
-			attackFrom(previousVictory, countries);
-		previousVictory = null;
+		if( previousTo != null && shouldAttackFrom(countries[previousTo]) )
+			attackFrom(previousTo, countries);
+		if( previousFrom != null && shouldAttackFrom(countries[previousFrom]) )
+			attackFrom(previousFrom, countries);
+		previousTo = null;
+		previousFrom = null;
 		
 		if(!attacks.isEmpty()) {
 			Pair<Integer,Integer> attack = attacks.peek();		// The attack currently being executed
@@ -250,7 +257,8 @@ public class RiskBotAwesome implements RiskBot{
 	 */
 	public void fortifyAfterVictory(int attacker, int defender, int min, int max) {
 		// Consider attacking again with the victorious army
-		previousVictory = new Integer(defender);
+		previousTo = new Integer(defender);
+		previousFrom = new Integer(attacker);
 		card.setVictory(true);
 		to_game.sendInt( afterVictory.decide(attacker, defender, min, max) );
 	}
@@ -272,28 +280,11 @@ public class RiskBotAwesome implements RiskBot{
 	}
 
 	/*
-	 * Of all possible movements of all armies from one friendly territory to another, choose one randomly
 	 * @see riskarena.RiskBot#fortifyPosition()
 	 */
 	public void fortifyPosition() {
-		CountryInfo[] countries = risk_info.getCountryInfo();
-		ArrayList< Pair<Integer, Integer> > possibleForts = new ArrayList< Pair<Integer, Integer> >();
-		for(int i=0; i<countries.length; i++) {
-			if(countries[i].getPlayer() == risk_info.me() && countries[i].getArmies() > 1) {
-				int[] adj = world.getAdjacencies(i);
-				for(int j=0;j<adj.length; j++) {
-					if(countries[adj[j]].getPlayer() == risk_info.me())
-						possibleForts.add(new Pair<Integer,Integer>(new Integer(i), new Integer(adj[j])) );
-				}
-			}
-		}
-		if(possibleForts.isEmpty())
-			to_game.sendInt(-1);
-		else {
-			int choice = gen.nextInt(possibleForts.size());
-			to_game.sendInt(possibleForts.get(choice).fst);
-			to_game.sendInt(possibleForts.get(choice).snd);
-			to_game.sendInt(countries[possibleForts.get(choice).fst].getArmies() - 1);
+		for(Integer i : posFortifier.decide()) {
+			to_game.sendInt(i);
 		}
 	}
 
