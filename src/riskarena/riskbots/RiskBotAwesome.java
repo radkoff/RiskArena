@@ -23,6 +23,7 @@ import riskarena.Risk;
 import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.riskbots.evaluation.ArmyChange;
+import riskarena.riskbots.evaluation.AttackDecision;
 import riskarena.riskbots.evaluation.CardIndicator;
 import riskarena.riskbots.evaluation.Evaluation;
 import riskarena.riskbots.evaluation.FortifyAfterVictoryDecision;
@@ -39,11 +40,6 @@ public class RiskBotAwesome implements RiskBot{
 	
 	/* Data members specific to this particular RiskBot */
 	private Random gen; 										// Random number generator used for some decisions
-	private Queue< Pair<Integer, Integer> > attacks;			// A queue of intended attacks, reset each turn
-	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
-	private Integer previousFrom;
-	private final int minAttackThreshold = 3;					// If a territory has under this # of armies, don't attack from it
-	private final int maxAttackThreshold = 16;					// If a territory has this many armies, always attack from it
 	private Evaluation eval;	//TODO remove, this is for testing.
 	private CardIndicator card;
 	
@@ -51,6 +47,7 @@ public class RiskBotAwesome implements RiskBot{
 	private FortifyArmiesDecision fortifier;
 	private FortifyAfterVictoryDecision afterVictory;
 	private FortifyPositionDecision posFortifier;
+	private AttackDecision attackDecider;
 
 	/*
 	 * Initialize the bot, locally store the given instance of GameInfo so that we can
@@ -63,12 +60,12 @@ public class RiskBotAwesome implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		gen = new Random((new Date()).getTime());
-		attacks = new ArrayDeque< Pair<Integer, Integer> >();
 		card = new CardIndicator();
 		eval = new Evaluation(risk_info, card);
 		fortifier = new FortifyArmiesDecision(risk_info, eval);
 		afterVictory = new FortifyAfterVictoryDecision(eval);
 		posFortifier = new FortifyPositionDecision(risk_info, eval);
+		attackDecider = new AttackDecision(risk_info, eval);
 	}
 	
 	/*
@@ -78,61 +75,7 @@ public class RiskBotAwesome implements RiskBot{
 	public void initTurn() {
 		card.setVictory(false);
 		eval.refresh();
-		// At the start of each turn, this bot probabilistically forms decisions to attack
-		// enemy territories, and adds these to the "attacks" queue.
-		// The launchAttack() method executes these decisions until DEATH!
-		attacks.clear();
-		CountryInfo[] countries = risk_info.getCountryInfo();
-		for(int i=0; i<countries.length; i++) {
-			if(shouldAttackFrom(countries[i]))	// Consider attacking from country i
-				attackFrom(i, countries);
-		}
-	}
-	
-	/*
-	 * [Private helper method, not part of the RiskBot interface]
- 	 * This method takes a country given by countryID that is supposed to be the
- 	 * source of an attack. If one exists, it randomly chooses a neighboring enemy
- 	 * territory to invade.
- 	 * countries is passed to that the info doesn't need to be reloaded every time this is called
-	 */
-	private void attackFrom(int countryID, CountryInfo[] countries) {
-		ArrayList<Integer> possibleTargets = new ArrayList<Integer>();
-		int adj[] = world.getAdjacencies(countryID);
-		for(int j=0; j<adj.length; j++) {
-			if(countries[adj[j]].getPlayer() != risk_info.me())
-				possibleTargets.add(new Integer(adj[j]));
-		}
-		if(possibleTargets.isEmpty()) {		// No foreign targets
-			return;
-		} else {
-			// Choose randomly from the possible targets
-			int choice = gen.nextInt(possibleTargets.size());
-			attacks.add( new Pair<Integer,Integer>(new Integer(countryID), possibleTargets.get(choice)) );
-			//Risk.sayOutput(countries[countryID].getName() + " -> " + countries[possibleTargets.get(choice).intValue()].getName() + " TARGET SET", OutputFormat.BLUE);
-		}
-	}
-	
-	/*
-	 * [Private helper method, not part of the RiskBot interface]
-	 * Given a CountryInfo object, returns a boolean indicating whether or not it should attack
-	 */
-	private boolean shouldAttackFrom(CountryInfo country) {
-		boolean result = true;
-		if(country.getPlayer() != risk_info.me())
-			result = false;
-		else if(country.getArmies() <= minAttackThreshold)		// Too few armies to attack
-			result = false;
-		else if(country.getArmies() >= maxAttackThreshold)	// Lots of armies, always attack
-			result = true;
-		else {
-			// If the territory has an army amount between the two thresholds, assign a probability of attack (linearly)
-			float probability = (country.getArmies() - minAttackThreshold) / ((float) maxAttackThreshold - minAttackThreshold);
-			result = gen.nextFloat() <= probability;
-		}
-		//if(country.getPlayer() == risk_info.me() && country.getArmies() > minAttackThreshold)
-		//	Risk.sayOutput(country.getName() + ": " + result, OutputFormat.BLUE);
-		return result;
+		attackDecider.initTurn();
 	}
 
 	/*
@@ -217,52 +160,9 @@ public class RiskBotAwesome implements RiskBot{
 		}
 	}
 
-	/*
-	 * //TODO write this
-	 * @see riskarena.RiskBot#launchAttack()
-	 */
 	public void launchAttack() {
-		CountryInfo[] countries = risk_info.getCountryInfo();
-		
-		// TODO remove this, it's for testing
-		for(int i=0; i<countries.length; i++) {
-			if(countries[i].getPlayer() != risk_info.me() || countries[i].getArmies() <= 1)
-				continue;
-			int adj[] = world.getAdjacencies(i);
-			for(int a=0; a<adj.length; a++) {
-				if(countries[adj[a]].getPlayer() != risk_info.me()) {
-					OccupationChange oc = new OccupationChange(i, adj[a], countries[i].getArmies() - 1, countries[adj[a]].getArmies());
-					eval.score(oc, true);
-				}
-			}
-		}
-		
-		if( previousTo != null && shouldAttackFrom(countries[previousTo]) )
-			attackFrom(previousTo, countries);
-		if( previousFrom != null && shouldAttackFrom(countries[previousFrom]) )
-			attackFrom(previousFrom, countries);
-		previousTo = null;
-		previousFrom = null;
-		
-		if(!attacks.isEmpty()) {
-			Pair<Integer,Integer> attack = attacks.peek();		// The attack currently being executed
-			// Check to see if you've conquered the territory
-			if(countries[attack.snd].getPlayer() == risk_info.me()) {
-				attacks.remove();
-				launchAttack();
-				return;
-			}
-			// Check to see if you've run out of armies to attack with :(
-			if(countries[attack.fst].getArmies() == 1) {
-				attacks.remove();
-				launchAttack();
-				return;
-			}
-			to_game.sendInt(attack.fst);
-			to_game.sendInt(attack.snd);
-			to_game.sendInt(Math.min(countries[attack.fst].getArmies()-1, 3)); // Attack with all you've got!
-		} else {
-			to_game.sendInt(-1);
+		for(Integer toSend : attackDecider.decide()) {
+			to_game.sendInt(toSend);
 		}
 	}
 
@@ -272,8 +172,7 @@ public class RiskBotAwesome implements RiskBot{
 	 */
 	public void fortifyAfterVictory(int attacker, int defender, int min, int max) {
 		// Consider attacking again with the victorious army
-		previousTo = new Integer(defender);
-		previousFrom = new Integer(attacker);
+		attackDecider.notifyOfVictory(attacker, defender);
 		card.setVictory(true);
 		to_game.sendInt( afterVictory.decide(attacker, defender, min, max) );
 	}
