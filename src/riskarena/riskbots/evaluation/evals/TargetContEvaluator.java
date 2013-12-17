@@ -17,7 +17,7 @@ import riskarena.riskbots.evaluation.OccupationChange;
 
 public class TargetContEvaluator extends AbstractEvaluator {
 	int armiesInTarget;
-	double reward = 1.0;	// Reward for conquoring a territory in the target continent
+	double reward = 0.3;	// Reward for conquoring a territory in the target continent
 	public TargetContEvaluator(String name, double weight, GameStats stats, GameInfo game) {
 		super(name, weight, stats, game);
 		//recalculate();

@@ -30,8 +30,8 @@ public class Evaluation {
 	
 	private void registerEvaluators() {
 		evaluators.clear();
-		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 7.0, stats, game) );
-		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 6.0, stats, game) );
+		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 12.0, stats, game) );
+		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 10.0, stats, game) );
 		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
 		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
 		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.4, stats, game) );
@@ -54,19 +54,19 @@ public class Evaluation {
 	}
 
 	public double score(OccupationChange change, boolean debug) {
-		if(debug)
-			Risk.sayOutput("Considering " + countries[change.from()].getName() + " to " + countries[change.to()].getName(), OutputFormat.BLUE);
+		//if(debug)
+			//Risk.sayOutput("Considering " + countries[change.from()].getName() + " to " + countries[change.to()].getName(), OutputFormat.BLUE, true);
 		stats.apply(change);
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(change);
 			result += e.getWeight() * score;
-			//if(debug)
-				//Risk.sayOutput(e.getName() + " " + score, OutputFormat.BLUE);
+			if(debug)
+				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE, true);
 		}
 		stats.unapply(change);
 		if(debug)
-			Risk.sayOutput("\tScore: " + result, OutputFormat.BLUE);
+			Risk.sayOutput("\tScore: " + Utilities.dec(result), OutputFormat.BLUE, true);
 		return result;
 	}
 	
@@ -89,7 +89,7 @@ public class Evaluation {
 			double score = e.getScore(changes);
 			result += e.getWeight() * score;
 			if(debug)
-				Risk.sayOutput(e.getName() + " " + score, OutputFormat.BLUE);
+				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE);
 		}
 		if(debug)
 			Risk.sayOutput("");
@@ -121,7 +121,7 @@ public class Evaluation {
 				if(nameOfEvalToDebug == FULL_DEBUG)
 					Risk.sayOutput(e.getName() + ": " + evalScore, OutputFormat.TABBED, true);
 				else if(nameOfEvalToDebug == e.getName())
-					Risk.sayOutput(game.getMyName() + " " + e.getName() + ": " + evalScore, OutputFormat.BLUE, true);
+					Risk.sayOutput(game.getMyName() + " " + e.getName() + ": " + Utilities.dec(evalScore), OutputFormat.BLUE, true);
 			}
 			result += e.getWeight() * evalScore;
 		}
@@ -144,4 +144,5 @@ public class Evaluation {
 			e.refresh();
 		}
 	}
+	
 }

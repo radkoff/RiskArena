@@ -6,20 +6,14 @@ package riskarena.riskbots;
  * Evan Radkoff
  */
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Queue;
 import java.util.Random;
-
-import com.sun.tools.javac.util.Pair;
 
 import riskarena.Bot;
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
-import riskarena.OutputFormat;
 import riskarena.PlayerInfo;
-import riskarena.Risk;
 import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.riskbots.evaluation.ArmyChange;
@@ -29,7 +23,6 @@ import riskarena.riskbots.evaluation.Evaluation;
 import riskarena.riskbots.evaluation.FortifyAfterVictoryDecision;
 import riskarena.riskbots.evaluation.FortifyArmiesDecision;
 import riskarena.riskbots.evaluation.FortifyPositionDecision;
-import riskarena.riskbots.evaluation.OccupationChange;
 
 public class RiskBotAwesome implements RiskBot{
 	/*	Game related data members it's always a good idea to keep */

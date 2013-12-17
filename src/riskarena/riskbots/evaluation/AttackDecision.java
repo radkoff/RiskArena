@@ -4,10 +4,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Queue;
-import java.util.Random;
 
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
+import riskarena.OutputFormat;
+import riskarena.Risk;
 import riskarena.World;
 
 import com.sun.tools.javac.util.Pair;
@@ -15,21 +16,21 @@ import com.sun.tools.javac.util.Pair;
 public class AttackDecision {
 	private GameInfo game;
 	private World world;
+	private CountryInfo[] countries;
 	private Evaluation eval;
+	private BattleOracle oracle;
 	private Queue< Pair<Integer, Integer> > attacks;			// A queue of intended attacks, reset each turn
 	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
 	private Integer previousFrom;
-	
-	private final int minAttackThreshold = 3;					// If a territory has under this # of armies, don't attack from it
-	private final int maxAttackThreshold = 16;					// If a territory has this many armies, always attack from it
 
-	private Random gen;
+	private double delta_threshold = 1.0;
+
 	public AttackDecision(GameInfo _game, Evaluation _eval) {
 		game = _game;
 		world = game.getWorldInfo();
 		eval = _eval;
+		oracle = new BattleOracle();
 		attacks = new ArrayDeque< Pair<Integer, Integer> >();
-		gen = new Random((new Date()).getTime());
 	}
 
 	public void initTurn() {
@@ -37,36 +38,22 @@ public class AttackDecision {
 		// enemy territories, and adds these to the "attacks" queue.
 		// The launchAttack() method executes these decisions until DEATH!
 		attacks.clear();
-		CountryInfo[] countries = game.getCountryInfo();
+		countries = game.getCountryInfo();
 		for(int i=0; i<countries.length; i++) {
-			if(shouldAttackFrom(countries[i]))	// Consider attacking from country i
-				attackFrom(i, countries);
+			considerAttackFrom(i, false);	// Consider attacking from country i
 		}
 	}
-	
+
 	public ArrayList<Integer> decide() {
-		CountryInfo[] countries = game.getCountryInfo();
-		
-		// TODO remove this, it's for testing
-	/*	for(int i=0; i<countries.length; i++) {
-			if(countries[i].getPlayer() != game.me() || countries[i].getArmies() <= 1)
-				continue;
-			int adj[] = world.getAdjacencies(i);
-			for(int a=0; a<adj.length; a++) {
-				if(countries[adj[a]].getPlayer() != game.me()) {
-					OccupationChange oc = new OccupationChange(i, adj[a], countries[i].getArmies() - 1, countries[adj[a]].getArmies());
-					eval.score(oc, true);
-				}
-			}
-		}*/
-		
-		if( previousTo != null && shouldAttackFrom(countries[previousTo]) )
-			attackFrom(previousTo, countries);
-		if( previousFrom != null && shouldAttackFrom(countries[previousFrom]) )
-			attackFrom(previousFrom, countries);
+		countries = game.getCountryInfo();
+
+		if( previousTo != null )
+			considerAttackFrom(previousTo, false);
+		if( previousFrom != null )
+			considerAttackFrom(previousFrom, false);
 		previousTo = null;
 		previousFrom = null;
-		
+
 		if(!attacks.isEmpty()) {
 			Pair<Integer,Integer> attack = attacks.peek();		// The attack currently being executed
 			// Check to see if you've conquered the territory
@@ -90,54 +77,63 @@ public class AttackDecision {
 			return answer;
 		}
 	}
-	
-	/*
-	 * [Private helper method, not part of the RiskBot interface]
- 	 * This method takes a country given by countryID that is supposed to be the
- 	 * source of an attack. If one exists, it randomly chooses a neighboring enemy
- 	 * territory to invade.
- 	 * countries is passed to that the info doesn't need to be reloaded every time this is called
-	 */
-	private void attackFrom(int countryID, CountryInfo[] countries) {
-		ArrayList<Integer> possibleTargets = new ArrayList<Integer>();
-		int adj[] = world.getAdjacencies(countryID);
-		for(int j=0; j<adj.length; j++) {
-			if(countries[adj[j]].getPlayer() != game.me())
-				possibleTargets.add(new Integer(adj[j]));
-		}
-		if(possibleTargets.isEmpty()) {		// No foreign targets
+
+	private void considerAttackFrom(int id, boolean debug) {
+		if(countries[id].getPlayer() != game.me() || countries[id].getArmies() <= 1)
 			return;
-		} else {
-			// Choose randomly from the possible targets
-			int choice = gen.nextInt(possibleTargets.size());
-			attacks.add( new Pair<Integer,Integer>(new Integer(countryID), possibleTargets.get(choice)) );
-			//Risk.sayOutput(countries[countryID].getName() + " -> " + countries[possibleTargets.get(choice).intValue()].getName() + " TARGET SET", OutputFormat.BLUE);
+		int adj[] = world.getAdjacencies(id);
+		double score_before = eval.score();
+		if(debug)
+			Risk.sayOutput("Original score: " + Utilities.dec(score_before), OutputFormat.BLUE, true);
+		for(int a=0; a<adj.length; a++) {
+			if(countries[adj[a]].getPlayer() != game.me()) {
+				double score;
+				int numAttacking = countries[id].getArmies()-1;
+				int numDefending = countries[adj[a]].getArmies();
+				if(debug)
+					Risk.sayOutput("Considering " + countries[id].getName() + " -> " + countries[adj[a]].getName(), OutputFormat.BLUE, true);
+				if(numAttacking > oracle.maxPredictionAbility())
+					score = Double.MAX_VALUE;
+				else if(numDefending > oracle.maxPredictionAbility())
+					return;
+				else {
+					Pair<Double,Integer> win = oracle.predictWin(numAttacking, numDefending);
+					Pair<Double,Integer> loss = oracle.predictLoss(numAttacking, numDefending);
+					OccupationChange winChange = new OccupationChange(id, adj[a], numAttacking - win.snd, numDefending);
+					ArrayList<ArmyChange> lossChange = new ArrayList<ArmyChange>();
+					lossChange.add( new ArmyChange(id, -1 * numAttacking) );
+					lossChange.add( new ArmyChange(adj[a], -1 * (numDefending - loss.snd)) );
+					double winScore = eval.score(winChange), lossScore = eval.score(lossChange);
+					score = win.fst * winScore + loss.fst * lossScore;
+					score += bonusAggressiveness(countries[id].getArmies(), win.fst);
+					if(debug)
+						Risk.sayOutput(win.fst + " " + Utilities.dec(winScore) + " " + loss.fst + " " + Utilities.dec(lossScore), OutputFormat.QUESTION, true);
+				}
+				if(debug)
+				Risk.sayOutput("Delta: "+ Utilities.dec(score - score_before), OutputFormat.BLUE, true);
+				if( (score - score_before) > delta_threshold) {
+					attacks.add( new Pair<Integer,Integer>(id, adj[a]) );
+					if(debug)
+						Risk.sayOutput(countries[id].getName() + " -> " + countries[adj[a]].getName() + " TARGET SET\n", OutputFormat.BLUE, true);
+				}
+			}
 		}
 	}
-	
+
 	/*
-	 * [Private helper method, not part of the RiskBot interface]
-	 * Given a CountryInfo object, returns a boolean indicating whether or not it should attack
+	 * To encourage the use of very large armies, some score is added depending on the size
 	 */
-	private boolean shouldAttackFrom(CountryInfo country) {
-		boolean result = true;
-		if(country.getPlayer() != game.me())
-			result = false;
-		else if(country.getArmies() <= minAttackThreshold)		// Too few armies to attack
-			result = false;
-		else if(country.getArmies() >= maxAttackThreshold)	// Lots of armies, always attack
-			result = true;
-		else {
-			// If the territory has an army amount between the two thresholds, assign a probability of attack (linearly)
-			float probability = (country.getArmies() - minAttackThreshold) / ((float) maxAttackThreshold - minAttackThreshold);
-			result = gen.nextFloat() <= probability;
-		}
-		//if(country.getPlayer() == risk_info.me() && country.getArmies() > minAttackThreshold)
-		//	Risk.sayOutput(country.getName() + ": " + result, OutputFormat.BLUE);
-		return result;
+	private double bonusAggressiveness(int armies, Double prob) {
+		if(Math.abs(prob - 1.00) < 0.0000001 && armies > 40)
+			return 1.0;
+		else if(Math.abs(prob - 1.00) < 0.0001 && armies > 20)
+			return 0.4;
+		else if(Math.abs(prob - 1.00) < 0.05 && armies > 15)
+			return 0.1;
+		else
+			return 0.0;
 	}
-	
-	
+
 	public void notifyOfVictory(int att, int def) {
 		previousTo = new Integer(def);
 		previousFrom = new Integer(att);
