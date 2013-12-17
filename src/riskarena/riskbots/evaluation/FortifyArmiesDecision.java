@@ -34,11 +34,30 @@ public class FortifyArmiesDecision {
 				winner = new ArrayList<ArmyChange>(changes.size());
 				winner.add(new ArmyChange(changes.get(0)));
 			}
+			
+			// Try half n half
+			int firsthalf = Math.max(numToPlace/2, 1);
+			int secondhalf = numToPlace - firsthalf;
+			if(secondhalf == 0) continue;
+			for(int j=0; j<countries.length; j++) {
+				if(countries[j].getPlayer() != game.me() || i == j) {
+					continue;
+				}
+				ArmyChange one = new ArmyChange(i, firsthalf), two = new ArmyChange(j, secondhalf);
+				changes = new ArrayList<ArmyChange>();
+				changes.add(one);
+				changes.add(two);
+				score = eval.score(changes);
+				//Risk.sayOutput(countries[i].getName() + ": " + score, OutputFormat.BLUE);
+				if(score > highest) {
+					highest = score;
+					winner = new ArrayList<ArmyChange>(changes.size());
+					winner.add(new ArmyChange(changes.get(0)));
+					winner.add(new ArmyChange(changes.get(1)));
+				}
+			}
 		}
 		return winner;
 	}
-	
-	public ArrayList<ArmyChange> decideHalf(int numToPlace) {
-		return decideAll(Math.max(numToPlace/2, 1));
-	}
+
 }

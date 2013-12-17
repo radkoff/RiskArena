@@ -129,8 +129,8 @@ public class AttackDecision {
 			return 1.0;
 		else if(Math.abs(prob - 1.00) < 0.0001 && armies > 20)
 			return 0.4;
-		else if(Math.abs(prob - 1.00) < 0.05 && armies > 15)
-			return 0.1;
+		else if(Math.abs(prob - 1.00) < 0.09 && armies > 15)
+			return 0.15;
 		else
 			return 0.0;
 	}
