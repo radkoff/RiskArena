@@ -3,6 +3,7 @@ package riskarena.riskbots.evaluation;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 import riskarena.CountryInfo;
@@ -19,7 +20,7 @@ public class AttackDecision {
 	private CountryInfo[] countries;
 	private Evaluation eval;
 	private BattleOracle oracle;
-	private Queue< Pair<Integer, Integer> > attacks;			// A queue of intended attacks, reset each turn
+	private PriorityQueue< AttackPlans > attacks;			// A queue of intended attacks, reset each turn
 	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
 	private Integer previousFrom;
 
@@ -30,7 +31,7 @@ public class AttackDecision {
 		world = game.getWorldInfo();
 		eval = _eval;
 		oracle = new BattleOracle();
-		attacks = new ArrayDeque< Pair<Integer, Integer> >();
+		attacks = new PriorityQueue< AttackPlans >();
 	}
 
 	public void initTurn() {
@@ -55,21 +56,21 @@ public class AttackDecision {
 		previousFrom = null;
 
 		if(!attacks.isEmpty()) {
-			Pair<Integer,Integer> attack = attacks.peek();		// The attack currently being executed
+			AttackPlans attack = attacks.peek();		// The attack currently being executed
 			// Check to see if you've conquered the territory
-			if(countries[attack.snd].getPlayer() == game.me()) {
+			if(countries[attack.to()].getPlayer() == game.me()) {
 				attacks.remove();
 				return decide();
 			}
 			// Check to see if you've run out of armies to attack with :(
-			if(countries[attack.fst].getArmies() == 1) {
+			if(countries[attack.from()].getArmies() == 1) {
 				attacks.remove();
 				return decide();
 			}
 			ArrayList<Integer> answer = new ArrayList<Integer>();
-			answer.add(attack.fst);
-			answer.add(attack.snd);
-			answer.add(Math.min(countries[attack.fst].getArmies()-1, 3)); // Attack with all you've got!
+			answer.add(attack.from());
+			answer.add(attack.to());
+			answer.add(Math.min(countries[attack.from()].getArmies()-1, 3)); // Attack with all you've got!
 			return answer;
 		} else {
 			ArrayList<Integer> answer = new ArrayList<Integer>();
@@ -112,7 +113,7 @@ public class AttackDecision {
 				if(debug)
 				Risk.sayOutput("Delta: "+ Utilities.dec(score - score_before), OutputFormat.BLUE, true);
 				if( (score - score_before) > delta_threshold) {
-					attacks.add( new Pair<Integer,Integer>(id, adj[a]) );
+					attacks.add( new AttackPlans((score - score_before), id, adj[a]) );
 					if(debug)
 						Risk.sayOutput(countries[id].getName() + " -> " + countries[adj[a]].getName() + " TARGET SET\n", OutputFormat.BLUE, true);
 				}
@@ -139,4 +140,26 @@ public class AttackDecision {
 		previousFrom = new Integer(att);
 	}
 
+	
+	private class AttackPlans implements Comparable {
+		private double delta_score;
+		private int from, to;
+		public AttackPlans(double dscore, int f, int t) {
+			delta_score = dscore;
+			from = f;
+			to = t;
+		}
+		public double delta_score() { return delta_score; }
+		public int from() { return from; }
+		public int to() { return to; }
+		public int compareTo(Object arg0) {
+			AttackPlans ap = (AttackPlans) arg0;
+			if(ap.delta_score() < delta_score)
+				return -1;
+			else if (ap.delta_score() == delta_score)
+				return 0;
+			else
+				return 1;
+		}
+	}
 }
