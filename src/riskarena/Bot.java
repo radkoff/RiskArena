@@ -55,6 +55,14 @@ public class Bot extends Player {
 		skynet.initTurn();
 	}
 	
+	public void endTurn() {
+		skynet.endTurn();
+	}
+	
+	public void endGame(int place) {
+		skynet.endGame(place);
+	}
+	
 	private void sleep() {
 		try {
 			Thread.sleep(data.getBotPlayingSpeed());

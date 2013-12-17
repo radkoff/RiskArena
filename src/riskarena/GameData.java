@@ -91,6 +91,11 @@ public class GameData {
 			((Bot)getCurrentPlayer()).initTurn();
 	}
 	
+	public void notifyPlayerOfTurnEnd() {
+		if(!currentPlayerHuman())
+			((Bot)getCurrentPlayer()).endTurn();
+	}
+	
 	// Once the GameData object is constructed, it must be sent along to each Bot player
 	public void sendGameDataToBots() {
 		for(int i=0; i < NUM_PLAYERS; i++) {
@@ -308,6 +313,8 @@ public class GameData {
 			}
 		}
 		winner = possible_winner;
+		if(players[winner].getType() == Player.BOT)
+			((Bot)players[winner]).endGame(1);		// First place!
 		return true;
 	}
 }

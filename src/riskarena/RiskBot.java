@@ -19,6 +19,11 @@ public interface RiskBot {
 	public void initTurn();
 
 	/*
+	 * A method called at the end of each of the RiskBot's turns that can be used for whatever (reinforncement learning, etc)
+	 */
+	public void endTurn();
+	
+	/*
 	 * At the beginning of the game during the territory claiming phase, the game engine
 	 * will call this when it needs you to give the "number" of an unclaimed territory.
 	 * Testing if a country has been claimed can be achieved through the isTaken()
@@ -87,4 +92,9 @@ public interface RiskBot {
 	 * and the number of armies (min is 1, max is "from".getArmies()-1)
 	 */
 	public void fortifyPosition();
+	
+	/*
+	 * A player is notified when they are eliminated from the game, including how they placed
+	 */
+	public void endGame(int place);
 }

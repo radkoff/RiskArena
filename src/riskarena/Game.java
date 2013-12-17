@@ -116,6 +116,7 @@ public class Game {
 				fortifyPosition();		// Step 3 of a player's turn
 				advanceTurn();
 			}
+			data.notifyPlayerOfTurnEnd();
 		}
 		int winner = data.getWinner(); // get the winner from the game engine
 		sayOutput("Congratulations " + data.getPlayer(winner).getName() + ", you win " + Risk.PROJECT_NAME + "!");
@@ -757,6 +758,8 @@ public class Game {
 			}
 		}
 		data.getPlayer(player_id).setStillIn(false);
+		if(!data.currentPlayerHuman())
+			((Bot)data.getCurrentPlayer()).endGame(data.NUM_PLAYERS - game_results.size());
 		game_results.add(new Integer(player_id));
 		return true;
 	}

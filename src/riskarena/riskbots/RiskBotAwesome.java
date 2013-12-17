@@ -13,7 +13,9 @@ import java.util.Random;
 import riskarena.Bot;
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
+import riskarena.OutputFormat;
 import riskarena.PlayerInfo;
+import riskarena.Risk;
 import riskarena.RiskBot;
 import riskarena.World;
 import riskarena.riskbots.evaluation.ArmyChange;
@@ -68,7 +70,16 @@ public class RiskBotAwesome implements RiskBot{
 	public void initTurn() {
 		card.setVictory(false);
 		eval.refresh();
+		Risk.sayOutput("Score: " + eval.score(), OutputFormat.BLUE);
 		attackDecider.initTurn();
+	}
+	
+	public void endTurn() {
+		eval.endTurn();
+	}
+	
+	public void endGame(int place) {
+		weighter.endGame(place);
 	}
 
 	/*

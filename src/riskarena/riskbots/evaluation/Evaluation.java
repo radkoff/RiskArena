@@ -18,6 +18,7 @@ public class Evaluation {
 	private final String FULL_DEBUG = "ALL";
 	
 	private CountryInterface countries[];
+	private int num_evals = 10;
 	
 	public Evaluation(GameInfo gi, CardIndicator ci) {
 		game = gi;
@@ -29,6 +30,7 @@ public class Evaluation {
 	}
 	
 	private void registerEvaluators() {
+		double weights[] = weighter.loadInitial();
 		evaluators.clear();
 		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 12.0, stats, game) );
 		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 10.0, stats, game) );
@@ -41,6 +43,15 @@ public class Evaluation {
 		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
 		evaluators.add( new TargetContEvaluator("TargetCont", 2.0, stats, game) );
 	}
+	
+	public void endTurn() {
+		weighter.train(score());
+	}
+	
+	public void endGame(int place) {
+		weighter.endGame(reward(place));
+	}
+	
 	
 	/*
 	 * Returns the score of the board state inherent in GameInfo

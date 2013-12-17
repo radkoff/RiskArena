@@ -106,7 +106,7 @@ public class AttackDecision {
 					lossChange.add( new ArmyChange(adj[a], -1 * (numDefending - loss.snd)) );
 					double winScore = eval.score(winChange), lossScore = eval.score(lossChange);
 					score = win.fst * winScore + loss.fst * lossScore;
-					score += bonusAggressiveness(countries[id].getArmies(), win.fst);
+					score += Math.abs(score) * bonusAggressiveness(countries[id].getArmies(), win.fst);
 					if(debug)
 						Risk.sayOutput(win.fst + " " + Utilities.dec(winScore) + " " + loss.fst + " " + Utilities.dec(lossScore), OutputFormat.QUESTION, true);
 				}
@@ -126,10 +126,12 @@ public class AttackDecision {
 	 */
 	private double bonusAggressiveness(int armies, Double prob) {
 		if(Math.abs(prob - 1.00) < 0.0000001 && armies > 40)
-			return 1.0;
+			return 0.8;
 		else if(Math.abs(prob - 1.00) < 0.0001 && armies > 20)
-			return 0.4;
+			return 0.5;
 		else if(Math.abs(prob - 1.00) < 0.09 && armies > 15)
+			return 0.3;
+		else if(armies > 40)
 			return 0.15;
 		else
 			return 0.0;
