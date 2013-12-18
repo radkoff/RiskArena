@@ -24,7 +24,7 @@ public class AttackDecision {
 	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
 	private Integer previousFrom;
 
-	private double delta_threshold = 1.0;
+	private double delta_threshold = 0.35;
 
 	public AttackDecision(GameInfo _game, Evaluation _eval) {
 		game = _game;
@@ -111,8 +111,8 @@ public class AttackDecision {
 						Risk.sayOutput(win.fst + " " + Utilities.dec(winScore) + " " + loss.fst + " " + Utilities.dec(lossScore), OutputFormat.QUESTION, true);
 				}
 				if(debug)
-				Risk.sayOutput("Delta: "+ Utilities.dec(score - score_before), OutputFormat.BLUE, true);
-				if( (score - score_before) > delta_threshold) {
+					Risk.sayOutput("Delta: "+ Utilities.dec((score - score_before) / Math.abs(score_before)), OutputFormat.BLUE, true);
+				if( (score - score_before) / Math.abs(score_before) > delta_threshold) {
 					attacks.add( new AttackPlans((score - score_before), id, adj[a]) );
 					if(debug)
 						Risk.sayOutput(countries[id].getName() + " -> " + countries[adj[a]].getName() + " TARGET SET\n", OutputFormat.BLUE, true);

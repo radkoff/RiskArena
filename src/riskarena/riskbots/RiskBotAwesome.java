@@ -71,7 +71,6 @@ public class RiskBotAwesome implements RiskBot{
 		card.setVictory(false);
 		eval.refresh();
 		Risk.sayOutput("Score: " + eval.score(), OutputFormat.BLUE);
-		attackDecider.initTurn();
 	}
 	
 	public void endTurn() {
@@ -162,6 +161,7 @@ public class RiskBotAwesome implements RiskBot{
 			to_game.sendInt(choice.ID());
 			to_game.sendInt(choice.amount());
 		}
+		attackDecider.initTurn();
 	}
 
 	public void launchAttack() {
