@@ -29,8 +29,8 @@ public class FrontierDistanceEvaluator extends AbstractEvaluator {
 	private int armies[];
 	private int maxDist;
 	
-	public FrontierDistanceEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public FrontierDistanceEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		refresh();
 	}
 	

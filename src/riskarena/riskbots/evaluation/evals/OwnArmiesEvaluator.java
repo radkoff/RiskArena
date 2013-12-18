@@ -16,8 +16,8 @@ import riskarena.riskbots.evaluation.GameStats;
 public class OwnArmiesEvaluator extends AbstractEvaluator {
 	private double score;
 	
-	public OwnArmiesEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public OwnArmiesEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		refresh();
 	}
 	

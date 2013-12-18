@@ -16,8 +16,8 @@ public class BestEnemyEvaluator extends AbstractEvaluator {
 	private double score;
 	private PlayerInfo[] players;
 	
-	public BestEnemyEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public BestEnemyEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		refresh();
 	}
 	

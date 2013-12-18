@@ -14,42 +14,47 @@ public class Evaluation {
 	private CardIndicator card;
 	
 	// Internal list of evaluators. A game stat's score is a weighted combination of these.
+	private final String evals[] = {"OwnContinents", "EnemyContinents", "OwnArmies", "BestEnemy", "FortifiedTerritories",
+							"OccupiedTerritories", "FrontierDistance", "ObtainedCard", "ArmyConsolidation", "TargetCont" };
 	private ArrayList<AbstractEvaluator> evaluators;
+	private final String EVAL_PACKAGE = "riskarena.riskbots.evaluation.evals.";
+	private WeightManager weighter;
 	private final String FULL_DEBUG = "ALL";
 	
 	private CountryInterface countries[];
-	private int num_evals = 10;
+	private final int num_evals = evals.length;
 	
 	public Evaluation(GameInfo gi, CardIndicator ci) {
 		game = gi;
 		card = ci;
 		stats = new GameStats(game);
 		evaluators = new ArrayList<AbstractEvaluator>();
+		weighter = new WeightManager(game.getMyName(), evals);
 		countries = game.getCountryInfo();
 		registerEvaluators();
+		weighter.initGame();
 	}
 	
 	private void registerEvaluators() {
-		double weights[] = weighter.loadInitial();
 		evaluators.clear();
-		evaluators.add( new OwnContinentsEvaluator("OwnContinents", 12.0, stats, game) );
-		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", 10.0, stats, game) );
-		evaluators.add( new OwnArmiesEvaluator("OwnArmies", 1.0, stats, game) );
-		evaluators.add( new BestEnemyEvaluator("BestEnemy", 1.0, stats, game) );
-		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", 0.4, stats, game) );
-		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", 1.0, stats, game) );
-		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", 2.0, stats, game) );
-		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", 1.0, stats, game, card) );
-		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", 1.0, stats, game) );
-		evaluators.add( new TargetContEvaluator("TargetCont", 2.0, stats, game) );
+		evaluators.add( new OwnContinentsEvaluator("OwnContinents", stats, game) );
+		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", stats, game) );
+		evaluators.add( new OwnArmiesEvaluator("OwnArmies", stats, game) );
+		evaluators.add( new BestEnemyEvaluator("BestEnemy", stats, game) );
+		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", stats, game) );
+		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", stats, game) );
+		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", stats, game) );
+		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", stats, game, card) );
+		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", stats, game) );
+		evaluators.add( new TargetContEvaluator("TargetCont", stats, game) );
 	}
 	
 	public void endTurn() {
-		weighter.train(score());
+		//weighter.train(score());
 	}
 	
 	public void endGame(int place) {
-		weighter.endGame(reward(place));
+		//weighter.endGame(reward(place));
 	}
 	
 	
@@ -71,7 +76,7 @@ public class Evaluation {
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(change);
-			result += e.getWeight() * score;
+			result += weighter.weightOf(e.getName()) * score;
 			if(debug)
 				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE, true);
 		}
@@ -98,7 +103,7 @@ public class Evaluation {
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(changes);
-			result += e.getWeight() * score;
+			result += weighter.weightOf(e.getName()) * score;
 			if(debug)
 				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE);
 		}
@@ -134,7 +139,7 @@ public class Evaluation {
 				else if(nameOfEvalToDebug == e.getName())
 					Risk.sayOutput(game.getMyName() + " " + e.getName() + ": " + Utilities.dec(evalScore), OutputFormat.BLUE, true);
 			}
-			result += e.getWeight() * evalScore;
+			result += weighter.weightOf(e.getName()) * evalScore;
 		}
 		if(debug && nameOfEvalToDebug == FULL_DEBUG)
 			Risk.sayOutput("Final score for " + game.getMyName() + ": " + result, OutputFormat.BLUE, true);

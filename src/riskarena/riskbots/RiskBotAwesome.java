@@ -79,7 +79,7 @@ public class RiskBotAwesome implements RiskBot{
 	}
 	
 	public void endGame(int place) {
-		weighter.endGame(place);
+		eval.endGame(place);
 	}
 
 	/*

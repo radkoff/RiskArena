@@ -16,8 +16,8 @@ import riskarena.riskbots.evaluation.OccupationChange;
 public class ArmyConsolidationEvaluator extends AbstractEvaluator {
 	private int fortifiedTerritories;
 	
-	public ArmyConsolidationEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public ArmyConsolidationEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 	}
 	
 	public double getScore() {

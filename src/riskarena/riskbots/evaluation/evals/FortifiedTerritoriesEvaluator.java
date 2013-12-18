@@ -16,8 +16,8 @@ import riskarena.riskbots.evaluation.OccupationChange;
 public class FortifiedTerritoriesEvaluator extends AbstractEvaluator {
 	private int fortifiedTerritories;
 	
-	public FortifiedTerritoriesEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public FortifiedTerritoriesEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		refresh();
 	}
 	

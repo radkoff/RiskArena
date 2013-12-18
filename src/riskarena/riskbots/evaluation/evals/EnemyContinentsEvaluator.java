@@ -18,8 +18,8 @@ import riskarena.riskbots.evaluation.GameStats;
 public class EnemyContinentsEvaluator extends AbstractEvaluator {
 	private int bonusThem = 0, bonusAll = 0;
 	
-	public EnemyContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public EnemyContinentsEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		int contBonuses[] = game.getContinentBonuses();
 		for(int i=0; i<contBonuses.length; i++) {
 			bonusAll += contBonuses[i];

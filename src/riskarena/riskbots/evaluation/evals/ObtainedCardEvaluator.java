@@ -17,8 +17,8 @@ public class ObtainedCardEvaluator extends AbstractEvaluator {
 	private final double CARD_REWARD = 0.2;
 	private double score;
 	
-	public ObtainedCardEvaluator(String name, double weight, GameStats stats, GameInfo game, CardIndicator ci) {
-		super(name, weight, stats, game);
+	public ObtainedCardEvaluator(String name, GameStats stats, GameInfo game, CardIndicator ci) {
+		super(name, stats, game);
 		card = ci;
 		recalculate();
 	}

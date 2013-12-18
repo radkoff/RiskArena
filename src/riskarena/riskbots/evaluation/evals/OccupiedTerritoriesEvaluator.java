@@ -15,8 +15,8 @@ import riskarena.riskbots.evaluation.GameStats;
 public class OccupiedTerritoriesEvaluator extends AbstractEvaluator {
 	private double score;
 	
-	public OccupiedTerritoriesEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public OccupiedTerritoriesEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		refresh();
 	}
 	

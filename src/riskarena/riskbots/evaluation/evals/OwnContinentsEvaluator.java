@@ -14,8 +14,8 @@ import riskarena.riskbots.evaluation.OccupationChange;
 public class OwnContinentsEvaluator extends AbstractEvaluator {
 	private int bonusMe = 0, bonusAll = 0;
 	
-	public OwnContinentsEvaluator(String name, double weight, GameStats stats, GameInfo game) {
-		super(name, weight, stats, game);
+	public OwnContinentsEvaluator(String name, GameStats stats, GameInfo game) {
+		super(name, stats, game);
 		int contBonuses[] = game.getContinentBonuses();
 		for(int i=0; i<contBonuses.length; i++) {
 			bonusAll += contBonuses[i];

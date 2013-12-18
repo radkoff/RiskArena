@@ -24,7 +24,6 @@ public class RiskBotDumb implements RiskBot{
 	private GameInfo risk_info;
 	private World world = null;
 	private PlayerInfo[] players = null;
-	private Evaluation eval;	//TODO remove, this is for testing.
 	private CardIndicator card;
 
 	Random gen;
@@ -38,7 +37,6 @@ public class RiskBotDumb implements RiskBot{
 		players = risk_info.getPlayerInfo();
 		gen = new Random((new Date()).getTime());
 		card = new CardIndicator();
-		eval = new Evaluation(risk_info, card);
 	}
 	
 	/*
@@ -47,8 +45,6 @@ public class RiskBotDumb implements RiskBot{
 	 */
 	public void initTurn() {
 		card.setVictory(false);
-		eval.refresh();
-		//eval.debugScore("OwnContinents");
 	}
 
 	// Claim the country in the continent with the highest percentage of claimed friendly countries
@@ -185,6 +181,18 @@ public class RiskBotDumb implements RiskBot{
 			}
 		}
 		to_game.sendInt(-1);
+	}
+
+	@Override
+	public void endTurn() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endGame(int place) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

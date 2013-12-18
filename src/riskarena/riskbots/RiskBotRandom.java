@@ -239,4 +239,16 @@ public class RiskBotRandom implements RiskBot{
 		}
 	}
 
+	@Override
+	public void endTurn() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endGame(int place) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
