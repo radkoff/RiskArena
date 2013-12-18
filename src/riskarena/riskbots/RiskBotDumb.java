@@ -36,6 +36,7 @@ public class RiskBotDumb implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		gen = new Random((new Date()).getTime());
+		//gen = new Random(5);
 		card = new CardIndicator();
 	}
 	

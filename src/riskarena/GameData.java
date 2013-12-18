@@ -313,8 +313,6 @@ public class GameData {
 			}
 		}
 		winner = possible_winner;
-		if(players[winner].getType() == Player.BOT)
-			((Bot)players[winner]).endGame(1);		// First place!
 		return true;
 	}
 }

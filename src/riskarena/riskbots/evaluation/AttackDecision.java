@@ -39,6 +39,7 @@ public class AttackDecision {
 		// enemy territories, and adds these to the "attacks" queue.
 		// The launchAttack() method executes these decisions until DEATH!
 		attacks.clear();
+		eval.refresh();
 		countries = game.getCountryInfo();
 		for(int i=0; i<countries.length; i++) {
 			considerAttackFrom(i, false);	// Consider attacking from country i

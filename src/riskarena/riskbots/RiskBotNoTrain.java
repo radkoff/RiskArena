@@ -26,7 +26,7 @@ import riskarena.riskbots.evaluation.FortifyAfterVictoryDecision;
 import riskarena.riskbots.evaluation.FortifyArmiesDecision;
 import riskarena.riskbots.evaluation.FortifyPositionDecision;
 
-public class RiskBotAwesome implements RiskBot{
+public class RiskBotNoTrain implements RiskBot{
 	/*	Game related data members it's always a good idea to keep */
 	private Bot.RiskListener to_game;		// Send game time decisions using to_game.sendInt(int/Integer)
 	private GameInfo risk_info;
@@ -54,7 +54,7 @@ public class RiskBotAwesome implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		card = new CardIndicator();
-		eval = new Evaluation(risk_info, card, true);
+		eval = new Evaluation(risk_info, card, false);
 		fortifier = new FortifyArmiesDecision(risk_info, eval);
 		afterVictory = new FortifyAfterVictoryDecision(eval);
 		posFortifier = new FortifyPositionDecision(risk_info, eval);
@@ -75,7 +75,6 @@ public class RiskBotAwesome implements RiskBot{
 	}
 	
 	public void endGame(int place) {
-		System.out.println("OUT");
 		eval.endGame(place);
 	}
 

@@ -24,12 +24,12 @@ public class Evaluation {
 	private CountryInterface countries[];
 	private final int num_evals = evals.length;
 	
-	public Evaluation(GameInfo gi, CardIndicator ci) {
+	public Evaluation(GameInfo gi, CardIndicator ci, boolean should_train) {
 		game = gi;
 		card = ci;
 		stats = new GameStats(game);
 		evaluators = new ArrayList<AbstractEvaluator>();
-		weighter = new WeightManager(game.getMyName(), evals);
+		weighter = new WeightManager(game.getMyName(), evals, should_train);
 		countries = game.getCountryInfo();
 		registerEvaluators();
 		weighter.initGame();

@@ -70,6 +70,7 @@ public class Game {
 		// Initialize the Random generator with the current time
 		Date dat = new Date();
 		rand = new Random(dat.getTime());
+		//rand = new Random(12);
 
 		// initialize deck
 		deck = new Deck(rand);
@@ -115,10 +116,12 @@ public class Game {
 			if(!data.over()) {
 				fortifyPosition();		// Step 3 of a player's turn
 				advanceTurn();
+				data.notifyPlayerOfTurnEnd();
 			}
-			data.notifyPlayerOfTurnEnd();
 		}
 		int winner = data.getWinner(); // get the winner from the game engine
+		if(data.getPlayer(winner).getType() == Player.BOT)
+			((Bot)data.getPlayer(winner)).endGame(1);		// First place!
 		sayOutput("Congratulations " + data.getPlayer(winner).getName() + ", you win " + Risk.PROJECT_NAME + "!");
 		game_results.add(new Integer(winner));
 		elapsed_time = System.nanoTime() - start_time;
@@ -758,8 +761,8 @@ public class Game {
 			}
 		}
 		data.getPlayer(player_id).setStillIn(false);
-		if(!data.currentPlayerHuman())
-			((Bot)data.getCurrentPlayer()).endGame(data.NUM_PLAYERS - game_results.size());
+		if(data.getPlayer(player_id).getType() == Player.BOT)
+			((Bot)data.getPlayer(player_id)).endGame(data.NUM_PLAYERS - game_results.size());
 		game_results.add(new Integer(player_id));
 		return true;
 	}
