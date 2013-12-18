@@ -67,7 +67,7 @@ public class RiskBotAwesome implements RiskBot{
 	 */
 	public void initTurn() {
 		card.setVictory(false);
-		eval.refresh();
+		eval.refresh("initTurn() in Awesome");
 	}
 	
 	public void endTurn() {
@@ -153,7 +153,7 @@ public class RiskBotAwesome implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyTerritory(int)
 	 */
 	public void fortifyTerritory(int num_to_place) {
-		eval.refresh();
+		eval.refresh("fortifyTerritory() in Awesome");
 		ArrayList< ArmyChange > choices = fortifier.decideAll(num_to_place);
 		attackDecider.initTurn();
 		for(ArmyChange choice : choices) {
@@ -163,7 +163,8 @@ public class RiskBotAwesome implements RiskBot{
 	}
 
 	public void launchAttack() {
-		eval.refresh();
+		//attackDecider.initTurn();
+		eval.refresh("launchAttack() in Awesome");
 		for(Integer toSend : attackDecider.decide()) {
 			to_game.sendInt(toSend);
 		}
@@ -200,7 +201,7 @@ public class RiskBotAwesome implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyPosition()
 	 */
 	public void fortifyPosition() {
-		eval.refresh();
+		eval.refresh("fortifyPosition() in Awesome");
 		for(Integer i : posFortifier.decide()) {
 			to_game.sendInt(i);
 		}

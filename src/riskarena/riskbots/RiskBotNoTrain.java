@@ -67,7 +67,7 @@ public class RiskBotNoTrain implements RiskBot{
 	 */
 	public void initTurn() {
 		card.setVictory(false);
-		eval.refresh();
+		eval.refresh("initTurn() in NoTrain");
 	}
 	
 	public void endTurn() {
@@ -153,7 +153,7 @@ public class RiskBotNoTrain implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyTerritory(int)
 	 */
 	public void fortifyTerritory(int num_to_place) {
-		eval.refresh();
+		eval.refresh("fortifyTerritory(int) in NoTrain");
 		ArrayList< ArmyChange > choices = fortifier.decideAll(num_to_place);
 		attackDecider.initTurn();
 		for(ArmyChange choice : choices) {
@@ -163,7 +163,7 @@ public class RiskBotNoTrain implements RiskBot{
 	}
 
 	public void launchAttack() {
-		eval.refresh();
+		eval.refresh("launchAttack() in NoTrain");
 		for(Integer toSend : attackDecider.decide()) {
 			to_game.sendInt(toSend);
 		}
@@ -200,7 +200,7 @@ public class RiskBotNoTrain implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyPosition()
 	 */
 	public void fortifyPosition() {
-		eval.refresh();
+		eval.refresh("fortifyPosition() in NoTrain");
 		for(Integer i : posFortifier.decide()) {
 			to_game.sendInt(i);
 		}

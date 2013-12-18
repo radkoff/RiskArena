@@ -17,10 +17,11 @@ public class FortifyArmiesDecision {
 	}
 	
 	public ArrayList<ArmyChange> decideAll(int numToPlace) {
-		eval.refresh();
+		//eval.refresh("decideAll() in FortifyArmiesDecision");
 		ArrayList<ArmyChange> winner = null;
 		double highest = -1*Double.MAX_VALUE;
 		CountryInfo countries[] = game.getCountryInfo();
+		
 		for(int i=0; i<countries.length; i++) {
 			if(countries[i].getPlayer() != game.me())
 				continue;
@@ -28,7 +29,7 @@ public class FortifyArmiesDecision {
 			ArrayList<ArmyChange> changes = new ArrayList<ArmyChange>();
 			changes.add(change);
 			double score = eval.score(changes);
-			//Risk.sayOutput(countries[i].getName() + ": " + score, OutputFormat.BLUE);
+			//Risk.sayOutput(countries[i].getName() + ": " + score, OutputFormat.BLUE, true);
 			if(score > highest) {
 				highest = score;
 				winner = new ArrayList<ArmyChange>(changes.size());

@@ -21,7 +21,7 @@ public class FortifyAfterVictoryDecision {
 	 * move the max number in, and move the average of the two.
 	 */
 	public int decide(int from, int to, int min, int max) {
-		eval.refresh();
+		eval.refresh("decide() in FortifyAfterVictoryDecision");
 		highest = -1*Double.MAX_VALUE;
 		answer = -1;
 		int middle = (min + max) / 2;

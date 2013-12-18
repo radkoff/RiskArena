@@ -38,24 +38,23 @@ public class WeightManager {
 	}
 
 	public void train(Double scores[]) {
-		if(previousScores.isEmpty()) {
-			if(!should_train) return;
-			previousScores.add(scores);
-		} else
-			train(scores, applyWeights(previousScores.get(previousScores.size()-1)));
+		if(!should_train) return;
+		if(!previousScores.isEmpty())
+			train(applyWeights(scores), applyWeights(previousScores.get(previousScores.size()-1)));
+		previousScores.add(scores);
 	}
 
 	public void endGame(Double scores[], int place, int numPlayers) {
 		if(should_train) {
-			train(scores, reward(place, numPlayers));
+			train(reward(place, numPlayers), applyWeights(previousScores.get(previousScores.size()-1)));
 			games_trained++;
 			writeUpdate();
 		}
 	}
 
-	public void train(Double scores[], double reward) {
+	public void train(double current, double past) {
 		if(!should_train) return;
-		boolean debug = true;
+		boolean debug = false;
 
 		int previousRounds = previousScores.size();
 		if(previousRounds > 0) {
@@ -70,20 +69,25 @@ public class WeightManager {
 			double norm = norm(featureSums);
 			double prevNorm = norm(previousScores.get(previousRounds-1));
 
+			double totalW = 0.0;
 			// Perform updates
 			StringBuilder updates = new StringBuilder();
 			for(int w=0; w<numWeights; w++) {
 				double newWeight = weights.get(w);
-				//double fraction = featureSums[w] / (norm * prevNorm);
-				double fraction = featureSums[w] / (norm);
-				newWeight += alpha() * (applyWeights(scores) - reward) * fraction;
+				double fraction = featureSums[w] / (norm * prevNorm);
+				//double fraction = featureSums[w] / (norm);
+				newWeight += alpha() * (current - past) * fraction;
+				totalW += newWeight;
 				updates.append(Utilities.dec(newWeight) + " ");
 				weights.set(w, newWeight);
+			}
+			for(int w=0; w<numWeights; w++) {
+				double newWeight = weights.get(w);
+				weights.set(w, newWeight / (10*totalW));
 			}
 			if(debug)
 				Risk.sayOutput(games_trained + "\t" + updates.toString(), true);
 		}
-		previousScores.add(scores);
 	}
 
 	private void loadWeights() {

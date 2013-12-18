@@ -12,18 +12,18 @@ public class Evaluation {
 	private GameInfo game;
 	private GameStats stats;
 	private CardIndicator card;
-	
+
 	// Internal list of evaluators. A game stat's score is a weighted combination of these.
 	private final String evals[] = {"OwnContinents", "EnemyContinents", "OwnArmies", "BestEnemy", "FortifiedTerritories",
-							"OccupiedTerritories", "FrontierDistance", "ObtainedCard", "ArmyConsolidation", "TargetCont" };
+			"OccupiedTerritories", "FrontierDistance", "ObtainedCard", "ArmyConsolidation", "TargetCont" };
 	private ArrayList<AbstractEvaluator> evaluators;
 	private final String EVAL_PACKAGE = "riskarena.riskbots.evaluation.evals.";
 	private WeightManager weighter;
 	private final String FULL_DEBUG = "ALL";
-	
+
 	private CountryInterface countries[];
 	private final int num_evals = evals.length;
-	
+
 	public Evaluation(GameInfo gi, CardIndicator ci, boolean should_train) {
 		game = gi;
 		card = ci;
@@ -34,7 +34,7 @@ public class Evaluation {
 		registerEvaluators();
 		weighter.initGame();
 	}
-	
+
 	private void registerEvaluators() {
 		evaluators.clear();
 		evaluators.add( new OwnContinentsEvaluator("OwnContinents", stats, game) );
@@ -48,31 +48,31 @@ public class Evaluation {
 		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", stats, game) );
 		evaluators.add( new TargetContEvaluator("TargetCont", stats, game) );
 	}
-	
+
 	public void endTurn() {
-		refresh();
+		refresh("endTurn() in Evaluation.java");
 		weighter.train(scoreVector());
 	}
-	
+
 	public void endGame(int place) {
 		weighter.endGame(scoreVector(), place, stats.getNumPlayers());
 	}
-	
-	
+
+
 	/*
 	 * Returns the score of the board state inherent in GameInfo
 	 */
 	public double score() {
 		return score(false, null);
 	}
-	
+
 	public double score(OccupationChange change) {
 		return score(change, false);
 	}
 
 	public double score(OccupationChange change, boolean debug) {
 		//if(debug)
-			//Risk.sayOutput("Considering " + countries[change.from()].getName() + " to " + countries[change.to()].getName(), OutputFormat.BLUE, true);
+		//Risk.sayOutput("Considering " + countries[change.from()].getName() + " to " + countries[change.to()].getName(), OutputFormat.BLUE, true);
 		stats.apply(change);
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
@@ -86,44 +86,44 @@ public class Evaluation {
 			Risk.sayOutput("\tScore: " + Utilities.dec(result), OutputFormat.BLUE, true);
 		return result;
 	}
-	
+
 	public double score(ArrayList<ArmyChange> changes) {
 		return score(changes, false);
 	}
-	
+
 	/*
 	 * Returns the score of the board state that would result from applying
 	 * the ArrayList of army changes.
 	 */
 	public double score(ArrayList<ArmyChange> changes, boolean debug) {
+		//debug = true;
 		if(changes.isEmpty())
 			return score();
 		if(debug)
-			Risk.sayOutput(game.getMyName() + " " + changes.get(1).amount(), OutputFormat.BLUE);
+			Risk.sayOutput(game.getMyName() + " " + countries[changes.get(0).ID()].getName(), OutputFormat.BLUE, true);
 		stats.apply(changes);
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(changes);
-			//System.out.println(e.getName());
-			//stats.touchArmies();
 			result += weighter.weightOf(e.getName()) * score;
-			if(debug)
-				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE);
+			if(debug) {
+				Risk.sayOutput(e.getName() + " " + Utilities.dec(score) + " * " + weighter.weightOf(e.getName()), OutputFormat.BLUE, true);
+			}
 		}
 		if(debug)
-			Risk.sayOutput("");
+			Risk.sayOutput("", true);
 		stats.unapply(changes);
 		return result;
 	}
-	
+
 	public double debugScore() {
 		return score(true, FULL_DEBUG);
 	}
-	
+
 	public double debugScore(String nameOfEvalToDebug) {
 		return score(true, nameOfEvalToDebug);
 	}
-	
+
 	/*
 	 * Calculate the weighted sum of scores returned by evaluators.
 	 * If debug is true, intermediate calculations are also printed using Risk's static output methods.
@@ -148,7 +148,7 @@ public class Evaluation {
 			Risk.sayOutput("Final score for " + game.getMyName() + ": " + result, OutputFormat.BLUE, true);
 		return result;
 	}
-	
+
 	private Double[] scoreVector() {
 		Double vec[] = new Double[evals.length];
 		for(int i=0; i<evals.length; i++) {
@@ -156,21 +156,27 @@ public class Evaluation {
 		}
 		return vec;
 	}
-	
+
 	/*
 	 * A signal that the game state has changed, and this should be sent on to the
 	 * evaluators and GameStats.
 	 */
-	public void refresh() {
-		System.out.println(Thread.currentThread().getName() + " refreshing");
-		StackTraceElement z[] = Thread.currentThread().getStackTrace();
-		for(int i=0; i<z.length; i++)
-			System.out.println("\t"+z[i].toString());
-		stats.refresh();
-		for(AbstractEvaluator e : evaluators) {
-			e.refresh();
+	public void refresh(String from) {
+		boolean debug = false;
+		if(debug) {
+			System.out.println(game.getMyName() + " " + Thread.currentThread().getName() + " refreshing from " + from);
+			/*StackTraceElement z[] = Thread.currentThread().getStackTrace();
+			for(int i=0; i<z.length; i++)
+				System.out.println("\t"+z[i].toString());*/
 		}
-		System.out.println(Thread.currentThread().getName() + " DONE refreshing");
+		synchronized(this) {
+			stats.refresh();
+			for(AbstractEvaluator e : evaluators) {
+				e.refresh();
+			}
+		}
+		if(debug)
+			System.out.println(Thread.currentThread().getName() + " DONE refreshing");
 	}
-	
+
 }

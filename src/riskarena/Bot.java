@@ -18,8 +18,9 @@ public class Bot extends Player {
 	private RiskBot skynet;		// The bot itself
 	private RiskListener risk_listener;	// Very simple object given to skynet that adds choices to from_bot
 	private LinkedBlockingQueue<Integer> from_bot = new LinkedBlockingQueue<Integer>();	// A Queue of answers given by skynet
-	long timeout = 5;	// Max seconds to wait for an answer
+	private long timeout = 5;	// Max seconds to wait for an answer
 	private GameData data;
+	private boolean debug = false;
 
 	// Constructs a Bot object given its name, color, and player id
 	public Bot(String bot_name, Color c, int id) {
@@ -49,20 +50,20 @@ public class Bot extends Player {
 		data = game_data;
 		skynet.init(new GameInfo(game_data, this), risk_listener);
 	}
-	
+
 	// Notifies skynet of turn initialization
 	public void initTurn() {
 		skynet.initTurn();
 	}
-	
+
 	public void endTurn() {
 		skynet.endTurn();
 	}
-	
+
 	public void endGame(int place) {
 		skynet.endGame(place);
 	}
-	
+
 	private void sleep() {
 		try {
 			Thread.sleep(data.getBotPlayingSpeed());
@@ -83,12 +84,14 @@ public class Bot extends Player {
 
 	// Within a new thread, calls skynet's implemented forifyTerritory method
 	public void fortifyTerritory(final int num_to_place) {
-		sleep();
-		new Thread() {
-			public void run () {
-				skynet.fortifyTerritory(num_to_place);
-			}
-		}.start();
+		if(from_bot.isEmpty()) {
+			sleep();
+			new Thread() {
+				public void run () {
+					skynet.fortifyTerritory(num_to_place);
+				}
+			}.start();
+		}
 	}
 
 	// Within a new thread, calls skynet's implemented launchAttack method
@@ -141,11 +144,14 @@ public class Bot extends Player {
 		}.start();
 	}
 
-
 	// When the game engine is expecting the bot to provide an integer, this method
 	// grabs the int in the front of the LinkedBlockingQueue
 	public int askInt() throws RiskBotException {
-		//System.out.println("Requesting number from " + getName());
+		if(debug) {
+			System.out.println("Requesting number from " + getName());
+			StackTraceElement z[] = Thread.currentThread().getStackTrace();
+			System.out.println("\t"+z[2].toString());
+		}
 		Integer answer = null;
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
@@ -162,7 +168,11 @@ public class Bot extends Player {
 	// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
 	// above MIN (otherwise it throws a RiskBotException)
 	public int askInt(int MIN) throws RiskBotException {
-		//System.out.println("Requesting number from " + getName());
+		if(debug) {
+			System.out.println("Requesting number from " + getName());
+			StackTraceElement z[] = Thread.currentThread().getStackTrace();
+			System.out.println("\t"+z[2].toString());
+		}
 		Integer answer = null;
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
@@ -182,7 +192,11 @@ public class Bot extends Player {
 	// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
 	// above MIN and below MAX (otherwise it throws a RiskBotException)
 	public int askInt(int MIN, int MAX) throws RiskBotException {
-		//System.out.println("Requesting number from " + getName());
+		if(debug) {
+			System.out.println("Requesting number from " + getName());
+			StackTraceElement z[] = Thread.currentThread().getStackTrace();
+			System.out.println("\t"+z[2].toString());
+		}
 		Integer answer = null;
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
@@ -207,11 +221,13 @@ public class Bot extends Player {
 	public class RiskListener {
 		public RiskListener() { }
 		public void sendInt(int to_send) {
-			//System.out.println(to_send + " sent by " + getName());
+			if(debug)
+				System.out.println(to_send + " sent by " + getName());
 			from_bot.add(new Integer(to_send));
 		}
 		public void sendInt(Integer to_send) {
-			//System.out.println(to_send + " sent by " + getName());
+			if(debug)
+				System.out.println(to_send + " sent by " + getName());
 			from_bot.add(to_send);
 		}
 	}
