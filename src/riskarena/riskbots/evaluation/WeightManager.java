@@ -1,8 +1,11 @@
 package riskarena.riskbots.evaluation;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,9 +38,25 @@ public class WeightManager {
 	}
 
 	public void train(Double scores[]) {
+		if(previousScores.isEmpty()) {
+			if(!should_train) return;
+			previousScores.add(scores);
+		} else
+			train(scores, applyWeights(previousScores.get(previousScores.size()-1)));
+	}
+
+	public void endGame(Double scores[], int place, int numPlayers) {
+		if(should_train) {
+			train(scores, reward(place, numPlayers));
+			games_trained++;
+			writeUpdate();
+		}
+	}
+
+	public void train(Double scores[], double reward) {
 		if(!should_train) return;
 		boolean debug = true;
-		
+
 		int previousRounds = previousScores.size();
 		if(previousRounds > 0) {
 			// Perform precalculations
@@ -50,33 +69,54 @@ public class WeightManager {
 			}
 			double norm = norm(featureSums);
 			double prevNorm = norm(previousScores.get(previousRounds-1));
-			
+
 			// Perform updates
 			StringBuilder updates = new StringBuilder();
 			for(int w=0; w<numWeights; w++) {
 				double newWeight = weights.get(w);
-				double fraction = featureSums[w] / (norm * prevNorm);
-				newWeight += alpha() * (applyWeights(scores) - applyWeights(previousScores.get(previousRounds-1))) * fraction;
+				//double fraction = featureSums[w] / (norm * prevNorm);
+				double fraction = featureSums[w] / (norm);
+				newWeight += alpha() * (applyWeights(scores) - reward) * fraction;
 				updates.append(Utilities.dec(newWeight) + " ");
 				weights.set(w, newWeight);
 			}
 			if(debug)
-				Risk.sayOutput(updates.toString(), true);
+				Risk.sayOutput(games_trained + "\t" + updates.toString(), true);
 		}
 		previousScores.add(scores);
 	}
 
 	private void loadWeights() {
+		weights.clear();
 		File weightsFile = new File(weightsFileName);
 		String lastLine = tail(weightsFile);
 		String weightStrings[] = lastLine.split(" ");
-		if(weightStrings.length != numWeights) {
-			System.err.println("Incorrect number of weights in " + weightsFileName + ": expected " + numWeights + ", got " + weightStrings.length);
+		if(weightStrings.length - 1 != numWeights) {
+			System.err.println("Incorrect number of weights in " + weightsFileName + ": expected " + numWeights + ", got " + (weightStrings.length - 1));
 			System.exit(-1);
 		}
-		for(int i=0; i<weightStrings.length; i++) {
+		games_trained = new Integer(weightStrings[0]);
+		for(int i=1; i<weightStrings.length; i++) {
 			weights.add( new Double(weightStrings[i]) );
 		}
+	}
+
+	private void writeUpdate() {
+		try {
+			Writer output = new BufferedWriter( new FileWriter(weightsFileName, true) );
+			StringBuilder sb = new StringBuilder();
+			sb.append("\n");
+			sb.append(games_trained);
+			for(Double w : weights) {
+				sb.append(" " + w);
+			}
+			output.write(sb.toString());
+			output.close();
+		} catch (IOException e) {
+			Risk.sayError(weightsFileName + " not found!");
+			e.printStackTrace();
+		}
+
 	}
 
 	public double weightOf(String evalName) {
@@ -140,13 +180,17 @@ public class WeightManager {
 		}
 		return total;
 	}
-	
+
 	private double norm(Double find[]) {
 		double total = 0.0;
 		for(int i=0; i<find.length; i++) {
 			total += find[i] * find[i];
 		}
 		return Math.sqrt(total);
+	}
+
+	private double reward(int place, int numPlayers) {
+		return (1.0 / (numPlayers - 1)) * (numPlayers - place);
 	}
 
 	private double alpha() {

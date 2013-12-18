@@ -75,7 +75,6 @@ public class RiskBotAwesome implements RiskBot{
 	}
 	
 	public void endGame(int place) {
-		System.out.println("OUT");
 		eval.endGame(place);
 	}
 
@@ -156,14 +155,15 @@ public class RiskBotAwesome implements RiskBot{
 	public void fortifyTerritory(int num_to_place) {
 		eval.refresh();
 		ArrayList< ArmyChange > choices = fortifier.decideAll(num_to_place);
+		attackDecider.initTurn();
 		for(ArmyChange choice : choices) {
 			to_game.sendInt(choice.ID());
 			to_game.sendInt(choice.amount());
 		}
-		attackDecider.initTurn();
 	}
 
 	public void launchAttack() {
+		eval.refresh();
 		for(Integer toSend : attackDecider.decide()) {
 			to_game.sendInt(toSend);
 		}
@@ -200,6 +200,7 @@ public class RiskBotAwesome implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyPosition()
 	 */
 	public void fortifyPosition() {
+		eval.refresh();
 		for(Integer i : posFortifier.decide()) {
 			to_game.sendInt(i);
 		}

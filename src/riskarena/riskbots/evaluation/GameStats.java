@@ -61,6 +61,7 @@ public class GameStats {
 	
 	int old_player;
 	public void apply(OccupationChange change) {
+		setCountries();
 		ArrayList<ArmyChange> changes = new ArrayList<ArmyChange>();
 		changes.add( new ArmyChange(change.from(), -1 * change.casualties()) );
 		changes.add( new ArmyChange(change.to(), -1 * change.enemiesKilled()) );
@@ -86,6 +87,7 @@ public class GameStats {
 	}
 	
 	public void apply(ArrayList<ArmyChange> changes) {
+		setCountries();
 		for(ArmyChange change : changes) {
 			armies[countries[change.ID()].getPlayer()] += change.amount();
 			totalArmies += change.amount();
@@ -329,6 +331,7 @@ public class GameStats {
 	}
 	
 	public MutableCountryInfo[] getCountries() {
+		if(countries == null) setCountries();
 		return countries;
 	}
 	

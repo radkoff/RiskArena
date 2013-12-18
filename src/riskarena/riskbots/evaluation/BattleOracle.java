@@ -125,6 +125,10 @@ public class BattleOracle {
 	}
 	
 	public Pair<Double,Integer> predictWin(int attackers, int defenders) {
+		/*if(attackers-1 < 0 || attackers-1 >= probs.length || max != 100 || probs.length != max)
+			System.err.println("Invalid # attackers: " + attackers + " " + probs.length + " " + max);
+		if(defenders-1 < 0 || defenders-1 >= probs[attackers-1].length || max != 100 || probs.length != max)
+			System.err.println("Invalid # defends: " + defenders + " " + probs.length + " " + max); */
 		return new Pair<Double,Integer>(new Double(probs[attackers-1][defenders-1]), new Integer(winnersLeft[attackers-1][defenders-1]));
 	}
 	

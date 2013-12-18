@@ -55,7 +55,7 @@ public class Evaluation {
 	}
 	
 	public void endGame(int place) {
-		//weighter.endGame(reward(place));
+		weighter.endGame(scoreVector(), place, stats.getNumPlayers());
 	}
 	
 	
@@ -104,6 +104,8 @@ public class Evaluation {
 		double result = 0.0;
 		for(AbstractEvaluator e : evaluators) {
 			double score = e.getScore(changes);
+			//System.out.println(e.getName());
+			//stats.touchArmies();
 			result += weighter.weightOf(e.getName()) * score;
 			if(debug)
 				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE);
@@ -160,14 +162,15 @@ public class Evaluation {
 	 * evaluators and GameStats.
 	 */
 	public void refresh() {
-		/*System.out.println(Thread.currentThread().getName() + " refreshing");
+		System.out.println(Thread.currentThread().getName() + " refreshing");
 		StackTraceElement z[] = Thread.currentThread().getStackTrace();
 		for(int i=0; i<z.length; i++)
-			System.out.println("\t"+z[i].toString());*/
+			System.out.println("\t"+z[i].toString());
 		stats.refresh();
 		for(AbstractEvaluator e : evaluators) {
 			e.refresh();
 		}
+		System.out.println(Thread.currentThread().getName() + " DONE refreshing");
 	}
 	
 }

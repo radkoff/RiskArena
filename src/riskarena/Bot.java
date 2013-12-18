@@ -145,6 +145,7 @@ public class Bot extends Player {
 	// When the game engine is expecting the bot to provide an integer, this method
 	// grabs the int in the front of the LinkedBlockingQueue
 	public int askInt() throws RiskBotException {
+		//System.out.println("Requesting number from " + getName());
 		Integer answer = null;
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
@@ -161,6 +162,7 @@ public class Bot extends Player {
 	// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
 	// above MIN (otherwise it throws a RiskBotException)
 	public int askInt(int MIN) throws RiskBotException {
+		//System.out.println("Requesting number from " + getName());
 		Integer answer = null;
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
@@ -180,6 +182,7 @@ public class Bot extends Player {
 	// grabs the int in the front of the LinkedBlockingQueue and verifies that it's
 	// above MIN and below MAX (otherwise it throws a RiskBotException)
 	public int askInt(int MIN, int MAX) throws RiskBotException {
+		//System.out.println("Requesting number from " + getName());
 		Integer answer = null;
 		try {
 			answer = from_bot.poll(timeout, TimeUnit.SECONDS);
@@ -204,9 +207,11 @@ public class Bot extends Player {
 	public class RiskListener {
 		public RiskListener() { }
 		public void sendInt(int to_send) {
+			//System.out.println(to_send + " sent by " + getName());
 			from_bot.add(new Integer(to_send));
 		}
 		public void sendInt(Integer to_send) {
+			//System.out.println(to_send + " sent by " + getName());
 			from_bot.add(to_send);
 		}
 	}

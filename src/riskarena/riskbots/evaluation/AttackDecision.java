@@ -81,6 +81,7 @@ public class AttackDecision {
 	}
 
 	private void considerAttackFrom(int id, boolean debug) {
+		//debug = true;
 		if(countries[id].getPlayer() != game.me() || countries[id].getArmies() <= 1)
 			return;
 		int adj[] = world.getAdjacencies(id);
@@ -88,12 +89,14 @@ public class AttackDecision {
 		if(debug)
 			Risk.sayOutput("Original score: " + Utilities.dec(score_before), OutputFormat.BLUE, true);
 		for(int a=0; a<adj.length; a++) {
-			if(countries[adj[a]].getPlayer() != game.me()) {
+			if(countries[adj[a]].getPlayer() != game.me() && countries[adj[a]].getArmies() > 0) {
 				double score;
 				int numAttacking = countries[id].getArmies()-1;
 				int numDefending = countries[adj[a]].getArmies();
 				if(debug)
-					Risk.sayOutput("Considering " + countries[id].getName() + " -> " + countries[adj[a]].getName(), OutputFormat.BLUE, true);
+					Risk.sayOutput("Considering " + countries[id].getName() + " -> " + countries[adj[a]].getName() + " with " + numAttacking + " armies.", OutputFormat.BLUE, true);
+				if(countries[id].getArmies() <= 1)
+					return;
 				if(numAttacking > oracle.maxPredictionAbility())
 					score = Double.MAX_VALUE;
 				else if(numDefending > oracle.maxPredictionAbility())
