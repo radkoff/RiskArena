@@ -50,7 +50,8 @@ public class Evaluation {
 	}
 	
 	public void endTurn() {
-		//weighter.train(score());
+		refresh();
+		weighter.train(scoreVector());
 	}
 	
 	public void endGame(int place) {
@@ -144,6 +145,14 @@ public class Evaluation {
 		if(debug && nameOfEvalToDebug == FULL_DEBUG)
 			Risk.sayOutput("Final score for " + game.getMyName() + ": " + result, OutputFormat.BLUE, true);
 		return result;
+	}
+	
+	private Double[] scoreVector() {
+		Double vec[] = new Double[evals.length];
+		for(int i=0; i<evals.length; i++) {
+			vec[i] = evaluators.get(i).getScore();
+		}
+		return vec;
 	}
 	
 	/*

@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class WeightManager {
 	private ArrayList<Double> weights;
+	private ArrayList<Double[]> previousScores;
 	private HashMap<String,Integer> evalNameToID;
 	private final int numWeights;
 	private String weightsFileName = "src/data/weights/";
@@ -15,6 +16,7 @@ public class WeightManager {
 	public WeightManager(String name, String evals[]) {
 		weights = new ArrayList<Double>();
 		evalNameToID = new HashMap<String,Integer>();
+		previousScores = new ArrayList<Double[]>();
 		weightsFileName += name + ".txt";
 		numWeights = evals.length;
 		for(int i=0; i<evals.length; i++)
@@ -23,6 +25,21 @@ public class WeightManager {
 	
 	public void initGame() {
 		loadWeights();
+		previousScores.clear();
+	}
+	
+	public void train(Double scores[]) {
+		boolean debug = false;
+		StringBuilder updates = new StringBuilder();
+		for(int w=0; w<numWeights; w++) {
+			double newWeight = weights.get(w);
+			//newWeight += 0.5;
+			updates.append(Utilities.dec(newWeight) + " ");
+			weights.set(w, newWeight);
+		}
+		if(debug)
+			System.out.println(updates.toString());
+		previousScores.add(scores);
 	}
 	
 	private void loadWeights() {

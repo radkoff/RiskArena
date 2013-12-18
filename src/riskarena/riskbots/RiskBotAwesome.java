@@ -156,6 +156,7 @@ public class RiskBotAwesome implements RiskBot{
 	 * @see riskarena.RiskBot#fortifyTerritory(int)
 	 */
 	public void fortifyTerritory(int num_to_place) {
+		eval.refresh();
 		ArrayList< ArmyChange > choices = fortifier.decideAll(num_to_place);
 		for(ArmyChange choice : choices) {
 			to_game.sendInt(choice.ID());
