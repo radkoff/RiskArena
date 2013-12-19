@@ -17,6 +17,7 @@ import java.util.Random;
 import riskarena.Risk;
 
 public class WeightManager {
+	private String myName;
 	private ArrayList<Double> weights;
 	private ArrayList<Double[]> previousScores;
 	private HashMap<String,Integer> evalNameToID;
@@ -26,14 +27,15 @@ public class WeightManager {
 	private boolean should_train;
 	private int games_trained = 0;
 	private double lambda = 0.5;	// Higher = utilizer the further past more. Lower = learn only from more recent trainings
-	
+
 	private final double weightSum = 0.3;	// Weights will always add up to this!
 
 	public WeightManager(String name, String evals[], boolean should_train) {
+		myName = name;
 		weights = new ArrayList<Double>();
 		evalNameToID = new HashMap<String,Integer>();
 		previousScores = new ArrayList<Double[]>();
-		weightsFileName += name + ".txt";
+		weightsFileName += myName + ".txt";
 		this.should_train = should_train;
 		numWeights = evals.length;
 		for(int i=0; i<evals.length; i++)
@@ -42,7 +44,8 @@ public class WeightManager {
 
 	public void initGame() {
 		createWeightsFile();
-		loadWeights();
+		if(should_train)
+			loadWeights();
 		previousScores.clear();
 	}
 
@@ -60,27 +63,32 @@ public class WeightManager {
 			writeUpdate();
 		}
 	}
-	
+
 	/*
 	 * If no weights file exists, create one using randomly initialized weights (that add up to weightSum)
 	 */
 	private void createWeightsFile() {
 		weightsFile = new File(weightsFileName);
 		if(!weightsFile.exists()) {
-			PrintWriter writer = null;
-			try {
-				writer = new PrintWriter(weightsFileName, "UTF-8");
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-			writer.write("0");
 			double newWeights[] = makeRandomWeights();
-			for(int i=0; i<newWeights.length; i++)
-				writer.write(" " + newWeights[i]);
-			writer.close();
-			weightsFile = new File(weightsFileName);
+			if(should_train) {
+				PrintWriter writer = null;
+				try {
+					writer = new PrintWriter(weightsFileName, "UTF-8");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				writer.write("0");
+				for(int i=0; i<newWeights.length; i++)
+					writer.write(" " + newWeights[i]);
+				writer.close();
+				weightsFile = new File(weightsFileName);
+			} else {
+				for(int i=0; i<newWeights.length; i++)
+					weights.add(new Double(newWeights[i]));
+			}
 		}
 	}
 
@@ -109,13 +117,13 @@ public class WeightManager {
 				double fraction = featureSums[w] / (norm * prevNorm);
 				//double fraction = featureSums[w] / (norm);
 				newWeight += alpha() * (current - past) * fraction;
-				totalW += newWeight;
+				totalW += Math.abs(newWeight);
 				updates.append(Utilities.dec(newWeight) + " ");
 				weights.set(w, newWeight);
 			}
 			for(int w=0; w<numWeights; w++) {
 				double newWeight = weights.get(w);
-				weights.set(w, newWeight / (10*totalW));
+				weights.set(w, (newWeight / totalW) * weightSum);
 			}
 			if(debug)
 				Risk.sayOutput(games_trained + "\t" + updates.toString(), true);
@@ -158,7 +166,7 @@ public class WeightManager {
 	public double weightOf(String evalName) {
 		return weights.get(evalNameToID.get(evalName));
 	}
-	
+
 	/*
 	 * Makes random weights that add up to weightSum
 	 */
