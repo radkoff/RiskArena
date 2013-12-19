@@ -36,6 +36,7 @@ public class RiskBotAwesome implements RiskBot{
 	/* Data members specific to this particular RiskBot */
 	private Evaluation eval;	//TODO remove, this is for testing.
 	private CardIndicator card;
+	private final boolean shouldLearn = false;
 	
 	/*	Decision-makers	*/
 	private FortifyArmiesDecision fortifier;
@@ -54,7 +55,7 @@ public class RiskBotAwesome implements RiskBot{
 		world = risk_info.getWorldInfo();
 		players = risk_info.getPlayerInfo();
 		card = new CardIndicator();
-		eval = new Evaluation(risk_info, card, true);
+		eval = new Evaluation(risk_info, card, shouldLearn);
 		fortifier = new FortifyArmiesDecision(risk_info, eval);
 		afterVictory = new FortifyAfterVictoryDecision(eval);
 		posFortifier = new FortifyPositionDecision(risk_info, eval);

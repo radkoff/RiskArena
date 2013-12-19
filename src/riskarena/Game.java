@@ -1050,5 +1050,6 @@ public class Game {
 	// When a Game object is used for more than one game, this method can be called to "clear" old game data
 	public void clearGame() {
 		data.resetPlayers();
+		
 	}
 }

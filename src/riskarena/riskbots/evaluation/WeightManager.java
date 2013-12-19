@@ -2,12 +2,17 @@ package riskarena.riskbots.evaluation;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 
 import riskarena.Risk;
 
@@ -17,9 +22,12 @@ public class WeightManager {
 	private HashMap<String,Integer> evalNameToID;
 	private final int numWeights;
 	private String weightsFileName = "src/data/weights/";
+	private File weightsFile;
 	private boolean should_train;
 	private int games_trained = 0;
-	private double lambda = 0.5;
+	private double lambda = 0.5;	// Higher = utilizer the further past more. Lower = learn only from more recent trainings
+	
+	private final double weightSum = 0.3;	// Weights will always add up to this!
 
 	public WeightManager(String name, String evals[], boolean should_train) {
 		weights = new ArrayList<Double>();
@@ -33,6 +41,7 @@ public class WeightManager {
 	}
 
 	public void initGame() {
+		createWeightsFile();
 		loadWeights();
 		previousScores.clear();
 	}
@@ -49,6 +58,29 @@ public class WeightManager {
 			train(reward(place, numPlayers), applyWeights(previousScores.get(previousScores.size()-1)));
 			games_trained++;
 			writeUpdate();
+		}
+	}
+	
+	/*
+	 * If no weights file exists, create one using randomly initialized weights (that add up to weightSum)
+	 */
+	private void createWeightsFile() {
+		weightsFile = new File(weightsFileName);
+		if(!weightsFile.exists()) {
+			PrintWriter writer = null;
+			try {
+				writer = new PrintWriter(weightsFileName, "UTF-8");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			writer.write("0");
+			double newWeights[] = makeRandomWeights();
+			for(int i=0; i<newWeights.length; i++)
+				writer.write(" " + newWeights[i]);
+			writer.close();
+			weightsFile = new File(weightsFileName);
 		}
 	}
 
@@ -107,7 +139,7 @@ public class WeightManager {
 
 	private void writeUpdate() {
 		try {
-			Writer output = new BufferedWriter( new FileWriter(weightsFileName, true) );
+			Writer output = new BufferedWriter( new FileWriter(weightsFile, true) );
 			StringBuilder sb = new StringBuilder();
 			sb.append("\n");
 			sb.append(games_trained);
@@ -125,6 +157,23 @@ public class WeightManager {
 
 	public double weightOf(String evalName) {
 		return weights.get(evalNameToID.get(evalName));
+	}
+	
+	/*
+	 * Makes random weights that add up to weightSum
+	 */
+	private double[] makeRandomWeights() {
+		Random gen = new Random((new Date()).getTime());
+		double sum = 0.0;
+		double rands[] = new double[numWeights];
+		for(int i=0; i<numWeights;i++) {
+			rands[i] = gen.nextDouble();
+			sum += rands[i];
+		}
+		for(int i=0; i<numWeights;i++) {
+			rands[i] = (rands[i] / sum) * weightSum;
+		}
+		return rands;
 	}
 
 	/*
