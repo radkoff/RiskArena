@@ -159,8 +159,9 @@ public class SetUp extends JDialog {
 			mapChooser = new JComboBox(new Vector<String>(map_candidates));
 
 			// A private extension of a JSlider. The min and max numbers of players are passed as args, as well as the default
-			players_slider = new PlayersSlider(Risk.MIN_PLAYERS, Risk.MAX_PLAYERS, Risk.MIN_PLAYERS);
-
+			 players_slider = new PlayersSlider(Risk.MIN_PLAYERS, Risk.MAX_PLAYERS, Risk.MIN_PLAYERS);
+			//players_slider = new PlayersSlider(Risk.MIN_PLAYERS, Risk.MAX_PLAYERS, 4);
+			
 			// Start button
 			start_button = new JButton("Start");
 			StartAction start_action = new StartAction();

@@ -1,5 +1,18 @@
 package riskarena.riskbots.evaluation;
 
+/*
+ * The Evaluation class provides score functions that return a double signifying how well the
+ * player using it is doing at any given time. This score is calculated by taking a weighted sum of
+ * individual Evaluator scores, maintained in a list. Each Evaluator (see riskarena.riskbots.evaluation.evals)
+ * takes the game state given by a GameInfo instance and reports a score relating to some
+ * assigned aspect of the game. Many of these scores are in [0-1], but not all. Some may be negative
+ * if they evaluate the strength of enemies.
+ * Weights for the weighted sum are supplied by the WeightManager class.
+ * To facilitate faster state evaluation, Evaluation can also return what the game state score
+ * would be if a given change were to occur (instead of constructing a new game state entirely).
+ * As of now these changes include two types, ArmyChange and OccupationChange.
+ */
+
 import java.util.ArrayList;
 
 import riskarena.CountryInterface;
@@ -79,11 +92,11 @@ public class Evaluation {
 			double score = e.getScore(change);
 			result += weighter.weightOf(e.getName()) * score;
 			if(debug)
-				Risk.sayOutput(e.getName() + " " + Utilities.dec(score), OutputFormat.BLUE, true);
+				Risk.sayOutput(e.getName() + " " + Utilities.printDouble(score), OutputFormat.BLUE, true);
 		}
 		stats.unapply(change);
 		if(debug)
-			Risk.sayOutput("\tScore: " + Utilities.dec(result), OutputFormat.BLUE, true);
+			Risk.sayOutput("\tScore: " + Utilities.printDouble(result), OutputFormat.BLUE, true);
 		return result;
 	}
 
@@ -107,7 +120,7 @@ public class Evaluation {
 			double score = e.getScore(changes);
 			result += weighter.weightOf(e.getName()) * score;
 			if(debug) {
-				Risk.sayOutput(e.getName() + " " + Utilities.dec(score) + " * " + weighter.weightOf(e.getName()), OutputFormat.BLUE, true);
+				Risk.sayOutput(e.getName() + " " + Utilities.printDouble(score) + " * " + weighter.weightOf(e.getName()), OutputFormat.BLUE, true);
 			}
 		}
 		if(debug)
@@ -140,7 +153,7 @@ public class Evaluation {
 				if(nameOfEvalToDebug == FULL_DEBUG)
 					Risk.sayOutput(e.getName() + ": " + evalScore, OutputFormat.TABBED, true);
 				else if(nameOfEvalToDebug == e.getName())
-					Risk.sayOutput(game.getMyName() + " " + e.getName() + ": " + Utilities.dec(evalScore), OutputFormat.BLUE, true);
+					Risk.sayOutput(game.getMyName() + " " + e.getName() + ": " + Utilities.printDouble(evalScore), OutputFormat.BLUE, true);
 			}
 			result += weighter.weightOf(e.getName()) * evalScore;
 		}
@@ -165,9 +178,7 @@ public class Evaluation {
 		boolean debug = false;
 		if(debug) {
 			System.out.println(game.getMyName() + " " + Thread.currentThread().getName() + " refreshing from " + from);
-			/*StackTraceElement z[] = Thread.currentThread().getStackTrace();
-			for(int i=0; i<z.length; i++)
-				System.out.println("\t"+z[i].toString());*/
+			Utilities.printThread(Thread.currentThread());
 		}
 		synchronized(this) {
 			stats.refresh();

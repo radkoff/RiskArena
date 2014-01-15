@@ -54,6 +54,7 @@ public class WarGameReport extends JDialog {
 	private long start_time;		// Time at which all simulations started
 	private long[] game_elapsed_times;	// Array of how long each game took to simulate
 	private int[] points;	// points[i] is how many points player i has
+	private int[] firstplaces; // firstplaces[i] is how many times player i has won
 	private int[][] point_values = {
 			{ 1, 0, 0, 0, 0, 0 },		// 2 players (1st place player gets 1 point)
 			{ 2, 1, 0, 0, 0, 0 },		// 3 players (1st place gets 2, 2nd gets 1)
@@ -70,6 +71,7 @@ public class WarGameReport extends JDialog {
 		results_file = file;
 		// Initialize point values to 0
 		points = new int[players.length];
+		firstplaces = new int[players.length];
 		for(int i=0;i<players.length;i++) {
 			points[i] = 0;
 		}
@@ -125,6 +127,7 @@ public class WarGameReport extends JDialog {
 		for(int i=0;i<results.size();i++) {
 			points[results.get(i)] += point_values[players.length - Risk.MIN_PLAYERS][i];
 		}
+		firstplaces[results.get(0)] += 1;
 		// Except for the last game, incrememt the current game number
 		if(game_num != num_games)
 			game_num += 1;
@@ -166,6 +169,16 @@ public class WarGameReport extends JDialog {
 			results_writer.write("\nStandings:\n");
 			for(int i=0;i<standings.size();i++) {
 				results_writer.write((i+1) + ". " + standings.get(i).name + " - " + standings.get(i).points + " points\n");
+			}
+			int pointSum = 0;
+			for(int i=0;i<standings.size();i++) { pointSum += standings.get(i).points; }
+			results_writer.write("\nRatings:\n");
+			for(int i=0;i<standings.size();i++) {
+				results_writer.write((i+1) + ". " + standings.get(i).name + " - " + (standings.get(i).points * (double)points.length)/pointSum + "\n");
+			}
+			results_writer.write("\nNumber of Games Won:\n");
+			for(int i=0;i<standings.size();i++) {
+				results_writer.write((i+1) + ". " + standings.get(i).name + " - " + standings.get(i).firstplace + "\n");
 			}
 			results_writer.close();
 		} catch (IOException e) {
@@ -416,7 +429,7 @@ public class WarGameReport extends JDialog {
 					winner = j;
 				}
 			}
-			standings.add(new Standing(players[winner].getName(), highest_points));
+			standings.add(new Standing(players[winner].getName(), highest_points, firstplaces[winner]));
 			valid[winner] = false;
 		}
 		return standings;
@@ -426,8 +439,9 @@ public class WarGameReport extends JDialog {
 	private class Standing {
 		public String name;
 		public int points;
-		public Standing(String n, int p) {
-			name = n; points = p;
+		public int firstplace;
+		public Standing(String n, int p, int fp) {
+			name = n; points = p; firstplace = fp;
 		}
 	}
 	

@@ -26,7 +26,7 @@ public class WeightManager {
 	private File weightsFile;
 	private boolean should_train;
 	private int games_trained = 0;
-	private double lambda = 0.5;	// Higher = utilizer the further past more. Lower = learn only from more recent trainings
+	private double lambda = 0.5;	// Higher = utilizer the further past more. Lower = learn only from more recent experiences
 
 	private final double weightSum = 0.3;	// Weights will always add up to this!
 
@@ -44,7 +44,7 @@ public class WeightManager {
 
 	public void initGame() {
 		createWeightsFile();
-		if(should_train)
+		if(weightsFile.exists())
 			loadWeights();
 		previousScores.clear();
 	}
@@ -106,10 +106,11 @@ public class WeightManager {
 					featureSums[w] += Math.pow(lambda, (double)previousRounds - (round + 1)) * previousScores.get(round)[w];
 				}
 			}
-			double norm = norm(featureSums);
-			double prevNorm = norm(previousScores.get(previousRounds-1));
+			double norm = Utilities.norm(featureSums);
+			double prevNorm = Utilities.norm(previousScores.get(previousRounds-1));
 
 			double totalW = 0.0;
+			double smallestWeight = Double.MAX_VALUE;
 			// Perform updates
 			StringBuilder updates = new StringBuilder();
 			for(int w=0; w<numWeights; w++) {
@@ -118,12 +119,15 @@ public class WeightManager {
 				//double fraction = featureSums[w] / (norm);
 				newWeight += alpha() * (current - past) * fraction;
 				totalW += Math.abs(newWeight);
-				updates.append(Utilities.dec(newWeight) + " ");
+				if(newWeight < smallestWeight)
+					smallestWeight = newWeight;
 				weights.set(w, newWeight);
 			}
 			for(int w=0; w<numWeights; w++) {
 				double newWeight = weights.get(w);
-				weights.set(w, (newWeight / totalW) * weightSum);
+				newWeight = ((newWeight-smallestWeight) / totalW) * weightSum; // Normalize
+				weights.set(w, newWeight);
+				updates.append(Utilities.printDouble(newWeight) + " ");
 			}
 			if(debug)
 				Risk.sayOutput(games_trained + "\t" + updates.toString(), true);
@@ -133,7 +137,7 @@ public class WeightManager {
 	private void loadWeights() {
 		weights.clear();
 		File weightsFile = new File(weightsFileName);
-		String lastLine = tail(weightsFile);
+		String lastLine = Utilities.tail(weightsFile);
 		String weightStrings[] = lastLine.split(" ");
 		if(weightStrings.length - 1 != numWeights) {
 			System.err.println("Incorrect number of weights in " + weightsFileName + ": expected " + numWeights + ", got " + (weightStrings.length - 1));
@@ -164,6 +168,7 @@ public class WeightManager {
 	}
 
 	public double weightOf(String evalName) {
+		//System.out.println(evalName + " " +evalNameToID.get(evalName) + " " + weights.size());
 		return weights.get(evalNameToID.get(evalName));
 	}
 
@@ -184,70 +189,12 @@ public class WeightManager {
 		return rands;
 	}
 
-	/*
-	 * Read the last line of a file
-	 * Courtesy of http://stackoverflow.com/questions/686231/quickly-read-the-last-line-of-a-text-file
-	 */
-	public String tail( File file ) {
-		RandomAccessFile fileHandler = null;
-		try {
-			fileHandler = new RandomAccessFile( file, "r" );
-			long fileLength = fileHandler.length() - 1;
-			StringBuilder sb = new StringBuilder();
-
-			for(long filePointer = fileLength; filePointer != -1; filePointer--){
-				fileHandler.seek( filePointer );
-				int readByte = fileHandler.readByte();
-
-				if( readByte == 0xA ) {
-					if( filePointer == fileLength ) {
-						continue;
-					} else {
-						break;
-					}
-				} else if( readByte == 0xD ) {
-					if( filePointer == fileLength - 1 ) {
-						continue;
-					} else {
-						break;
-					}
-				}
-
-				sb.append( ( char ) readByte );
-			}
-
-			String lastLine = sb.reverse().toString();
-			return lastLine;
-		} catch( java.io.FileNotFoundException e ) {
-			e.printStackTrace();
-			return null;
-		} catch( java.io.IOException e ) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			if (fileHandler != null )
-				try {
-					fileHandler.close();
-				} catch (IOException e) {
-					/* ignore */
-				}
-		}
-	}
-
 	private double applyWeights(Double to[]) {
 		double total = 0.0;
 		for(int i=0; i<to.length; i++) {
 			total += weights.get(i) * to[i];
 		}
 		return total;
-	}
-
-	private double norm(Double find[]) {
-		double total = 0.0;
-		for(int i=0; i<find.length; i++) {
-			total += find[i] * find[i];
-		}
-		return Math.sqrt(total);
 	}
 
 	private double reward(int place, int numPlayers) {

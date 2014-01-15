@@ -163,7 +163,7 @@ public class WarGameSetUp extends JDialog {
 			watch_none = new JRadioButton();
 			watch_one = new JRadioButton();
 			watch_all = new JRadioButton();
-			watch_one.setSelected(true);	// By default, watch one game
+			watch_none.setSelected(true);	// By default, watch no games
 			button_group.add(watch_none);
 			button_group.add(watch_all);
 			button_group.add(watch_one);

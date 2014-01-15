@@ -87,7 +87,7 @@ public class AttackDecision {
 		int adj[] = world.getAdjacencies(id);
 		double score_before = eval.score();
 		if(debug)
-			Risk.sayOutput("Original score: " + Utilities.dec(score_before), OutputFormat.BLUE, true);
+			Risk.sayOutput("Original score: " + Utilities.printDouble(score_before), OutputFormat.BLUE, true);
 		for(int a=0; a<adj.length; a++) {
 			if(countries[adj[a]].getPlayer() != game.me() && countries[adj[a]].getArmies() > 0) {
 				double score;
@@ -112,10 +112,10 @@ public class AttackDecision {
 					score = win.fst * winScore + loss.fst * lossScore;
 					score += Math.abs(score) * bonusAggressiveness(countries[id].getArmies(), win.fst);
 					if(debug)
-						Risk.sayOutput(win.fst + " " + Utilities.dec(winScore) + " " + loss.fst + " " + Utilities.dec(lossScore), OutputFormat.QUESTION, true);
+						Risk.sayOutput(win.fst + " " + Utilities.printDouble(winScore) + " " + loss.fst + " " + Utilities.printDouble(lossScore), OutputFormat.QUESTION, true);
 				}
 				if(debug)
-					Risk.sayOutput("Delta: "+ Utilities.dec((score - score_before) / Math.abs(score_before)), OutputFormat.BLUE, true);
+					Risk.sayOutput("Delta: "+ Utilities.printDouble((score - score_before) / Math.abs(score_before)), OutputFormat.BLUE, true);
 				if( (score - score_before) / Math.abs(score_before) > delta_threshold) {
 					attacks.add( new AttackPlans((score - score_before), id, adj[a]) );
 					if(debug)

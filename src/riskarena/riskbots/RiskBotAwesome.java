@@ -1,9 +1,20 @@
 package riskarena.riskbots;
 /*
- * A simple RiskBot that makes largely random decisions.
- * Used for testing purposes. See HOWTO or RiskBot.java for more on what these methods do.
+ * An "Evaluation" player that makes decisions by evaluating a score for the game states
+ * that result from each possible choice. The decision making is done in classes found in the
+ * riskarena.riskbots.evaluation package, and the state scoring in Evaluation.java
+ * Evaluation consists of a weighted sum of smaller scores that each evaluate an aspect
+ * of the game state (see riskarena.riskbots.evaluation.evals)
+ * The weights of these scores are central to the behavior of AwesomeBot.
+ * If there is a weights file named "Awesome.txt" present in src/data/weights/, it will read what weights to use
+ * from the last line of that file. If there is not, random weights will be chosen.
+ * If "shouldLearn" is set to true, new weights are trained using TD(lambda) learning and new lines to the
+ * weights file are written. For more see WeightManager.java
  * 
  * Evan Radkoff
+ * 
+ * Much of the strategy of this player was inspired by "An Intelligent Artificial Player for the Game of Risk"
+ * by Michael Wolf http://www.ke.tu-darmstadt.de/bibtex/publications/show/1302
  */
 
 import java.util.ArrayList;
@@ -34,7 +45,7 @@ public class RiskBotAwesome implements RiskBot{
 	private PlayerInfo[] players = null;
 	
 	/* Data members specific to this particular RiskBot */
-	private Evaluation eval;	//TODO remove, this is for testing.
+	private Evaluation eval;
 	private CardIndicator card;
 	private final boolean shouldLearn = false;
 	
@@ -71,16 +82,25 @@ public class RiskBotAwesome implements RiskBot{
 		eval.refresh("initTurn() in Awesome");
 	}
 	
+	/*
+	 * Called every time this player's turn is over.
+	 * @see riskarena.RiskBot#endTurn()
+	 */
 	public void endTurn() {
 		eval.endTurn();
 	}
 	
+	/*
+	 * Called when the game is over so that new training weights can be saved
+	 * @see riskarena.RiskBot#endGame(int)
+	 */
 	public void endGame(int place) {
 		eval.endGame(place);
 	}
 
 	/*
-	 * Claim a random unclaimed territory
+	 * Claim an unclaimed territory. At the moment this functionality is the same as
+	 * the Dumb player, and evaluation isn't used.
 	 * @see riskarena.RiskBot#claimTerritory()
 	 */
 	public void claimTerritory() {
@@ -156,16 +176,19 @@ public class RiskBotAwesome implements RiskBot{
 	public void fortifyTerritory(int num_to_place) {
 		eval.refresh("fortifyTerritory() in Awesome");
 		ArrayList< ArmyChange > choices = fortifier.decideAll(num_to_place);
-		attackDecider.initTurn();
+		attackDecider.initTurn();	// New attack targets are chosen when new territories are being placed
 		for(ArmyChange choice : choices) {
 			to_game.sendInt(choice.ID());
 			to_game.sendInt(choice.amount());
 		}
 	}
 
+	/*
+	 * Called to send the decision of which territory to attack (if any).
+	 * @see riskarena.RiskBot#launchAttack()
+	 */
 	public void launchAttack() {
-		//attackDecider.initTurn();
-		eval.refresh("launchAttack() in Awesome");
+		eval.refresh("launchAttack() in Awesome");	// Refresh the evaluation of the game state
 		for(Integer toSend : attackDecider.decide()) {
 			to_game.sendInt(toSend);
 		}
