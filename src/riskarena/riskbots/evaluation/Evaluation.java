@@ -26,23 +26,24 @@ import riskarena.CountryInterface;
 import riskarena.GameInfo;
 import riskarena.OutputFormat;
 import riskarena.Risk;
+import riskarena.RiskBot;
 import riskarena.riskbots.evaluation.evals.*;
 
 public class Evaluation {
 	private GameInfo game;
-	private GameStats stats;
+	private GameStats stats;	// Provides many of the evaluators with commonly needed stats (eg: the number of armies per player)
 	private CardIndicator card;
 
-	// Internal list of evaluators. A game stat's score is a weighted combination of these.
-	private final String evals[] = {"OwnContinents", "EnemyContinents", "OwnArmies", "BestEnemy", "FortifiedTerritories",
-			"OccupiedTerritories", "FrontierDistance", "ObtainedCard", "ArmyConsolidation", "TargetCont" };
+	// Internal list of evaluators. A game state's score is a weighted combination of these.
 	private ArrayList<AbstractEvaluator> evaluators;
 	private final String EVAL_PACKAGE = "riskarena.riskbots.evaluation.evals.";
-	private WeightManager weighter;
-	private final String FULL_DEBUG = "ALL";
-
-	private CountryInterface countries[];
+	private final String evals[] = {"OwnContinents", "EnemyContinents", "OwnArmies", "BestEnemy", "FortifiedTerritories",
+			"OccupiedTerritories", "FrontierDistance", "ObtainedCard", "ArmyConsolidation", "TargetCont" };
 	private final int num_evals = evals.length;
+	
+	private WeightManager weighter;
+	private final String FULL_DEBUG = "ALL";	// Sentinel value used in score() debugging
+	private CountryInterface countries[];
 
 	public Evaluation(GameInfo gi, CardIndicator ci, boolean should_train) {
 		game = gi;
@@ -57,16 +58,31 @@ public class Evaluation {
 
 	private void registerEvaluators() {
 		evaluators.clear();
-		evaluators.add( new OwnContinentsEvaluator("OwnContinents", stats, game) );
-		evaluators.add( new EnemyContinentsEvaluator("EnemyContinents", stats, game) );
-		evaluators.add( new OwnArmiesEvaluator("OwnArmies", stats, game) );
-		evaluators.add( new BestEnemyEvaluator("BestEnemy", stats, game) );
-		evaluators.add( new FortifiedTerritoriesEvaluator("FortifiedTerritories", stats, game) );
-		evaluators.add( new OccupiedTerritoriesEvaluator("OccupiedTerritories", stats, game) );
-		evaluators.add( new FrontierDistanceEvaluator("FrontierDistance", stats, game) );
-		evaluators.add( new ObtainedCardEvaluator("ObtainedCard", stats, game, card) );
-		evaluators.add( new ArmyConsolidationEvaluator("ArmyConsolidation", stats, game) );
-		evaluators.add( new TargetContEvaluator("TargetCont", stats, game) );
+		for(String evalName : evals) {
+			AbstractEvaluator eval;
+			try {
+				// Loads the class of the RiskBot file being used.
+				Class dynamic_class = Class.forName(EVAL_PACKAGE + evalName);
+				eval = (AbstractEvaluator)dynamic_class.newInstance();
+				eval.sendName(evalName);
+				eval.sendGame(game);
+				eval.sendStats(stats);
+				if(evalName.equals("ObtainedCardEvaluator"))
+					((ObtainedCardEvaluator)eval).sendCardIndicator(card);
+				evaluators.add(eval);
+			} catch ( ClassNotFoundException e ) {
+				Risk.sayError("Source file for evaluator " + evalName + " not found.");
+				System.exit(-1);
+			} catch (InstantiationException e) {
+				Risk.sayError("Could not instantiate evaluator " + evalName);
+				e.printStackTrace();
+				System.exit(-1);
+			} catch (IllegalAccessException e) {
+				Risk.sayError("Could not access source file for evaluator " + evalName);
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		}
 	}
 
 	public void endTurn() {

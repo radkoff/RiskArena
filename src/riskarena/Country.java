@@ -12,7 +12,6 @@ package riskarena;
  * the position within the map, the CountryLabelVector (defined below) and the
  * continent id.
  * 
- * Evan Radkoff
  */
 
 import java.awt.Point;

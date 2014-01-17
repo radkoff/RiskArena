@@ -13,6 +13,7 @@ package riskarena.riskbots;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -60,22 +61,17 @@ public class RiskBotDumb implements RiskBot{
 		CountryInfo[] countries = risk_info.getCountryInfo();
 		int num_conts = risk_info.getNumContinents();
 		
-		// Else, calculate percentages for each continent of: taken by me, taken by someone, unclaimed
+		// Calculate the percentages of territory ownership for each continent of:
+		// taken by me [contID][0], taken by some enemy [contID][1], and unclaimed [contID][2]
 		int counts[][] = new int[num_conts][3];
 		for(int i=0;i<num_conts;i++) {
-			for(int j=0;j<3;j++) {
-				counts[i][j] = 0;
-			}
+			Arrays.fill(counts[i], 0);
 		}
 		for(int i=0;i<countries.length;i++) {
-			if(!countries[i].isTaken()) {
-				counts[countries[i].getCont()][2] += 1;
-			} else {
-				if(countries[i].getPlayer() == risk_info.me())
-					counts[countries[i].getCont()][0] += 1;
-				else
-					counts[countries[i].getCont()][1] += 1;
-			}
+			int counts_index = !countries[i].isTaken() ? 2 : 0;
+			if(counts_index == 0)
+				counts_index = countries[i].getPlayer() == risk_info.me() ? 0 : 1;
+			counts[countries[i].getCont()][counts_index] += 1;
 		}
 		double ratios[][] = new double[num_conts][3];
 		for(int i=0;i<num_conts;i++) {
@@ -84,38 +80,31 @@ public class RiskBotDumb implements RiskBot{
 			}
 		}
 		
-		
-		int cont = -1;
-		double highest = 0.0;
+		int targetCont = -1;	// Search for a target of interest
+		double highest = -1.0;	
 		for(int i=0;i<ratios.length;i++) {
-			if(ratios[i][2] < .00001)
-				continue;
-			if(ratios[i][1] > .2)
+			// Skip filled continents and ones already mostly claimed by others
+			if(ratios[i][2] < .0000001 || ratios[i][1] > .2)
 				continue;
 			if(ratios[i][0] > highest) {
 				highest = ratios[i][0];
-				cont = i;
+				targetCont = i;
 			}
 		}
-		if(cont != -1) {
-			for(int i=0;i<countries.length;i++) {
-				if(!countries[i].isTaken() && countries[i].getCont() == cont) {
-					to_game.sendInt(i);
-					return;
+		// If no target continent was decided, choose the one with the lowest ratio of enemy territories
+		if(targetCont == -1) {
+			double lowest = 2.0;
+			for(int i=0;i<ratios.length;i++) {
+				if(ratios[i][2] < .0000001)
+					continue;
+				if(ratios[i][1] < lowest) {
+					lowest = ratios[i][1];
+					targetCont = i;
 				}
 			}
 		}
-		double lowest = 1.0;
-		for(int i=0;i<ratios.length;i++) {
-			if(ratios[i][2] < .00001)
-				continue;
-			if(ratios[i][1] < lowest) {
-				lowest = ratios[i][1];
-				cont = i;
-			}
-		}
 		for(int i=0;i<countries.length;i++) {
-			if(!countries[i].isTaken() && countries[i].getCont() == cont) {
+			if(!countries[i].isTaken() && countries[i].getCont() == targetCont) {
 				to_game.sendInt(i);
 				return;
 			}
