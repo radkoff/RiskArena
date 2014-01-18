@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2014 Evan Radkoff.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
+ * which accompanies this distribution, and is available in LICENSE.txt or at
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
 package riskarena;
@@ -185,6 +185,14 @@ public class Risk {
 	 */
 	public static void sayError(final String toSay) {
 		sayOutput(toSay, OutputFormat.ERROR);
+	}
+	
+	/* Called by various methods to send something to whatever
+	 * error output is being used, but stderr is always used when forced is true
+	 * @param The string wishing to be outputted error message.
+	 */
+	public static void sayError(final String toSay, boolean forced) {
+		sayOutput(toSay, OutputFormat.ERROR, forced);
 	}
 
 }
