@@ -1,8 +1,8 @@
 Short-term:
+Document Evaluation player code!
 No longer require naming conventions for RiskBot files, consider all in riskbots directory (check dynamically if it implements RiskBot)
 Make more maps
 HOWTO for making maps
-Replace magic numbers in RiskBot response protocol with static final answers (or enums?)
 
 "Soon":
 Refactor -
@@ -11,6 +11,7 @@ Refactor -
 	Should Bot.RiskListener have a public constructor?
 	Maybe GameInfo's GetCountryInfo shouldn't involve a full copying of the countries array?
 	Split the MapReader constructor into smaller chunks
+	Replace magic numbers in RiskBot response protocol with static final answers (or enums?)
 Make a static exit in Risk that prints the stack track (and closes file writers?), search for exits and use that instead
 Separately compile all bots and run some analysis to make sure they're not destructive to the computer running them and don't cheat.
 Allow for resizeability of the GameBoard window
@@ -20,7 +21,6 @@ Integrate selected maps from http://www.conquerclub.com/maps/ (write a program t
 
 Long-term:
 Unit testing
-Map Creator program
 Full GUI/map integration for easiest human playing experience. (ie click on countries to attack them)
 Multiplayer via Internet using the client/server model
 

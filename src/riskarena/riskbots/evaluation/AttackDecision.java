@@ -7,11 +7,17 @@
  ******************************************************************************/
 package riskarena.riskbots.evaluation;
 
-import java.util.ArrayDeque;
+/*
+ * The AttackDecision class is consulted by Evaluation players to decide what answers
+ * should be sent to the game in response to RiskBot.launchAttack(). These answers
+ * are supplied by the decide() method.
+ * At the start of each turn (and after a victory), potential attacks are scored in
+ * the considerAttackFrom() method. If this score offers an increase in the default
+ * game state score bigger than delta_threshold, it is accepted and added to the attacks PriorityQueue 
+ */
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import riskarena.CountryInfo;
 import riskarena.GameInfo;
@@ -31,6 +37,7 @@ public class AttackDecision {
 	private Integer previousTo;		// Necessary in order to consider attacking from a newly conquered territory
 	private Integer previousFrom;
 
+	// If this is higher the player is move conservative, if lower they're more aggressive
 	private double delta_threshold = 0.35;
 
 	public AttackDecision(GameInfo _game, Evaluation _eval) {
@@ -41,10 +48,12 @@ public class AttackDecision {
 		attacks = new PriorityQueue< AttackPlans >();
 	}
 
+	/*
+	 * At the start of each turn, this bot probabilistically forms decisions to attack
+ 	 * enemy territories, and adds these to the "attacks" queue.
+ 	 * The launchAttack() method executes these decisions until DEATH!
+	 */
 	public void initTurn() {
-		// At the start of each turn, this bot probabilistically forms decisions to attack
-		// enemy territories, and adds these to the "attacks" queue.
-		// The launchAttack() method executes these decisions until DEATH!
 		attacks.clear();
 		eval.refresh("initTurn() in AttackDecision");
 		countries = game.getCountryInfo();
@@ -53,6 +62,9 @@ public class AttackDecision {
 		}
 	}
 
+	/*
+	 * Provides whatever Evaluation player is using this with answers to RiskBot.launchAttack()
+	 */
 	public ArrayList<Integer> decide() {
 		countries = game.getCountryInfo();
 
@@ -63,7 +75,11 @@ public class AttackDecision {
 		previousTo = null;
 		previousFrom = null;
 
-		if(!attacks.isEmpty()) {
+		if(attacks.isEmpty()) {
+			ArrayList<Integer> answer = new ArrayList<Integer>();
+			answer.add(-1);
+			return answer;
+		} else {
 			AttackPlans attack = attacks.peek();		// The attack currently being executed
 			// Check to see if you've conquered the territory
 			if(countries[attack.to()].getPlayer() == game.me()) {
@@ -78,15 +94,21 @@ public class AttackDecision {
 			ArrayList<Integer> answer = new ArrayList<Integer>();
 			answer.add(attack.from());
 			answer.add(attack.to());
-			answer.add(Math.min(countries[attack.from()].getArmies()-1, 3)); // Attack with all you've got!
-			return answer;
-		} else {
-			ArrayList<Integer> answer = new ArrayList<Integer>();
-			answer.add(-1);
+			answer.add( Math.min(countries[attack.from()].getArmies()-1, 3) ); // Attack with all you've got!
 			return answer;
 		}
 	}
 
+	/*
+	 * Considers an attack from country with ID 'id'.
+	 * Comes up with a score according to the following formula:
+	 * Pr(Victory) * Eval( Ex(Victory) ) + Pr(Defeat) * Eval( Ex(Defeat) )
+	 * where Pr is probability, Ex is the expected game state given victory or defeat,
+	 * and Eval is the evaluation function. Battle probabilities and expectations are found
+	 * using the BattleOracle class. If the ratio of this potential game state score to the
+	 * default game state score (without the attack) is above delta_threshold, the attack is
+	 * added to the "attacks" PriorityQueue according to the score.
+	 */
 	private void considerAttackFrom(int id, boolean debug) {
 		//debug = true;
 		if(countries[id].getPlayer() != game.me() || countries[id].getArmies() <= 1)
@@ -133,7 +155,7 @@ public class AttackDecision {
 	}
 
 	/*
-	 * To encourage the use of very large armies, some score is added depending on the size
+	 * To encourage the use of very large armies, some score is added depending on the size and probability of victory
 	 */
 	private double bonusAggressiveness(int armies, Double prob) {
 		if(Math.abs(prob - 1.00) < 0.0000001 && armies > 40)
